@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<plugin xmlns="http://cordova.apache.org/ns/plugins/1.0"
+	id="com.evothings.ble"
+	version="0.0.1">
+
+	<!-- This plugin requires Cordova version 3.1.0 or newer. -->
+	<engines>
+		<engine name="cordova" version=">=3.1.0" />
+	</engines>
+
+	<name>Evothings BLE API</name>
+	<description>This plugin allows your app to act as a Bluetooth Low Energy client.</description>
+	<author>Evothings</author>
+	<keywords>bluetooth,low energy,smart</keywords>
+	<license>Apache 2.0</license>
+
+	<js-module src="ble.js" name="BLE">
+		<clobbers target="evothings.ble" />
+	</js-module>
+
+	<platform name="android">
+		<config-file target="res/xml/config.xml" parent="/*">
+			<feature name="BLE" >
+				<param name="android-package" value="com.evothings.BLE"/>
+			</feature>
+		</config-file>
+		<config-file target="AndroidManifest.xml" parent="/manifest">
+			<uses-permission android:name="android.permission.BLUETOOTH" />
+			<uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+		</config-file>
+
+		<source-file src="src/android/BLE.java" target-dir="src/com/evothings" />
+	</platform>
+
+	<platform name="ios">
+		<config-file target="config.xml" parent="/*">
+			<feature name="BLE">
+				<param name="ios-package" value="EVOBLE"/>
+			</feature>
+		</config-file>
+
+		<framework src="CoreBluetooth.framework" />
+
+		<header-file src="src/ios/EVOBLE.h" />
+		<source-file src="src/ios/EVOBLE.m" />
+	</platform>
+
+</plugin>

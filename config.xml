@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget id="com.baronbrew.brewometer" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>Brewometer</name>
+    <description>
+        Reads data from your brewometers.  Buy more brewometers here: http://brewometer.net
+    </description>
+    <author email="info@baronbrew.com" href="http://baronbrew.com">
+        Brewometer Team
+    </author>
+    <content src="index.html" />
+    <access origin="*" />
+
+    <gap:plugin name="com.evothings.ble" source="pgb" version="1.0.0" />
+    <gap:plugin name="com.unarin.cordova.beacon" source="pgb" version="3.2.1" />
+
+    <icon src="icon.png" />
+    <splash src="splash.png" />
+
+</widget>
