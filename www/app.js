@@ -99,6 +99,7 @@ var app = (function()
 				.done();
 		}
 	}
+
 	function displayBeaconList()
 	{
 		// Clear beacon list.
@@ -116,11 +117,18 @@ var app = (function()
 				var rssiWidth = 1; // Used when RSSI is zero or greater.
 				if (beacon.rssi < -100) { rssiWidth = 100; }
 				else if (beacon.rssi < 0) { rssiWidth = 100 + beacon.rssi; }
+
+                //convert RSSI dbm to % quality
+				
+				var signalStrength = Math.min(Math.max(2 * (rssiWidth), 0), 100);
 				
 				var date = new Date(beacon.timeStamp);
 
 				// Map the temperature to a width in percent for the indicator.
 				var tempWidth = beacon.major/185*100;
+                //Convert to degrees celsius
+				var TempC = (beacon.major - 32) * 5 / 9;
+				var TempC1 = TempC.toFixed(1);
 
 
 				// Convert SG units and map the specific gravity to a width in percent for the indicator.
@@ -137,6 +145,11 @@ var app = (function()
 				var sgCorrection3 = sgCorrection.toFixed(3);
 				var sgCorrected = Number(sgCorrection3) + Number(sgFix3);
 				var sgCorrected3 = sgCorrected.toFixed(3);
+
+				//convert sg to plato
+				var degP = 259-(259/sgCorrected3);
+				var degP1 = degP.toFixed(1);
+
 
 				var sgCorrWidth = sgCorrection3*100+1;
 
@@ -165,19 +178,16 @@ var app = (function()
 				var element = $(
 					'<li>'
 					//+	'<strong>UUID: ' + beacon.uuid + '</strong><br />'
-					+	'<strong>BREWOMETER | ' + brewVarietyValue + '</strong><br />'//<br />'
+					+	'<strong>BREWOMETER | ' + brewVarietyValue + '</strong><br />'
 					+ 	'<div style="background:' + brewVarietyValue + ';height:40px;width:'
 					+ 		100 + '%;"></div>'
-					+	'Specific Gravity (cal. @68°F):<br /><h1>' + sgCorrected3 + '</h1>'
+					+	'Specific Gravity or % Sugar:<br /><h1>' + sgCorrected3 + ' | ' + degP1 + '°P</h1>'
 					+ 	'<div style="background:' + brewVarietyValue + ';height:10px;width:'
 					+ 		sgWidth + '%;"></div>'
-					+	'Temperature:<br /><h1>' + beacon.major + '°F</h1>'
+					+	'Temperature:<br /><h1>' + beacon.major + '°F | ' + TempC1 + '°C</h1>'
 					+ 	'<div style="background:' + brewVarietyValue + ';height:10px;width:'
 					+ 		tempWidth + '%;"></div>'
-		            +	'Signal Strength:<br /><h1>' + rssiWidth + '%</h1>'
-					+ 	'<div style="background:' + brewVarietyValue + ';height:10px;width:'
-					+ 		rssiWidth + '%;"></div>'
-					+	'<h4>' + date + '</h4>'
+					+	'<h4>' + date + '<br /> Signal Strength: ' + signalStrength + '%</h4>'
 					//+	'Proximity: ' + beacon.proximity + '<br />'
 					+ '</li>'
 				);
@@ -185,12 +195,15 @@ var app = (function()
 				$('#warning').remove();
 				$('#found-beacons').append(element);
 			    
-                //post to google docs every 100
+                //post to google docs every 1000 sec
                 var t = timeNow.toString();
                 var res = t.substr(t.length-6,3);
-                console.log(res);
+                var brewName = $('#' + brewVarietyValue).val();
+                var brewURL = $('#cloudURL').val();
+                console.log(brewURL+brewName);
+
                 if (res == "999") {
-                $.post( "https://script.google.com/macros/s/AKfycbwBf_VQ5_J1bYYr9XBAtoTBZ3O6bZ2KtSkXh9Kxyl5MIpsadvQ/exec", { SG: sgCorrected3, Temp: beacon.major, Color: brewVarietyValue, Name: "beer name" } );
+                $.post(brewURL, { SG: sgCorrected3, Temp: beacon.major, Color: brewVarietyValue, Name: brewName, Timepoint: t } );
 
                }
 
