@@ -110,17 +110,13 @@ var app = (function()
 		// Update beacon list.
 		$.each(beacons, function(key, beacon)
 		{
-			// Only show beacons that are updated during the last 60 seconds.
-			if (beacon.timeStamp + 60000 > timeNow)
+			// Only show beacons that are updated during the last 120 seconds.
+			if (beacon.timeStamp + 120000 > timeNow)
 			{
 				// Map the RSSI value to a width in percent for the indicator.
 				var rssiWidth = 1; // Used when RSSI is zero or greater.
 				if (beacon.rssi < -100) { rssiWidth = 100; }
 				else if (beacon.rssi < 0) { rssiWidth = 100 + beacon.rssi; }
-
-                //convert RSSI dbm to % quality
-				
-				var signalStrength = Math.min(Math.max(2 * (rssiWidth), 0), 100);
 				
 				var date = new Date(beacon.timeStamp);
 
@@ -181,13 +177,13 @@ var app = (function()
 					+	'<strong>BREWOMETER | ' + brewVarietyValue + '</strong><br />'
 					+ 	'<div style="background:' + brewVarietyValue + ';height:40px;width:'
 					+ 		100 + '%;"></div>'
-					+	'Specific Gravity or % Sugar:<br /><h1>' + sgCorrected3 + '<br />' + degP1 + '°P</h1>'
+					+	'Specific Gravity:<br /><h1>' + sgCorrected3 + '</h1>'
 					+ 	'<div style="background:' + brewVarietyValue + ';height:10px;width:'
 					+ 		sgWidth + '%;"></div>'
-					+	'Temperature:<br /><h1>' + beacon.major + '°F<br />' + TempC1 + '°C</h1>'
+					+	'Temperature:<br /><h1>' + beacon.major + '°F</h1><h7>' + TempC1 + '°C</h7>'
 					+ 	'<div style="background:' + brewVarietyValue + ';height:10px;width:'
 					+ 		tempWidth + '%;"></div>'
-					+	'<h4>' + date + '<br /> Signal Strength: ' + signalStrength + '%</h4>'
+					+	'<h2>' + date + '<br /> RSSI: ' + beacon.rssi + ' dBm</h2>'
 					//+	'Proximity: ' + beacon.proximity + '<br />'
 					+ '</li>'
 				);
@@ -196,14 +192,17 @@ var app = (function()
 				$('#found-beacons').append(element);
 			    
                 //post to google docs every 1000 sec
-                var t = timeNow.toString();
-                var res = t.substr(t.length-6,3);
-                var brewName = $('#' + brewVarietyValue).val();
+                var tZoneDays = date.getTimezoneOffset()/60/24;
+                var t = timeNow/1000/60/60/24 + 25569 - tZoneDays;
+                //var res = t.substr(t.length-6,3);
+                //var brewName = $('#' + brewVarietyValue).val();
+                displayBeaconListCalls++;
                 var brewURL = $('#cloudURL').val();
-                console.log(brewURL+brewName);
+                console.log(tZoneDays);
 
-                if (res == "999") {
-                $.post(brewURL, { SG: sgCorrected3, Temp: beacon.major, Color: brewVarietyValue, Name: brewName, Timepoint: t } );
+                if (displayBeaconListCalls > 1800) {
+                	displayBeaconListCalls = 0;
+                $.post(brewURL, { SG: sgCorrected3, Temp: beacon.major, Color: brewVarietyValue, Timepoint: "=to_date(" + t + ")" } );
 
                }
 
@@ -211,6 +210,9 @@ var app = (function()
 			}
 		});
 	}
+    var displayBeaconListCalls = 1801;
+
+
 
 	return app;
 })();

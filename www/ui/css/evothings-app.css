@@ -461,9 +461,8 @@ figcaption {
 }
 
 h1 {
-	padding: 0;
+	padding-left: 10%;
 	margin:auto;
-	width: 80%;
 
 	font-family: 'Proxima Nova Bold';
 	font-size: 260%;
@@ -471,6 +470,20 @@ h1 {
 
 	vertical-align: bottom;
 }
+
+h7 {
+	padding-left: 10%;
+	margin:auto;
+    color: gray;
+	font-family: 'Proxima Nova Bold';
+	font-size: 180%;
+	line-height: 1.1;
+
+	vertical-align: bottom;
+
+}
+
+
 header + h1, body h1:first-child, main h1:first-child, article h1:first-child {
 	margin-top: 0;
 }
