@@ -469,6 +469,7 @@ h1 {
 	line-height: 1.1;
 
 	vertical-align: bottom;
+	display:inline
 }
 
 h7 {
@@ -476,7 +477,7 @@ h7 {
 	margin:auto;
     color: gray;
 	font-family: 'Proxima Nova Bold';
-	font-size: 180%;
+	font-size: 140%;
 	line-height: 1.1;
 
 	vertical-align: bottom;

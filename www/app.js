@@ -119,6 +119,7 @@ var app = (function()
 				else if (beacon.rssi < 0) { rssiWidth = 100 + beacon.rssi; }
 				
 				var date = new Date(beacon.timeStamp);
+				var dateFormatted = date.toLocaleString();
 
 				// Map the temperature to a width in percent for the indicator.
 				var tempWidth = beacon.major/185*100;
@@ -161,6 +162,10 @@ var app = (function()
 				 "a495bb40-c5b1-4b44-b512-1370f02d74de",
 				 "A495BB50-C5B1-4B44-B512-1370F02D74DE",
 				 "a495bb50-c5b1-4b44-b512-1370f02d74de",
+				 "A495BB50-C5B1-4B44-B512-1370F02D74DE",
+				 "a495bb50-c5b1-4b44-b512-1370f02d74de",
+				 "A495BB50-C5B1-4B44-B512-1370F02D74DE",
+				 "a495bb50-c5b1-4b44-b512-1370f02d74de",
 				 "A495BB60-C5B1-4B44-B512-1370F02D74DE",
 				 "a495bb60-c5b1-4b44-b512-1370f02d74de"];
 				 var brewVariety = ["RED","RED", "GREEN","GREEN", "BLACK","BLACK", "PURPLE", "PURPLE", "ORANGE", "ORANGE", "BLUE", "BLUE"];
@@ -183,7 +188,7 @@ var app = (function()
 					+	'Temperature:<br /><h1>' + beacon.major + '°F</h1><h7>' + TempC1 + '°C</h7>'
 					+ 	'<div style="background:' + brewVarietyValue + ';height:10px;width:'
 					+ 		tempWidth + '%;"></div>'
-					+	'<h2>' + date + '<br /> RSSI: ' + beacon.rssi + ' dBm</h2>'
+					+	'<h2>' + dateFormatted + '<br />' + beacon.rssi + ' dBm</h2>'
 					//+	'Proximity: ' + beacon.proximity + '<br />'
 					+ '</li>'
 				);
@@ -196,21 +201,24 @@ var app = (function()
                 var t = timeNow/1000/60/60/24 + 25569 - tZoneDays;
                 //var res = t.substr(t.length-6,3);
                 //var brewName = $('#' + brewVarietyValue).val();
-                displayBeaconListCalls++;
+                
                 var brewURL = $('#cloudURL').val();
-                console.log(tZoneDays);
+                var brewCheck = $('#checkCloud:checked').val();
+                
 
+                if (brewCheck) {
+                	displayBeaconListCalls++;
                 if (displayBeaconListCalls > 1800) {
                 	displayBeaconListCalls = 0;
                 $.post(brewURL, { SG: sgCorrected3, Temp: beacon.major, Color: brewVarietyValue, Timepoint: "=to_date(" + t + ")" } );
 
-               }
-
+                }
+               } else {displayBeaconListCalls = 1800};
                 
 			}
 		});
 	}
-    var displayBeaconListCalls = 1801;
+    var displayBeaconListCalls = 1800;
 
 
 
