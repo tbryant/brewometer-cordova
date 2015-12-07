@@ -162,13 +162,13 @@ var app = (function()
 				 "a495bb40-c5b1-4b44-b512-1370f02d74de",
 				 "A495BB50-C5B1-4B44-B512-1370F02D74DE",
 				 "a495bb50-c5b1-4b44-b512-1370f02d74de",
-				 "A495BB50-C5B1-4B44-B512-1370F02D74DE",
-				 "a495bb50-c5b1-4b44-b512-1370f02d74de",
-				 "A495BB50-C5B1-4B44-B512-1370F02D74DE",
-				 "a495bb50-c5b1-4b44-b512-1370f02d74de",
 				 "A495BB60-C5B1-4B44-B512-1370F02D74DE",
-				 "a495bb60-c5b1-4b44-b512-1370f02d74de"];
-				 var brewVariety = ["RED","RED", "GREEN","GREEN", "BLACK","BLACK", "PURPLE", "PURPLE", "ORANGE", "ORANGE", "BLUE", "BLUE"];
+				 "a495bb60-c5b1-4b44-b512-1370f02d74de",
+				 "A495BB70-C5B1-4B44-B512-1370F02D74DE",
+				 "a495bb70-c5b1-4b44-b512-1370f02d74de",
+				 "A495BB80-C5B1-4B44-B512-1370F02D74DE",
+				 "a495bb80-c5b1-4b44-b512-1370f02d74de"];
+				 var brewVariety = ["RED","RED", "GREEN","GREEN", "BLACK","BLACK", "PURPLE", "PURPLE", "ORANGE", "ORANGE", "BLUE", "BLUE","YELLOW", "YELLOW","PINK", "PINK"];
 
 				 for(var i=0; i<brewArray.length; i++) {
                  if (brewUUID == brewArray[i]){
