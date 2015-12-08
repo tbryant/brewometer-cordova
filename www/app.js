@@ -11,7 +11,9 @@ var app = (function()
 		{uuid:'A495BB30-C5B1-4B44-B512-1370F02D74DE'},
 		{uuid:'A495BB40-C5B1-4B44-B512-1370F02D74DE'},
 		{uuid:'A495BB50-C5B1-4B44-B512-1370F02D74DE'},
-		{uuid:'A495BB60-C5B1-4B44-B512-1370F02D74DE'}
+		{uuid:'A495BB60-C5B1-4B44-B512-1370F02D74DE'},
+		{uuid:'A495BB70-C5B1-4B44-B512-1370F02D74DE'},
+		{uuid:'A495BB80-C5B1-4B44-B512-1370F02D74DE'}
 
 	];
 
@@ -113,10 +115,10 @@ var app = (function()
 			// Only show beacons that are updated during the last 120 seconds.
 			if (beacon.timeStamp + 120000 > timeNow)
 			{
-				// Map the RSSI value to a width in percent for the indicator.
-				var rssiWidth = 1; // Used when RSSI is zero or greater.
-				if (beacon.rssi < -100) { rssiWidth = 100; }
-				else if (beacon.rssi < 0) { rssiWidth = 100 + beacon.rssi; }
+				// correct RSSI value when unknown.
+				var rssiCorrected = -100; // Used when RSSI is zero or greater.
+				if (beacon.rssi < -100) { rssiCorrected = -100; }
+				else if (beacon.rssi < 0) { rssiCorrected = beacon.rssi; }
 				
 				var date = new Date(beacon.timeStamp);
 				var dateFormatted = date.toLocaleString();
@@ -168,7 +170,7 @@ var app = (function()
 				 "a495bb70-c5b1-4b44-b512-1370f02d74de",
 				 "A495BB80-C5B1-4B44-B512-1370F02D74DE",
 				 "a495bb80-c5b1-4b44-b512-1370f02d74de"];
-				 var brewVariety = ["RED","RED", "GREEN","GREEN", "BLACK","BLACK", "PURPLE", "PURPLE", "ORANGE", "ORANGE", "BLUE", "BLUE","YELLOW", "YELLOW","PINK", "PINK"];
+				 var brewVariety = ["RED","RED","GREEN","GREEN", "BLACK","BLACK","PURPLE","PURPLE","ORANGE","ORANGE","BLUE","BLUE","YELLOW","YELLOW","PINK","PINK"];
 
 				 for(var i=0; i<brewArray.length; i++) {
                  if (brewUUID == brewArray[i]){
@@ -188,7 +190,7 @@ var app = (function()
 					+	'Temperature:<br /><h1>' + beacon.major + '°F</h1><h7>' + TempC1 + '°C</h7>'
 					+ 	'<div style="background:' + brewVarietyValue + ';height:10px;width:'
 					+ 		tempWidth + '%;"></div>'
-					+	'<h2>' + dateFormatted + '<br />' + beacon.rssi + ' dBm</h2>'
+					+	'<h2>' + dateFormatted + '<br />' + rssiCorrected + ' dBm</h2>'
 					//+	'Proximity: ' + beacon.proximity + '<br />'
 					+ '</li>'
 				);
