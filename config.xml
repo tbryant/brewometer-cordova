@@ -11,8 +11,8 @@
     <access origin="*" /><allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
 
-    <gap:plugin name="com.evothings.ble" source="pgb" version="1.0.0" />
-    <gap:plugin name="com.unarin.cordova.beacon" source="pgb" version="3.2.1" />
+    <gap:plugin name="com.evothings.ble" version="1.0.0" />
+    <gap:plugin name="com.unarin.cordova.beacon" version="3.2.1" />
 
     <platform name="android">
     <allow-intent href="market:*" />
