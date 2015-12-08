@@ -1,30 +1,28 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.baronbrew.brewometer" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0">
-    <name>Brewometer</name>
-    <description>
-        Reads data from your brewometers.  Buy more brewometers here: http://brewometer.net
-    </description>
-    <author email="info@baronbrew.com" href="http://baronbrew.com">
-        Brewometer Team
-    </author>
-    <content src="index.html" />
-    <access origin="*" /><allow-intent href="http://*/*" />
-    <allow-intent href="https://*/*" />
+<widget
+   id="com.evothings.accelerometer-demo"
+   version="0.0.1"   
+   xmlns="http://www.w3.org/ns/widgets"
+   xmlns:gap="http://phonegap.com/ns/1.0">
 
-    <gap:plugin name="com.evothings.ble" version="1.0.0" />
-    <gap:plugin name="com.unarin.cordova.beacon" version="3.2.1" />
+<name>Cordova Accelerometer</name>
+<description> Testing the on-board accelerometer </description>
+<author email="websmurf@evothings.com" href="http://evothings.com"> Webb S Murph </author>
+<content src="index.html" />
 
-    <platform name="android">
-    <allow-intent href="market:*" />
-    </platform>
+<gap:plugin name="com.evothings.ble" version="1.0.0" />
+<gap:plugin name="com.unarin.cordova.beacon" version="3.2.1" />
 
-    <platform name="ios">
-    <allow-intent href="itms:*" />
-    <allow-intent href="itms-apps:*" />
-    </platform>
 
-    <icon src="icon.png" />
-    <splash src="splash.png" />
+<access origin="*" /> <allow-intent href="http://*/*" />
+<allow-intent href="https://*/*" />
 
+<platform name="android">
+   <allow-intent href="market:*" />
+</platform>
+
+<platform name="ios">
+   <allow-intent href="itms:*" />
+   <allow-intent href="itms-apps:*" />
+</platform>
 </widget>
-
