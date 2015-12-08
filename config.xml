@@ -8,10 +8,20 @@
         Brewometer Team
     </author>
     <content src="index.html" />
-    <access origin="*" />
+    <access origin="*" /><allow-intent href="http://*/*" />
+    <allow-intent href="https://*/*" />
 
     <gap:plugin name="com.evothings.ble" source="pgb" version="1.0.0" />
     <gap:plugin name="com.unarin.cordova.beacon" source="pgb" version="3.2.1" />
+
+    <platform name="android">
+    <allow-intent href="market:*" />
+    </platform>
+
+    <platform name="ios">
+    <allow-intent href="itms:*" />
+    <allow-intent href="itms-apps:*" />
+    </platform>
 
     <icon src="icon.png" />
     <splash src="splash.png" />
