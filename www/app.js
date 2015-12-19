@@ -149,6 +149,9 @@ var app = (function()
 				var degP = 259-(259/sgCorrected3);
 				var degP1 = degP.toFixed(1);
 
+                //time since last update
+                var lastUpdated = (timeNow - beacon.timeStamp)/1000;
+                var lastUpdated1 = lastUpdated.toFixed(1);
 
 				var sgCorrWidth = sgCorrection3*100+1;
 
@@ -190,7 +193,7 @@ var app = (function()
 					+	'Temperature:<br /><h1>' + beacon.major + '°F</h1><h7>' + TempC1 + '°C</h7>'
 					+ 	'<div style="background:' + brewVarietyValue + ';height:10px;width:'
 					+ 		tempWidth + '%;"></div>'
-					+	'<h2>' + dateFormatted + '<br />' + rssiCorrected + ' dBm</h2>'
+					+	'<h2>' + dateFormatted + '<br />' +'Received ' + lastUpdated1 +' seconds ago ' + rssiCorrected + ' dBm</h2>'
 					//+	'Proximity: ' + beacon.proximity + '<br />'
 					+ '</li>'
 				);
@@ -206,23 +209,28 @@ var app = (function()
                 
                 var brewURL = $('#cloudURL').val();
                 var brewCheck = $('#checkCloud:checked').val();
+                var n = $('#found-beacons').length;
                 
 
                 if (brewCheck) {
-                	displayBeaconListCalls++;
-                if (displayBeaconListCalls > 1800) {
-                	displayBeaconListCalls = 0;
+                if (timeNow - setTimer > 100) {
                 $.post(brewURL, { SG: sgCorrected3, Temp: beacon.major, Color: brewVarietyValue, Timepoint: "=to_date(" + t + ")" } );
-
+                displayRefresh++;
+                console.log(displayRefresh);
+                if (displayRefresh > n){
+                setTimer += 900000;
+                displayRefresh = 0;
+                    }
+                  }
                 }
-               } else {displayBeaconListCalls = 1800};
+                else {setTimer = Date.now();}
                 
 			}
 		});
 	}
-    var displayBeaconListCalls = 1800;
 
-
+	var setTimer = Date.now();
+    var displayRefresh = 0;
 
 	return app;
 })();
