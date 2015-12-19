@@ -140,7 +140,7 @@ var app = (function()
 				else { sgWidth = (beacon.minor-990)/130*100; }
 				
 				//corrected SG calc (divide by 7 to compensate for expansion of brewtainer)
-				var sgCorrection = (-0.000000006130*beacon.major*beacon.major*beacon.major + 0.000002934888*beacon.major*beacon.major - 0.000199630555*beacon.major + 0.002825186384) / 7;
+				var sgCorrection = (-0.000000006130*beacon.major*beacon.major*beacon.major + 0.000002934888*beacon.major*beacon.major - 0.000199630555*beacon.major + 0.002825186384) / 20;
 				var sgCorrection3 = sgCorrection.toFixed(3);
 				var sgCorrected = Number(sgCorrection3) + Number(sgFix3);
 				var sgCorrected3 = sgCorrected.toFixed(3);
