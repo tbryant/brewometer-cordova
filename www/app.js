@@ -204,23 +204,30 @@ var app = (function()
                 //post to google docs every 1000 sec
                 var tZoneDays = date.getTimezoneOffset()/60/24;
                 var t = timeNow/1000/60/60/24 + 25569 - tZoneDays;
-                //var res = t.substr(t.length-6,3);
-                //var brewName = $('#' + brewVarietyValue).val();
+
                 
                 var brewURL = $('#cloudURL').val();
                 var brewCheck = $('#checkCloud:checked').val();
-                var n = $('#found-beacons').length;
+                var brewNumber = $("#found-beacons li").length;
                 
-
+                //if checkbox is checked start posting to cloud
                 if (brewCheck) {
+                //if timer is up start posting to cloud
                 if (timeNow - setTimer > 100) {
-                $.post(brewURL, { SG: sgCorrected3, Temp: beacon.major, Color: brewVarietyValue, Timepoint: "=to_date(" + t + ")" } );
-                displayRefresh++;
-                console.log(displayRefresh);
-                if (displayRefresh > n){
-                setTimer += 900000;
-                displayRefresh = 0;
-                    }
+                   //start counting number of refresh cycles
+                   displayRefresh++;
+                   //List of Brewometers will increment at same rate of counting refresh cycles until list repeats itself making them unequal
+                if (brewNumber != displayRefresh){
+                	setTimer += 900000;
+                	displayRefresh = 0;
+                }
+                else {$.post(brewURL, { SG: sgCorrected3, Temp: beacon.major, Color: brewVarietyValue, Timepoint: "=to_date(" + t + ")" } );}
+                //console.log(brewVarietyValue);
+                
+                //console.log(brewNumber);
+                //console.log(displayRefresh);
+                //console.log(brewNumber);
+                
                   }
                 }
                 else {setTimer = Date.now();}
@@ -231,7 +238,6 @@ var app = (function()
 
 	var setTimer = Date.now();
     var displayRefresh = 0;
-
 	return app;
 })();
 
