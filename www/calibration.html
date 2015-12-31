@@ -7,7 +7,7 @@
 	<meta name="viewport" content="width=device-width, user-scalable=no
 		initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" />
 
-	<title>LightBlue Bean - Basic</title>
+	<title>Brewometer Calibration</title>
 
 	<style>
 		@import 'ui/css/evothings-app.css';
@@ -73,36 +73,32 @@
 			<img src="ui/images/arrow-left.svg" />
 		</button>
 
-		<img class="logotype" src="ui/images/logo.svg" alt="Evothings" />
+		<img class="logotype" src="ui/images/brewometer.svg" alt="Brewometer" />
 
 	</header>
 
-	<h1>LightBlue Bean - Basic</h1>
-
-	<h2>Enter the name of your LightBlue Bean</h2>
+	<p>Place Brewometer in water at a stable temperature of about 68&deg;F (20&deg;C). Position screen immediately nearby and press START.</p>
 
 	<input id="BLEId" value="Brew" type="url">
 
-	<button id="BLEButton" class="green" onclick="app.connect()">CONNECT</button>
+	<button id="BLEButton" class="green" onclick="app.connect()">START</button>
 	<br />
 
-	<p><b>Status:</b> <span id="BLEStatus">Not connected</span></p>
+	<p><b>Status:</b> <span id="BLEStatus">Waiting to Start Calibration</span></p>
 
 	<div id="temperatureDisplay" style="display:none">
 		<hr>
 	<p class="topic">Temperature</p>
-		<p class="temperatureLabel"><span id="temperature">N/A</span> C&deg;</p>
-	</div>
-
-		<div id="ledControl" style="display:none">
+		<p class="temperatureLabel"><span id="temperature">N/A</span>&deg;F</p>
+		<p class="topic">Adjust Temperature</p>
+		<input type="range" id="redLed" min="0" max="20" step="1" value="10" onload="app.sendLedUpdate()" onchange="app.sendLedUpdate()"><br>
+		<p>Adjust temperature to match read out of a calibrated thermometer.</p>
 		<hr>
-
-		<p class="topic">LED control</p>
-
-		<input type="range" id="redLed" min="0" max="255" step="1" value="0" onchange="app.sendLedUpdate()"><br>
-		<input type="range" id="greenLed" min="0" max="255" step="1" value="0" onchange="app.sendLedUpdate()"><br>
-		<input type="range" id="blueLed" min="0" max="255" step="1" value="0" onchange="app.sendLedUpdate()"><br>
-
+	<p class="topic">Specific Gravity</p>
+		<p class="temperatureLabel"><span id="specificgravity">N/A</span></p>
+		<p class="topic">Adjust Specific Gravity</p>
+		<input type="range" id="greenLed" min="0" max="40" step="1" value="20" onchange="app.sendLedUpdate()"><br>
+		<p>Adjust specific gravity to read 1.000 in water at around 68&deg;F.</p>
 	</div>
 
 </body>

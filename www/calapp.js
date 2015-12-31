@@ -63,10 +63,11 @@ app.connect = function(user)
 			{
 				// Update user interface
 				app.showInfo('Connected to <i>' + BLEId + '</i>');
-				document.getElementById('BLEButton').innerHTML = 'Disconnect';
+				document.getElementById('BLEButton').innerHTML = 'Done';
 				document.getElementById('BLEButton').onclick = new Function('app.disconnect()');
-				document.getElementById('ledControl').style.display = 'block';
+				//document.getElementById('ledControl').style.display = 'block';
 				document.getElementById('temperatureDisplay').style.display = 'block';
+
 
 				// Application is now connected
 				app.connected = true;
@@ -74,9 +75,10 @@ app.connect = function(user)
 
 				// Fetch current LED values.
 				app.synchronizeLeds();
+				app.sendLedUpdate();
 
 				// Create an interval timer to periocally read temperature.
-				app.interval = setInterval(function() { app.readTemperature(); }, 500);
+				app.interval = setInterval(function() { app.readTemperature(); }, 1000);
 			}
 
 			function onServiceFailure(errorCode)
@@ -144,7 +146,7 @@ app.disconnect = function(user)
 	app.device = null;
 
 	// Hide user inteface
-	document.getElementById('ledControl').style.display = 'none';
+	//document.getElementById('ledControl').style.display = 'none';
 	document.getElementById('temperatureDisplay').style.display = 'none';
 
 	// Stop any ongoing scan and close devices.
@@ -152,19 +154,28 @@ app.disconnect = function(user)
 	evothings.easyble.closeConnectedDevices();
 
 	// Update user interface
-	app.showInfo('Not connected');
-	document.getElementById('BLEButton').innerHTML = 'Connect';
+	app.showInfo('Waiting to Start Calibration');
+	document.getElementById('BLEButton').innerHTML = 'Start';
 	document.getElementById('BLEButton').onclick = new Function('app.connect()');
 };
 
 app.readTemperature = function()
 {
-	function onDataReadSuccess(data)
+	function onDataReadSuccess2(data)
 	{
 		var temperatureData = new Uint8Array(data);
 		var temperature = temperatureData[0];
-		console.log('Temperature read: ' + temperature + ' C');
+		console.log('Temperature read: ' + temperature + ' F');
 		document.getElementById('temperature').innerHTML = temperature;
+	}
+    function onDataReadSuccess3(data)
+	{
+		var sgData = new Uint8Array(data);
+		//units rec'd are in "brewers points plus 20" and need to be converted
+		var specificgravity = (sgData[0] + 1000 - 20);
+		console.log('Specific Gravity read: ' + specificgravity);
+		var specificgravity3 = specificgravity / 1000;
+		document.getElementById('specificgravity').innerHTML = specificgravity3.toFixed(3);
 	}
 
 	function onDataReadFailure(errorCode)
@@ -173,7 +184,8 @@ app.readTemperature = function()
 		app.disconnect();
 	}
 
-	app.readDataFromScratch(2, onDataReadSuccess, onDataReadFailure);
+	app.readDataFromScratch(2, onDataReadSuccess2, onDataReadFailure);
+	app.readDataFromScratch(3, onDataReadSuccess3, onDataReadFailure);
 };
 
 app.synchronizeLeds = function()
@@ -184,7 +196,7 @@ app.synchronizeLeds = function()
 
 		document.getElementById('redLed').value = ledData[0];
 		document.getElementById('greenLed').value = ledData[1];
-		document.getElementById('blueLed').value = ledData[2];
+		//document.getElementById('blueLed').value = ledData[2];
 
 		console.log('Led synchronized.');
 	}
@@ -205,13 +217,13 @@ app.sendLedUpdate = function()
 		// Fetch LED values from UI
 		redLed = document.getElementById('redLed').value;
 		greenLed = document.getElementById('greenLed').value;
-		blueLed = document.getElementById('blueLed').value;
+		//blueLed = document.getElementById('blueLed').value;
 
 		// Print out fetched LED values
-		console.log('redLed: ' + redLed + ', greenLed: ' + greenLed + ', blueLed: ' + blueLed);
+		console.log('redLed: ' + redLed + ', greenLed: ' + greenLed);// + ', blueLed: ' + blueLed);
 
 		// Create packet to send
-		data = new Uint8Array([redLed, greenLed, blueLed]);
+		data = new Uint8Array([redLed, greenLed]);//, blueLed]);
 
 		// Callbacks
 		function onDataWriteSuccess()
@@ -229,9 +241,9 @@ app.sendLedUpdate = function()
 	}
 	else
 	{
-		redLed = document.getElementById('redLed').value = 0;
-		greenLed = document.getElementById('greenLed').value = 0;
-		blueLed = document.getElementById('blueLed').value = 0;
+		redLed = document.getElementById('redLed').value = 10;
+		greenLed = document.getElementById('greenLed').value = 20;
+		//blueLed = document.getElementById('blueLed').value = 0;
 	}
 };
 
