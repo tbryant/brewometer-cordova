@@ -186,6 +186,9 @@ app.readTemperature = function()
 
 	app.readDataFromScratch(2, onDataReadSuccess2, onDataReadFailure);
 	app.readDataFromScratch(3, onDataReadSuccess3, onDataReadFailure);
+
+	//Update readings based on current UI
+	app.sendLedUpdate();
 };
 
 app.synchronizeLeds = function()

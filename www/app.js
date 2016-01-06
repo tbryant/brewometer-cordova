@@ -1,6 +1,6 @@
 var app = (function()
 {
-	// Application object.
+	// Application object
 	var app = {};
 
 	// Specify your beacon 128bit UUIDs here.

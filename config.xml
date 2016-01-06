@@ -11,14 +11,17 @@
     <access origin="*" /><allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
 
-    <gap:plugin name="com.evothings.ble" source="pgb" version="1.0.0" />
-    <gap:plugin name="com.unarin.cordova.beacon" source="pgb" version="3.2.1" />
+    <gap:plugin name="cordova-plugin-ble"/>
+    <gap:plugin name="ordova-plugin-beacon"/>
 
     <platform name="android">
+    <preference name="Orientation" value="sensorLandscape" />
+    <preference name="Orientation" value="Portrait" />
     <allow-intent href="market:*" />
     </platform>
 
     <platform name="ios">
+    <preference name="Orientation" value="all" />
     <allow-intent href="itms:*" />
     <allow-intent href="itms-apps:*" />
     </platform>

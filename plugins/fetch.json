@@ -1,0 +1,22 @@
+{
+    "com.evothings.ble": {
+        "source": {
+            "type": "local",
+            "path": "/Users/tbryant/.plugman/cache/com.evothings.ble/0.0.1/package"
+        }
+    },
+    "cordova-plugin-ble": {
+        "source": {
+            "type": "registry",
+            "id": "cordova-plugin-ble"
+        },
+        "is_top_level": true,
+        "variables": {}
+    },
+    "com.unarin.cordova.beacon": {
+        "source": {
+            "type": "local",
+            "path": "/Users/tbryant/.plugman/cache/com.unarin.cordova.beacon/3.3.0/package"
+        }
+    }
+}
