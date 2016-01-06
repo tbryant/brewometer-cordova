@@ -12,7 +12,7 @@
     <allow-intent href="https://*/*" />
 
     <gap:plugin name="cordova-plugin-ble"/>
-    <gap:plugin name="ordova-plugin-beacon"/>
+    <gap:plugin name="cordova-plugin-beacon"/>
 
     <platform name="android">
     <preference name="Orientation" value="sensorLandscape" />
