@@ -79,7 +79,7 @@ bool connected = Bean.getConnectionState();
 //  Serial.println(avgPitchDiff);
 //  Serial.println(avgPitchPrev);
 //  Serial.println(avgPitch);
-  if (abs(avgPitchDiff) < .21) {
+  if (abs(avgPitchDiff) < .34) {
     avgPitchPrev = avgPitch;
     Bean.sleep(20000);
     //check if I should sleep more
