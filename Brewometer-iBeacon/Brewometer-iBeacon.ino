@@ -49,9 +49,9 @@ void loop() {
 bool connected = Bean.getConnectionState();
 
   if(connected) {
-  Bean.setLed(0, 127, 0);
+  Bean.setLed(0, 255, 0);
   delay(500);
-  Bean.setLed(0,0,0);
+  
     // Write current temperature to a scratch data area.
     uint8_t temperatureBuffer[1];
     temperatureBuffer[0] = getAvgTemperature(8);
@@ -69,6 +69,7 @@ bool connected = Bean.getConnectionState();
     sgOffset = receivedData.data[1];
     uint8_t blueLed = receivedData.data[2];
         avgPitchPrev = 0;
+        Bean.setLed(0,0,0);
   }
     else {
   int16_t temperatureBufferAverage;
