@@ -16,7 +16,7 @@
 
     <platform name="android">
     <preference name="Orientation" value="sensorLandscape" />
-    <preference name="Orientation" value="Portrait" />
+    <preference name="Orientation" value="sensorPortrait" />
     <allow-intent href="market:*" />
     </platform>
 
