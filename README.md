@@ -6,6 +6,4 @@ http://brewometer.net
 
 This is the hybrid app (cordova) for reading data from the Brewometer on both iOS and Android platforms.
 
-Screenshot:
-
-<img src="screenshots/IMG_0022.png" alt="screenshot" width="400" align="middle"/>
+![screenshot](screenshots/IMG_0022.png)
