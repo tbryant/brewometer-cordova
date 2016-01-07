@@ -8,10 +8,13 @@
     },
     "installed_plugins": {
         "com.evothings.ble": {
-            "PACKAGE_NAME": "com.baronbrew.brewometer"
+            "PACKAGE_NAME": "com.baronbrew.brewometercordova"
         },
         "com.unarin.cordova.beacon": {
-            "PACKAGE_NAME": "com.baronbrew.brewometer"
+            "PACKAGE_NAME": "com.baronbrew.brewometercordova"
+        },
+        "cordova-plugin-ipad-multitasking": {
+            "PACKAGE_NAME": "com.baronbrew.brewometercordova"
         }
     },
     "dependent_plugins": {}

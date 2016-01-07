@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.baronbrew.brewometer" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0" xmlns:gap="http://phonegap.com/ns/1.0">
+<widget id="com.baronbrew.brewometercordova" version="1.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0" xmlns:gap="http://phonegap.com/ns/1.0">
     <name>Brewometer</name>
     <description>
         Reads data from your brewometers.  Buy more brewometers here: http://brewometer.net
@@ -13,6 +13,7 @@
 
     <gap:plugin name="cordova-plugin-ble"/>
     <gap:plugin name="cordova-plugin-beacon"/>
+
 
     <platform name="android">
     <preference name="Orientation" value="sensorLandscape" />
