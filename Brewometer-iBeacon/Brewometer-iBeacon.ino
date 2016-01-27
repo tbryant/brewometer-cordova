@@ -1,6 +1,6 @@
 void setup() {
-  Bean.setBeanName("Brew");
   Bean.enableConfigSave(false);
+  Bean.setBeanName("Brew");
   Bean.enableWakeOnConnect(true);
 //  Serial.begin(57600);
 }
@@ -49,9 +49,7 @@ void loop() {
 bool connected = Bean.getConnectionState();
 
   if(connected) {
-  Bean.setLed(0, 127, 0);
-  delay(500);
-  Bean.setLed(0,0,0);
+  Bean.setLed(0, 0, 0);
     // Write current temperature to a scratch data area.
     uint8_t temperatureBuffer[1];
     temperatureBuffer[0] = getAvgTemperature(8);
@@ -69,8 +67,10 @@ bool connected = Bean.getConnectionState();
     sgOffset = receivedData.data[1];
     uint8_t blueLed = receivedData.data[2];
         avgPitchPrev = 0;
+        Bean.setLed(0,255,0);
   }
     else {
+  Bean.setLed(0,0,0);
   int16_t temperatureBufferAverage;
   temperatureBufferAverage = getAvgTemperature(8);
   double avgPitch = getAvgPitch(16);
@@ -119,7 +119,7 @@ bool connected = Bean.getConnectionState();
 
 //  Serial.println(sG);
 //  Serial.println(sG16);
-  Bean.setBeaconParameters(0xBB20, temperatureBufferAverage, sG16);
+  Bean.setBeaconParameters(0xBB30, temperatureBufferAverage, sG16);
   Bean.setBeaconEnable(true);
   Bean.sleep(10000);
 }
