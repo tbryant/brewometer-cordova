@@ -138,22 +138,14 @@ var app = (function()
 				if (beacon.minor > 1120) { sgWidth = 100; }
 				else if (beacon.minor < 990) { sgWidth = 1; }
 				else { sgWidth = (beacon.minor-990)/130*100; }
-				
-				//corrected SG calc (divide by 7 to compensate for expansion of brewtainer)
-				var sgCorrection = (-0.000000006130*beacon.major*beacon.major*beacon.major + 0.000002934888*beacon.major*beacon.major - 0.000199630555*beacon.major + 0.002825186384) / 20;
-				var sgCorrection3 = sgCorrection.toFixed(3);
-				var sgCorrected = Number(sgCorrection3) + Number(sgFix3);
-				var sgCorrected3 = sgCorrected.toFixed(3);
 
 				//convert sg to plato
-				var degP = 259-(259/sgCorrected3);
+				var degP = 259-(259/sgFix3);
 				var degP1 = degP.toFixed(1);
 
                 //time since last update
                 var lastUpdated = (timeNow - beacon.timeStamp)/1000;
                 var lastUpdated1 = lastUpdated.toFixed(1);
-
-				var sgCorrWidth = sgCorrection3*100+1;
 
 				var brewUUID = beacon.uuid;
 				var brewArray = 
@@ -180,14 +172,19 @@ var app = (function()
                  var brewVarietyValue = brewVariety[i];
 				 }
 			    }
+			    var brewName = localStorage.getItem(brewVarietyValue);
+			    if (brewName == null){
+			    	brewName = "";
+			    }
+
 				// Create tag to display beacon data.
 				var element = $(
 					'<li>'
 					//+	'<strong>UUID: ' + beacon.uuid + '</strong><br />'
-					+	'<strong>BREWOMETER | ' + brewVarietyValue + '</strong><br />'
+					+	brewName +'<strong>BREWOMETER | ' + brewVarietyValue + '</strong><br />'
 					+ 	'<div style="background:' + brewVarietyValue + ';height:40px;width:'
 					+ 		100 + '%;"></div>'
-					+	'Specific Gravity:<br /><h1>' + sgCorrected3 + '</h1>'
+					+	'Specific Gravity:<br /><h1>' + sgFix3 + '</h1>'
 					+ 	'<div style="background:' + brewVarietyValue + ';height:10px;width:'
 					+ 		sgWidth + '%;"></div>'
 					+	'Temperature:<br /><h1>' + beacon.major + '°F</h1><h7>' + TempC1 + '°C</h7>'
@@ -201,9 +198,12 @@ var app = (function()
 				$('#warning').remove();
 				$('#found-beacons').append(element);
 			    
-                //post to google docs every 1000 sec
+                //post to cloud
                 var tZoneDays = date.getTimezoneOffset()/60/24;
                 var t = timeNow/1000/60/60/24 + 25569 - tZoneDays;
+                var brewNamePost = brewName.replace("<br />","");
+                console.log(brewNamePost);
+
 
                 
                 var brewURL = $('#cloudURL').val();
@@ -221,7 +221,7 @@ var app = (function()
                 	setTimer += 900000;
                 	displayRefresh = 0;
                 }
-                else {$.post(brewURL, { SG: sgCorrected3, Temp: beacon.major, Color: brewVarietyValue, Timepoint: "=to_date(" + t + ")" } );}
+                else {$.post(brewURL, { SG: sgFix3, Temp: beacon.major, Color: brewVarietyValue, Timepoint: t,  Beer: brewNamePost} );}
                 //console.log(brewVarietyValue);
                 
                 //console.log(brewNumber);
@@ -242,3 +242,14 @@ var app = (function()
 })();
 
 app.initialize();
+
+function setBeerName()
+{
+ var beerName = $('#beerName').val() + '<br />';
+ var beerColor = $('#beerColor').val();
+ localStorage.setItem(beerColor, beerName);
+ console.log(beerName);
+ if (beerName == '<br />'){
+ 	localStorage.setItem(beerColor, "");
+ }
+}

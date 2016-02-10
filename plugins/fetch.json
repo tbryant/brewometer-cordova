@@ -18,5 +18,13 @@
             "type": "local",
             "path": "/Users/tbryant/.plugman/cache/com.unarin.cordova.beacon/3.3.0/package"
         }
+    },
+    "cordova-plugin-ipad-multitasking": {
+        "source": {
+            "type": "registry",
+            "id": "cordova-plugin-ipad-multitasking"
+        },
+        "is_top_level": true,
+        "variables": {}
     }
 }

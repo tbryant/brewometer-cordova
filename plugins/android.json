@@ -12,6 +12,9 @@
         },
         "com.unarin.cordova.beacon": {
             "PACKAGE_NAME": "com.baronbrew.brewometer"
+        },
+        "cordova-plugin-ipad-multitasking": {
+            "PACKAGE_NAME": "com.baronbrew.brewometer"
         }
     },
     "dependent_plugins": {}

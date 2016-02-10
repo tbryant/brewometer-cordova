@@ -110,7 +110,7 @@ delegate.didStartMonitoringForRegion = function (pluginResult) {
     logToDom('didStartMonitoringForRegion:' + JSON.stringify(pluginResult));
 };
 
-delegate.didRangeBeaconsInRegion: function (pluginResult) {
+delegate.didRangeBeaconsInRegion = function (pluginResult) {
     logToDom('[DOM] didRangeBeaconsInRegion: ' + JSON.stringify(pluginResult));
 };
 
@@ -141,7 +141,7 @@ var minor = 1000;
 var major = 5;
 var beaconRegion = new cordova.plugins.locationManager.BeaconRegion(identifier, uuid, major, minor);
 
-cordova.plugins.locationManager.stopRangingBeaconsInRegion(beaconRegion)
+cordova.plugins.locationManager.stopMonitoringForRegion(beaconRegion)
 	.fail(console.error)
 	.done();
 

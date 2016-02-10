@@ -45,11 +45,24 @@
 
 
 <div id="settingsdiv" class=""><hr>
+<strong>Set Beer Names</strong><br />
+<select id="beerColor">
+  <option value="RED">RED</option>
+  <option value="GREEN">GREEN</option>
+  <option value="BLACK">BLACK</option>
+  <option value="PURPLE">PURPLE</option>
+  <option value="ORANGE">ORANGE</option>
+  <option value="BLUE">BLUE</option>
+  <option value="YELLOW">YELLOW</option>
+  <option value="PINK">PINK</option>
+</select> <input id="beerName" placeholder="Baron Brew Pale Ale" name="" value="" type="text"><br />
+<button id="setBeerNameButton" class="green" onclick="setBeerName()">Set Beer Name</button>
+<br /><hr>
 <strong>Calibration Settings</strong><br />
 <button id="BLEButton" class="green" onclick="location.href='calibration.html';">Start Calibration</button><br /><hr>
 <strong>Cloud Settings</strong><br />
 Enter Cloud URL below:<br />
-<input id="cloudURL" placeholder="https://..." name="q9" value="" type="url"><br />
+<input id="cloudURL" placeholder="https://..." name="" value="" type="url"><br />
 <input type="checkbox" id="checkCloud" value="true"> Check here to start logging data to the Cloud.<br /><hr>
 
 </div>
