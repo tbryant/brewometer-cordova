@@ -1,13 +1,7 @@
 BT_RADIOCONFIG_T radioConfig;
 
-void setup() {
-  Bean.enableConfigSave(false);
-  Bean.setBeaconEnable(true);
-  Bean.setBeanName("Brew");
-  Bean.getRadioConfig(&radioConfig);
-  Serial.begin(9600);
-  printRadioConfig();
 
+void setup() {
 }
 
 int counter = 0;
@@ -34,12 +28,31 @@ void printRadioConfig() {
   Serial.println(radioConfig.local_name_size);
 }
 
+void resetRadioConfig(){
+  radioConfig.adv_int = 500;
+  radioConfig.conn_int = 20;
+  radioConfig.power = 3;
+  radioConfig.adv_mode = 1;
+  radioConfig.ibeacon_uuid = 0xBB30;
+  radioConfig.ibeacon_major = 0;
+  radioConfig.ibeacon_minor = 0;
+  radioConfig.local_name[0] = 'B';  
+  radioConfig.local_name[1] = 'r';  
+  radioConfig.local_name[2] = 'e';  
+  radioConfig.local_name[3] = 'w';
+  radioConfig.local_name_size = 4;
+}
+
 void loop() {
-  if (counter % 1000 == 1) {    
+  if (counter % 1000 == 1) {
     printRadioConfig();
   }
-  //Bean.setBeaconParameters(0xBB30, counter, radioConfig.adv_mode);
-  Bean.setBrewometerParameters(radioConfig, 0xBB30, counter, radioConfig.adv_mode);
+  
+  resetRadioConfig();
+  radioConfig.ibeacon_uuid = 0xBB30;
+  radioConfig.ibeacon_major = counter;
+  radioConfig.ibeacon_minor = counter;
+  Bean.setRadioConfig(radioConfig);
 
   counter++;
 }
