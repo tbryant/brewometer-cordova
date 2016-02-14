@@ -1,7 +1,13 @@
 baronbrew = function() {
     var baronbrew = {};
-    baronbrew.discoveredDevices = {};
+    baronbrew.discoveredDevices = ko.observableArray([]);
+    baronbrew.selectedBrewometer = ko.observable();
     baronbrew.connectedDevices = {};
+
+    baronbrew.selectBrewometer = function(brewometer){
+        console.log("selecting brewometer:"+brewometer.device.name);
+        baronbrew.selectedBrewometer(brewometer);
+    }
 
     var UUID_BEANSERVICE = 'F000FFC0-0451-4000-B000-000000000000';
     var beanAppMessageServiceUUID = 'a495ff10-c5b1-4b44-b512-1370f02d74de';
@@ -10,47 +16,18 @@ baronbrew = function() {
     var UUID_SCRATCHSERVICE = 'a495ff20-c5b1-4b44-b512-1370f02d74de'.toUpperCase();
     getScratchCharacteristicUUID = function(scratchNumber) {
         return ['a495ff21-c5b1-4b44-b512-1370f02d74de'.toUpperCase(),
-            'a495ff22-c5b1-4b44-b512-1370f02d74de'.toUpperCase(),
-            'a495ff23-c5b1-4b44-b512-1370f02d74de'.toUpperCase(),
-            'a495ff24-c5b1-4b44-b512-1370f02d74de'.toUpperCase(),
-            'a495ff25-c5b1-4b44-b512-1370f02d74de'.toUpperCase()
+        'a495ff22-c5b1-4b44-b512-1370f02d74de'.toUpperCase(),
+        'a495ff23-c5b1-4b44-b512-1370f02d74de'.toUpperCase(),
+        'a495ff24-c5b1-4b44-b512-1370f02d74de'.toUpperCase(),
+        'a495ff25-c5b1-4b44-b512-1370f02d74de'.toUpperCase()
         ][scratchNumber - 1];
     };
-
-
-    // Class to represent a row in the seat reservations grid
-    function Device(name, rssi) {
-        var self = this;
-        self.name = name;
-        self.rssi = rssi;
-    }
-
-    // Overall viewmodel for this screen, along with initial state
-    ViewModel = function() {
-        var self = this;  
-
-        // Editable data
-        self.devices = ko.observableArray([
-            new Device("Steve", -72),
-            new Device("Bert", -73)
-        ]);
-        
-        // Operations
-        self.addDevice = function(name,rssi) {
-            self.devices.push(new Device(name, rssi));
-        }
-
-    }
-
-    baronbrew.viewModel = new ViewModel();
-
 
 
 
     var Brewometer = function(device) {
         var self = this;
-
-        self.name = device.name;
+        self.rssi = ko.observable(device.rssi);
         self.device = device;
         self.temperature = {
             value: null,
@@ -76,24 +53,24 @@ baronbrew = function() {
             console.log('reject', reject)
             console.log('connect ', self)
             ble.connect(self.device.id, function(peripheral) {
-                    console.log('connected to ' + self.name);
-                    console.log('enabling notifications on beanAppMessageCharacteristicUUID');
-                    ble.startNotification(peripheral.id, beanAppMessageServiceUUID, beanAppMessageCharacteristicUUID,
-                        function(data) {
-                            console.log('notification ' + beanAppMessageCharacteristicUUID);
-                            self.parseBeanResponse(peripheral, data);
-                            console.log(data);
-                        },
-                        function(errorcode) {
-                            console.log('BLE startNotification error: ' + errorCode);
-                        });
+                console.log('connected to ' + self.name);
+                console.log('enabling notifications on beanAppMessageCharacteristicUUID');
+                ble.startNotification(peripheral.id, beanAppMessageServiceUUID, beanAppMessageCharacteristicUUID,
+                    function(data) {
+                        console.log('notification ' + beanAppMessageCharacteristicUUID);
+                        self.parseBeanResponse(peripheral, data);
+                        console.log(data);
+                    },
+                    function(errorcode) {
+                        console.log('BLE startNotification error: ' + errorCode);
+                    });
 
-                    resolve(self);
-                },
-                function(error) {
-                    console.log('failed to connect to ' + self.device.name);
-                    reject(error);
-                });
+                resolve(self);
+            },
+            function(error) {
+                console.log('failed to connect to ' + self.device.name);
+                reject(error);
+            });
         }
         self.disconnect = function(resolve, reject) {
             ble.disconnect(self.device.id, resolve, reject);
@@ -169,39 +146,39 @@ baronbrew = function() {
 
             switch (major) {
                 case 0x20:
-                    if (minor == 0x90) {
+                if (minor == 0x90) {
+                    var dv = new DataView(data, 5);
+                    var sensitivity = dataArray[11];
+                    self.accelerometer.x = dv.getInt16(0, true);
+                    self.accelerometer.y = dv.getInt16(2, true);
+                    self.accelerometer.z = dv.getInt16(4, true);
+                    self.accelerometer.timestamp = Date.now();
+
+                    self.accelerometer.pitch = -Math.atan(-self.accelerometer.y / Math.sqrt(self.accelerometer.x * self.accelerometer.x + self.accelerometer.z * self.accelerometer.z)) * 180 / Math.PI;
+
+                    self.accelerometer.pitchArray.push(self.accelerometer.pitch);
+                    self.accelerometer.pitchArray.shift();
+                    self.accelerometer.pitchMean = utils.mean(self.accelerometer.pitchArray);
+
+
+                    console.log('acc read: ' + self.accelerometer.x + ',' + self.accelerometer.y + ',' + self.accelerometer.z);
+                    console.log('sensitivity: ' + sensitivity);
+                    self.accelerometerCallback(self.accelerometer)
+
+                } else {
+                    if (minor == 0x91) {
+
                         var dv = new DataView(data, 5);
-                        var sensitivity = dataArray[11];
-                        self.accelerometer.x = dv.getInt16(0, true);
-                        self.accelerometer.y = dv.getInt16(2, true);
-                        self.accelerometer.z = dv.getInt16(4, true);
-                        self.accelerometer.timestamp = Date.now();
+                        self.temperature.value = dv.getInt8(0, true);
+                        self.temperature.timestamp = Date.now();
 
-                        self.accelerometer.pitch = -Math.atan(-self.accelerometer.y / Math.sqrt(self.accelerometer.x * self.accelerometer.x + self.accelerometer.z * self.accelerometer.z)) * 180 / Math.PI;
-
-                        self.accelerometer.pitchArray.push(self.accelerometer.pitch);
-                        self.accelerometer.pitchArray.shift();
-                        self.accelerometer.pitchMean = utils.mean(self.accelerometer.pitchArray);
-
-
-                        console.log('acc read: ' + self.accelerometer.x + ',' + self.accelerometer.y + ',' + self.accelerometer.z);
-                        console.log('sensitivity: ' + sensitivity);
-                        self.accelerometerCallback(self.accelerometer)
-
-                    } else {
-                        if (minor == 0x91) {
-
-                            var dv = new DataView(data, 5);
-                            self.temperature.value = dv.getInt8(0, true);
-                            self.temperature.timestamp = Date.now();
-
-                            console.log('temp read:', self.temperature);
-                            self.temperatureCallback(self.temperature);
-                        }
+                        console.log('temp read:', self.temperature);
+                        self.temperatureCallback(self.temperature);
                     }
-                    break;
+                }
+                break;
                 default:
-                    break;
+                break;
             }
         }
     }
@@ -231,25 +208,39 @@ baronbrew = function() {
 
     // Called when Start Scan button is selected.
     baronbrew.scan = function() {
-        baronbrew.discoveredDevices = {};
+        baronbrew.discoveredDevices.removeAll();
         startScan(deviceFound);
     };
 
     // Called when a device is found.
     deviceFound = function(device, errorCode) {
-        console.log('deviceFound:', device);
         if (device) {
             // Set timestamp for device (this is used to remove
             // inactive devices).
             device.timeStamp = Date.now();
 
-            //filter on names starting with B
-            if ((device.name != null) && (device.name.substr(0, 1) == 'B')) {
-                console.log(device.name + ' added to discovered devices');
-                // Insert the device into table of found devices.
-                baronbrew.discoveredDevices[device.id] = new Brewometer(device);
-                baronbrew.viewModel.devices.push(new Device(device.name,device.rssi));
-            }
+            //filter on names starting with B           
+            if ((device.name != null) && (device.rssi != 127) && (device.name.substr(0, 1) == 'B')) {
+
+                var foundDevice = ko.utils.arrayFirst(baronbrew.discoveredDevices(), function(item) {
+                    return item.device.id == device.id;
+                }) || -1;
+              
+                if(foundDevice == -1){
+                    console.log(device.name + ' added to discovered devices');                    
+                    // Insert the device into table of found devices.
+                    //baronbrew.discoveredDevices[device.id] = new Brewometer(device);  
+                    baronbrew.discoveredDevices.push(new Brewometer(device));  
+                }
+                else{
+                    console.log(foundDevice.device.name)
+                    // console.log(foundDevice.rssi);
+                    console.log('update device rssi');
+                    //baronbrew.discoveredDevices[foundDevice].device.rssi = device.rssi;
+                    foundDevice.rssi(device.rssi);
+                }
+            }                       
+
         } else if (errorCode) {
             displayStatus('Scan Error: ' + errorCode);
         }
@@ -414,8 +405,6 @@ baronbrew = function() {
     displayStatus = function(message) {
         console.log(message)
     };
-
-
 
     return baronbrew;
 }();

@@ -5,7 +5,7 @@
 
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, user-scalable=no
-		initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" />
+	initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" />
 
 	<title>Brewometer Calibration</title>
 
@@ -13,13 +13,17 @@
 		@import 'ui/css/evothings-app.css';
 	</style>
 
+	<script>
+	// Redirect console.log to Evothings Workbench.
+	if (window.hyper && window.hyper.log) { console.log = hyper.log }
+</script>
 
-    <script src="cordova.js"></script>
-	<script src="libs/jquery/jquery.js"></script>
-	<script src="libs/evothings/evothings.js"></script>
-	<script src="libs/evothings/easyble/easyble.js"></script>
-	<script src="libs/knockout-3.4.0.js"></script>
-	<script src="baronbrew.js"></script>
+<script src="cordova.js"></script>
+<script src="libs/jquery/jquery.js"></script>
+<script src="libs/evothings/evothings.js"></script>
+<script src="libs/evothings/easyble/easyble.js"></script>
+<script src="libs/knockout-3.4.0.js"></script>
+<script src="baronbrew.js"></script>
 
 </head>
 
@@ -33,30 +37,50 @@
 		<img class="logotype" src="ui/images/brewometer.svg" alt="Brewometer" />
 
 	</header>
-
-	<input id="BLEId" value="Brew" type="url">
-
-	<button id="BLEButton" class="green" onclick="baronbrew.scan()">START</button>
+	
+	<button id="BLEButton" class="green" onclick="baronbrew.scan()">Scan</button>
 	<br />
 
-	<p><b>Status:</b> <span id="BLEStatus">Waiting to Start Calibration</span></p>
+	<style type="text/css">
+		th,td {
+			width: 100px;
+		}
+	</style>
 
-	<table>
-    <thead><tr>
-        <th>Name</th><th>rssi</th><th></th>
-    </tr></thead>
-    <tbody data-bind="foreach: devices">
-        <tr>
-            <td data-bind="text: name"></td>
-            <td data-bind="text: rssi"></td>
-        </tr>    
-    </tbody>
-    <tbody></tbody>
-</table>
+	<div data-bind="with:selectedBrewometer">
+		<span data-bind="text: device.name"></span>
+		<table >
+			<tbody >
+				<tr>
+					<td>id</td>
+					<td data-bind="text: device.id"></td>
+				</tr>    
+				<tr>
+				<td>rssi</td>
+					<td data-bind="text: rssi"></td>
+				</tr>    
+			</tbody>
+		</table>
+	</div>
+
+
+	<table >
+		<thead><tr>
+			<th style="width: 250px">Name</th><th>rssi</th><th></th>
+		</tr></thead>
+		<tbody data-bind="foreach: discoveredDevices">
+			<tr>
+				<td style="width: 250px" data-bind="text: device.name"></td>
+				<td data-bind="text: rssi"></td>
+				<td><a href="#" data-bind="click: $parent.selectBrewometer">Select</a></td>
+			</tr>    
+		</tbody>
+		<tbody></tbody>
+	</table>
 
 </body>
 <script>
-ko.applyBindings(baronbrew.viewModel);
+	ko.applyBindings(baronbrew);
 </script>
 
 </html>
