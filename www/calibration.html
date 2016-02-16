@@ -27,7 +27,7 @@
 
 </head>
 
-<body ontouchstart="">
+<body onload="baronbrew.scan()" onbeforeunload="baronbrew.disconnect()">
 	<header>
 
 		<button class="back" onclick="history.back()">
@@ -38,9 +38,6 @@
 
 	</header>
 	
-	<button id="BLEButton" class="green" onclick="baronbrew.scan()">Scan</button>
-	<br />
-
 	<style type="text/css">
 		th,td {
 			width: 100px;
@@ -49,11 +46,18 @@
 
 	<div data-bind="with:selectedBrewometer">
 		<span data-bind="text: device.name"></span>
+		<br/>
 		<table >
+			<thead><tr>
+				<th style="width: 250px">Parameter</th><th>Value</th><th></th>
+			</tr></thead>
 			<tbody >
 				<tr>
-					<td>id</td>
-					<td data-bind="text: device.id"></td>
+				<td>
+					<a href="#" data-bind="click: connect"> Connect </a>
+					<a href="#" data-bind="click: disconnect"> Disconnect </a>
+					<a href="#" data-bind="click: readUuid"> Read UUID </a>
+					</td>
 				</tr>    
 				<tr>
 				<td>rssi</td>
