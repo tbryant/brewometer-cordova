@@ -11,8 +11,11 @@ When connected to a host, the Brewometer is reading the command register in a lo
 | No operation | 0 | | |
 | Read Calibration | 1 | current value| |
 | Write Calibration | 2 | value to write | |
-| Save Calibration| 3 | |overwrites factory cal|
-| Read Pitch | 4 | pitch in degrees| |  |
+| Read BeaconId | 3 | value to write | |
+| Write BeaconId | 4 | value to write | |
+| Save Config | 5 | |overwrites factory cal|
+| Read Pitch | 6 | pitch in degrees| | 
+| Read Temperature | 7 | Temperature in Fahrenheit| |  |
 
 
 ## calibration structure in char[20] local_name
