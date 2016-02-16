@@ -5,7 +5,7 @@ int counter = 0;
 ScratchData inputScratchData;
 
 uint8_t local_name[20];
-uint16_t ibeacon_uuid;
+uint8_t ibeacon_uuid_swap[2];
 
 int i;
 
@@ -24,13 +24,13 @@ int16_t getAvgTemperature(int count) {
   for (int i = 0; i < count; i++) {
     temperatureBuffer += Bean.getTemperature();
   }
-  float temperatureFahrenheit = (((float)temperatureBuffer / count) * 1.8) + 32 - 1 + tempOffset - 10;
+  float temperatureFahrenheit = (((float)temperatureBuffer / count) * 1.8) + 32 + tempOffset - 10;
 
   return int16_t(temperatureFahrenheit);
 }
 
-float cal(int index){
-  return ((float *)local_name)[index+1];
+float cal(int index) {
+  return ((float *)local_name)[index + 1];
 }
 
 double getAvgPitch(int count) {
@@ -50,18 +50,20 @@ double getAvgPitch(int count) {
 }
 
 double convertPitch(double avgPitch) {
-  double sG  = cal(0) * avgPitch * avgPitch * avgPitch + cal(1) * avgPitch * avgPitch + cal(2) * avgPitch + cal(3) + .5 + sgOffset - 20;
+  double sG  = cal(0) * avgPitch * avgPitch * avgPitch + cal(1) * avgPitch * avgPitch + cal(2) * avgPitch + cal(3) + sgOffset - 20;
   return sG;
 }
 
 void setup() {
   Bean.enableWakeOnConnect(true);
+  Bean.setBeaconEnable(true);
   //read name (cal coefficients) from persistent memory
   Bean.getRadioConfig(&radioConfig);
   for ( i = 0 ; i < 20 ; i++) {
     local_name[i] = radioConfig.local_name[i];
   }
-  ibeacon_uuid = radioConfig.ibeacon_uuid;
+  ibeacon_uuid_swap[0] = ((uint8_t *)&radioConfig.ibeacon_uuid)[1];
+  ibeacon_uuid_swap[1] = ((uint8_t *)&radioConfig.ibeacon_uuid)[0];
 }
 
 void resetRadioConfig() {
@@ -69,7 +71,8 @@ void resetRadioConfig() {
   radioConfig.conn_int = 20;
   radioConfig.power = 3;
   radioConfig.adv_mode = 1;
-  radioConfig.ibeacon_uuid = ibeacon_uuid;
+  ((uint8_t *)&radioConfig.ibeacon_uuid)[0] = ibeacon_uuid_swap[1];
+  ((uint8_t *)&radioConfig.ibeacon_uuid)[1] = ibeacon_uuid_swap[0];
   radioConfig.ibeacon_major = 0;
   radioConfig.ibeacon_minor = 0;
   for ( i = 0 ; i < 20 ; i++) {
@@ -94,8 +97,6 @@ void endCommand() {
 
 void loop()
 {
-  updateBeaconParameters(counter, counter);
-  counter++;
   if ( Bean.getConnectionState() ) {
     //connected
     Bean.setLed(0, 0, 0);
@@ -142,15 +143,14 @@ void loop()
         break;
       case 3:
         //Read
-        Bean.setScratchData(inputOutputScratch, (uint8_t *)&ibeacon_uuid, 2);
+        Bean.setScratchData(inputOutputScratch, ibeacon_uuid_swap, 2);
         endCommand();
         break;
       case 4:
         //Write
         inputScratchData = Bean.readScratchData(inputOutputScratch);
-        for (int i = 0; i < 2 ; i++) {
-          ((uint8_t *)ibeacon_uuid)[i] = inputScratchData.data[i];
-        }
+        ibeacon_uuid_swap[0] = inputScratchData.data[0];
+        ibeacon_uuid_swap[1] = inputScratchData.data[1];
         endCommand();
         break;
       case 5:
@@ -160,8 +160,6 @@ void loop()
         endCommand();
         break;
       case 6:
-
-
         endCommand();
         break;
       default:
@@ -208,14 +206,12 @@ void loop()
     avgPitchPrev = avgPitch;
     double spGr = convertPitch(avgPitch);
     int16_t sG16;
-    sG16 = (int16_t) spGr;
+    sG16 = (int16_t) (spGr + 0.5);
     //for factory calibrating
     avgPitch *= 100;
     int16_t avgPitch16;
     avgPitch16 = (int16_t) avgPitch;
 
-    //  Serial.println(sG);
-    //  Serial.println(sG16);
     updateBeaconParameters(temperatureBufferAverage, sG16);
     Bean.sleep(10000);
   }

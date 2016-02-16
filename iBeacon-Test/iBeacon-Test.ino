@@ -52,7 +52,7 @@ void loop() {
   radioConfig.ibeacon_uuid = 0xBB30;
   radioConfig.ibeacon_major = counter;
   radioConfig.ibeacon_minor = counter;
-  Bean.setRadioConfig(radioConfig);
+  Bean.setRadioConfig(radioConfig, false);
 
   counter++;
 }
