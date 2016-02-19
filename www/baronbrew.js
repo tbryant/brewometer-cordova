@@ -10,6 +10,14 @@ baronbrew = function() {
         brewometer.connect();
     }
 
+    baronbrew.deselectBrewometer = function() {
+        console.log("deselecting brewometer");
+        baronbrew.selectedBrewometer = ko.observable();
+        baronbrew.disconnect();
+        baronbrew.scan();
+    }
+
+
     var UUID_BEANSERVICE = 'F000FFC0-0451-4000-B000-000000000000';
     var beanAppMessageServiceUUID = 'a495ff10-c5b1-4b44-b512-1370f02d74de';
     var beanAppMessageCharacteristicUUID = 'a495ff11-c5b1-4b44-b512-1370f02d74de';
@@ -25,12 +33,13 @@ baronbrew = function() {
     };
 
 
-
     var Brewometer = function(device) {
         var self = this;
         self.rssi = ko.observable(device.rssi);
         self.device = device;
-        self.beaconUuid = ko.observable(0xBB30);
+        self.color = ko.observable("0xBB10");
+
+        self.coeffs = ko.observableArray([1159 , 1341 , 6897 , 11977, 0]);
 
         self.readUuid = function() {
             var address = 1; //uuid
@@ -48,6 +57,22 @@ baronbrew = function() {
             }, function(e) {
                 console.log('failed to write to ' + getScratchCharacteristicUUID(2) + ", " + e);
             })
+
+        }
+
+        self.readCoeffs = function(){
+
+        }
+
+        self.writeCoeffs = function(){
+
+        }
+
+        self.readColor = function(){
+
+        }
+
+        self.writeColor = function(){
 
         }
 
@@ -72,7 +97,7 @@ baronbrew = function() {
 
                 function onServiceFailure(errorCode) {
                     // Show an error message to the user
-                    app.showInfo('Error reading services: ' + errorCode);
+                    console.log('Error reading services: ' + errorCode);
                 }
 
                 // Connect to the appropriate BLE service
@@ -84,7 +109,7 @@ baronbrew = function() {
 
             function onConnectFailure(errorCode) {
                 // Show an error message to the user
-                app.showInfo('Error ' + errorCode);
+                console.log('Error ' + errorCode);
             }
 
             console.log('Connecting to device: ' + self.device.name);
@@ -95,61 +120,9 @@ baronbrew = function() {
             device.connect(onConnectSuccess, onConnectFailure);
 
         }
-        self.disconnect = function() {
-            evothings.easyble.closeConnectedDevices();
-        }
 
         self.parseCommandResponse = function(peripheral, data) {
             console.log(hexStringFromUint8Array(data));
-        }
-
-
-        self.constructBeanMessage = function getpitchArray(cmdBuffer, payloadBuffer) {
-
-            //size buffer contains size of(cmdBuffer, and payloadBuffer) and a reserved byte set to 0
-            var sizeBuffer = new Uint8Array(2);
-            sizeBuffer[0] = cmdBuffer.length + payloadBuffer.length;
-
-            //GST (Gatt Serial Transport) contains sizeBuffer, cmdBuffer, and payloadBuffer
-            var gstBuffer = new Uint8Array(sizeBuffer.length + cmdBuffer.length + payloadBuffer.length);
-            gstBuffer.set(sizeBuffer, 0);
-            gstBuffer.set(cmdBuffer, sizeBuffer.length);
-            gstBuffer.set(payloadBuffer, sizeBuffer.length + cmdBuffer.length);
-
-            var crc16Buffer = ccitt(gstBuffer);
-
-            console.log('crc16Buffer ' + hexStringFromUint8Array(crc16Buffer));
-
-            //GATT contains sequence header, gstBuffer and crc166
-            var gattBuffer = new Uint8Array(1 + gstBuffer.length + crc16Buffer.length);
-
-            var header = (((self.messageCount++ * 0x20) | 0x80) & 0xff);
-            gattBuffer[0] = header; //one packet
-
-            gattBuffer.set(gstBuffer, 1); //copy gstBuffer into gatt shifted right 1
-
-            //add crc to end of gatt
-            gattBuffer[gattBuffer.length - 2] = crc16Buffer[0];
-            gattBuffer[gattBuffer.length - 1] = crc16Buffer[1];
-
-            console.log(gattBuffer);
-
-            return gattBuffer;
-        }
-        self.sendBeanAppMessage = function(major, minor, payload) {
-
-            var cmdBuffer = new Uint8Array(2);
-            cmdBuffer[0] = major;
-            cmdBuffer[1] = minor;
-
-            var data = self.constructBeanMessage(cmdBuffer, payload);
-
-            ble.writeWithoutResponse(self.device.id, beanAppMessageServiceUUID, beanAppMessageCharacteristicUUID, data.buffer, function() {
-                console.log('wrote ' + beanAppMessageCharacteristicUUID + ' with data: ' + hexStringFromUint8Array(data));
-            }, function(e) {
-                console.log('failed to write to ' + beanAppMessageCharacteristicUUID + ", " + e);
-            })
-
         }
     }
 
@@ -162,23 +135,35 @@ baronbrew = function() {
         return hexString;
     }
 
-    startScan = function(callbackFun) {
-        console.log('startScan');
-        evothings.easyble.startScan(callbackFun, onScanFailure);
-    };
 
     function onScanFailure(errorCode) {
         // Show an error message to the user
-        app.showInfo('Error: ' + errorCode);
+        console.log('Error: ' + errorCode);
         evothings.easyble.stopScan();
     }
 
 
     // Called when Start Scan button is selected.
     baronbrew.scan = function() {
+        console.log('starting scan');
         baronbrew.discoveredDevices.removeAll();
-        startScan(deviceFound);
+        evothings.easyble.startScan(deviceFound, onScanFailure);
     };
+
+    baronbrew.stopScan = function(){
+        evothings.easyble.stopScan();
+    };
+
+    baronbrew.disconnect = function() {
+        evothings.easyble.closeConnectedDevices();
+    };
+
+    baronbrew.cleanUp = function(){
+        baronbrew.disconnect();
+        baronbrew.stopScan();
+
+
+    }
 
     // Called when a device is found.
     deviceFound = function(device, errorCode) {
@@ -191,7 +176,7 @@ baronbrew = function() {
             if ((device.name != null) && (device.rssi != 127)) {
 
                 var foundDevice = ko.utils.arrayFirst(baronbrew.discoveredDevices(), function(item) {
-                    return item.device.id == device.id;
+                    return item.device.address == device.address;
                 }) || -1;
 
                 if (foundDevice == -1) {
@@ -201,6 +186,7 @@ baronbrew = function() {
                     baronbrew.discoveredDevices.push(new Brewometer(device));
                 } else {
                     foundDevice.rssi(device.rssi);
+                    // console.log('foundDevice: ' + foundDevice.device.address);
                 }
             }
 

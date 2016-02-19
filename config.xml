@@ -7,7 +7,7 @@
     <author email="info@baronbrew.com" href="http://baronbrew.com">
         Brewometer Team
     </author>
-    <content src="calibration.html" />
+    <content src="index.html" />
     <access origin="*" /><allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
 

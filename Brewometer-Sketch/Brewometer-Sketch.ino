@@ -11,6 +11,7 @@ int i;
 
 uint8_t tempOffset = 10;
 uint8_t sgOffset = 20;
+int16_t factoryTempOffset = 0;
 double avgPitchPrev;
 
 const uint8_t ledScratch = 1;

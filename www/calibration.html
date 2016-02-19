@@ -5,29 +5,68 @@
 
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, user-scalable=no
-	initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" />
+		initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" />
 
 	<title>Brewometer Calibration</title>
 
 	<style>
 		@import 'ui/css/evothings-app.css';
+
+		input[type=range] {
+		    -webkit-appearance: none;
+		    background-color: silver;
+		    width: 100%;
+		    height:20px;
+		    margin-top: 15px;
+		    margin-bottom: 15px;
+		}
+
+		input[type="range"]::-webkit-slider-thumb {
+		     -webkit-appearance: none;
+		     border-radius: 2px;
+		    background-color: red;
+		    opacity: 1;
+		    width: 40px;
+		    height: 30px;
+		}
+
+		#redLed::-webkit-slider-thumb {
+		    background-color: red;
+		}
+
+		#greenLed::-webkit-slider-thumb {
+		    background-color: green;
+		}
+
+		#blueLed::-webkit-slider-thumb {
+		    background-color: blue;
+		}
+
+		p.temperatureLabel {
+			font-size: xx-large;
+			text-align: center;
+		}
+
+		p.topic {
+			font-weight: bold;
+		}
 	</style>
 
 	<script>
 	// Redirect console.log to Evothings Workbench.
 	if (window.hyper && window.hyper.log) { console.log = hyper.log }
-</script>
+	</script>
 
-<script src="cordova.js"></script>
-<script src="libs/jquery/jquery.js"></script>
-<script src="libs/evothings/evothings.js"></script>
-<script src="libs/evothings/easyble/easyble.js"></script>
-<script src="libs/knockout-3.4.0.js"></script>
-<script src="baronbrew.js"></script>
+    <script src="cordova.js"></script>
+	<script src="libs/jquery/jquery.js"></script>
+	<script src="libs/evothings/evothings.js"></script>
+	<script src="app.js"></script>
+	<script src="libs/evothings/easyble/easyble.js"></script>
+	<script src="calapp.js"></script>
 
 </head>
 
-<body onload="baronbrew.scan()" onbeforeunload="baronbrew.disconnect()">
+<body ontouchstart="">
 	<header>
 
 		<button class="back" onclick="history.back()">
@@ -37,54 +76,31 @@
 		<img class="logotype" src="ui/images/brewometer.svg" alt="Brewometer" />
 
 	</header>
-	
-	<style type="text/css">
-		th,td {
-			width: 100px;
-		}
-	</style>
 
-	<div data-bind="with:selectedBrewometer">
-		<span data-bind="text: device.name"></span>
-		<br/>
-		<table >
-			<thead><tr>
-				<th style="width: 250px">Parameter</th><th>Value</th><th></th>
-			</tr></thead>
-			<tbody >
-				<tr>
-				<td>
-					<a href="#" data-bind="click: connect"> Connect </a>
-					<a href="#" data-bind="click: disconnect"> Disconnect </a>
-					<a href="#" data-bind="click: readUuid"> Read UUID </a>
-					</td>
-				</tr>    
-				<tr>
-				<td>rssi</td>
-					<td data-bind="text: rssi"></td>
-				</tr>    
-			</tbody>
-		</table>
+	<p>Place Brewometer in water at a stable temperature of about 68&deg;F (20&deg;C). Position screen immediately nearby and press START.</p>
+
+	<input id="BLEId" value="Brew" type="url">
+
+	<button id="BLEButton" class="green" onclick="app.connect()">START</button>
+	<br />
+
+	<p><b>Status:</b> <span id="BLEStatus">Waiting to Start Calibration</span></p>
+
+	<div id="temperatureDisplay" style="display:none">
+		<hr>
+	<p class="topic">Temperature</p>
+		<p class="temperatureLabel"><span id="temperature">N/A</span>&deg;F</p>
+		<p class="topic">Adjust Temperature</p>
+		<input type="range" id="redLed" min="0" max="20" step="1" value="10"><br>
+		<p>Adjust temperature to match read out of a calibrated thermometer.</p>
+		<hr>
+	<p class="topic">Specific Gravity</p>
+		<p class="temperatureLabel"><span id="specificgravity">N/A</span></p>
+		<p class="topic">Adjust Specific Gravity</p>
+		<input type="range" id="greenLed" min="0" max="40" step="1" value="20"><br>
+		<p>Adjust specific gravity to read 1.000 in water at around 68&deg;F.</p>
 	</div>
 
-
-	<table >
-		<thead><tr>
-			<th style="width: 250px">Name</th><th>rssi</th><th></th>
-		</tr></thead>
-		<tbody data-bind="foreach: discoveredDevices">
-			<tr>
-				<td style="width: 250px" data-bind="text: device.name"></td>
-				<td data-bind="text: rssi"></td>
-				<td><a href="#" data-bind="click: $parent.selectBrewometer">Select</a></td>
-			</tr>    
-		</tbody>
-		<tbody></tbody>
-	</table>
-
 </body>
-<script>
-	ko.applyBindings(baronbrew);
-</script>
 
 </html>
