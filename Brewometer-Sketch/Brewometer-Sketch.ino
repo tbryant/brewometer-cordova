@@ -5,13 +5,14 @@ int counter = 0;
 ScratchData inputScratchData;
 
 uint8_t local_name[20];
-uint8_t ibeacon_uuid_swap[2];
+uint16_t ibeacon_uuid;
 
 int i;
 
 uint8_t tempOffset = 10;
 uint8_t sgOffset = 20;
-int16_t factoryTempOffset = 0;
+float factoryTempOffset = 0;
+float cal[4];
 double avgPitchPrev;
 
 const uint8_t ledScratch = 1;
@@ -25,13 +26,9 @@ int16_t getAvgTemperature(int count) {
   for (int i = 0; i < count; i++) {
     temperatureBuffer += Bean.getTemperature();
   }
-  float temperatureFahrenheit = (((float)temperatureBuffer / count) * 1.8) + 32 + tempOffset - 10;
+  float temperatureFahrenheit = (((float)temperatureBuffer / count) * 1.8) + 32 + factoryTempOffset + (tempOffset - 10);
 
   return int16_t(temperatureFahrenheit);
-}
-
-float cal(int index) {
-  return ((float *)local_name)[index + 1];
 }
 
 double getAvgPitch(int count) {
@@ -51,7 +48,7 @@ double getAvgPitch(int count) {
 }
 
 double convertPitch(double avgPitch) {
-  double sG  = cal(0) * avgPitch * avgPitch * avgPitch + cal(1) * avgPitch * avgPitch + cal(2) * avgPitch + cal(3) + sgOffset - 20;
+  double sG  = cal[0] * avgPitch * avgPitch * avgPitch + cal[1] * avgPitch * avgPitch + cal[2] * avgPitch + cal[3] + sgOffset - 20;
   return sG;
 }
 
@@ -63,8 +60,25 @@ void setup() {
   for ( i = 0 ; i < 20 ; i++) {
     local_name[i] = radioConfig.local_name[i];
   }
-  ibeacon_uuid_swap[0] = ((uint8_t *)&radioConfig.ibeacon_uuid)[1];
-  ibeacon_uuid_swap[1] = ((uint8_t *)&radioConfig.ibeacon_uuid)[0];
+  local_name[0] = 'B';
+  local_name[1] = 'r';
+  local_name[2] = 'e';
+  local_name[3] = 'w';
+  //multiply by appropriate factor per cal coeff
+  cal[0] = -0.000001 * (float)(((uint16_t *)(&(local_name[4])))[0]);
+  cal[1] = 0.0001 * (float)(((uint16_t *)(&(local_name[4])))[1]);
+  cal[2] = -0.001 * (float)(((uint16_t *)(&(local_name[4])))[2]);
+  cal[3] = 0.1 * (float)(((uint16_t *)(&(local_name[4])))[3]);
+  //temperature offset by 10
+  factoryTempOffset = (0.1 * ((uint16_t *)(&(local_name[4])))[4]) - 10;
+
+  ibeacon_uuid = radioConfig.ibeacon_uuid;
+
+  //reset user calibration
+  uint8_t userCal[2];
+  userCal[0] = tempOffset;
+  userCal[1] = sgOffset;
+  Bean.setScratchData(ledScratch, userCal, 2);
 }
 
 void resetRadioConfig() {
@@ -72,14 +86,13 @@ void resetRadioConfig() {
   radioConfig.conn_int = 20;
   radioConfig.power = 3;
   radioConfig.adv_mode = 1;
-  ((uint8_t *)&radioConfig.ibeacon_uuid)[0] = ibeacon_uuid_swap[1];
-  ((uint8_t *)&radioConfig.ibeacon_uuid)[1] = ibeacon_uuid_swap[0];
+  radioConfig.ibeacon_uuid = ibeacon_uuid;
   radioConfig.ibeacon_major = 0;
   radioConfig.ibeacon_minor = 0;
   for ( i = 0 ; i < 20 ; i++) {
     radioConfig.local_name[i] = local_name[i];
   }
-  radioConfig.local_name_size = 4;
+  radioConfig.local_name_size = 20;
 }
 
 void updateBeaconParameters(uint16_t major, uint16_t minor) {
@@ -119,6 +132,7 @@ void loop()
 
     avgPitchPrev = 0;
     Bean.setLed(0, 255, 0);
+    Bean.setLed(0, 0, 0);
 
     //look for command in Scratch 4
     bool newCommand = false;
@@ -130,28 +144,39 @@ void loop()
 
     switch (command) {
       case 1:
-        //Read
-        Bean.setScratchData(inputOutputScratch, local_name, 20);
+        //Read Coeffs
+        Bean.setScratchData(inputOutputScratch, &(local_name[4]), 10);
         endCommand();
         break;
       case 2:
-        //Write
+        //Write Coeffs
         inputScratchData = Bean.readScratchData(inputOutputScratch);
-        for (int i = 0; i < 20 ; i++) {
-          local_name[i] = inputScratchData.data[i];
+        for (int i = 0; i < 16 ; i++) {
+          local_name[i+4] = inputScratchData.data[i];
         }
+        //multiply by appropriate factor per cal coeff
+        cal[0] = -0.000001 * (float)(((uint16_t *)(&(local_name[4])))[0]);
+        cal[1] = 0.0001 * (float)(((uint16_t *)(&(local_name[4])))[1]);
+        cal[2] = -0.001 * (float)(((uint16_t *)(&(local_name[4])))[2]);
+        cal[3] = 0.1 * (float)(((uint16_t *)(&(local_name[4])))[3]);
+        //temperature offset by 10
+        factoryTempOffset = (0.1 * ((uint16_t *)(&(local_name[4])))[4]) - 10;
+        
         endCommand();
         break;
       case 3:
         //Read
-        Bean.setScratchData(inputOutputScratch, ibeacon_uuid_swap, 2);
+        //swap endian
+        uint8_t uuid_swapped[2];
+        uuid_swapped[0] = ((uint8_t *)&ibeacon_uuid)[1];
+        uuid_swapped[1] = ((uint8_t *)&ibeacon_uuid)[0];
+        Bean.setScratchData(inputOutputScratch, uuid_swapped, 2);
         endCommand();
         break;
       case 4:
         //Write
         inputScratchData = Bean.readScratchData(inputOutputScratch);
-        ibeacon_uuid_swap[0] = inputScratchData.data[0];
-        ibeacon_uuid_swap[1] = inputScratchData.data[1];
+        ibeacon_uuid = ((uint16_t *)inputScratchData.data)[0];
         endCommand();
         break;
       case 5:
@@ -161,10 +186,29 @@ void loop()
         endCommand();
         break;
       case 6:
+        //Measure Angle
+        uint8_t angleByteArray[4];
+        float angle;
+        angle = (float)getAvgPitch(16);
+        for(i = 0; i<4 ; i++){
+          angleByteArray[i] = ((uint8_t *)&angle)[i];
+        }
+        Bean.setScratchData(inputOutputScratch, angleByteArray, 4);
+        endCommand();
+        break;
+      case 7:
+        //Measure Temp
+        uint8_t tempByteArray[4];
+        float temp;
+        temp = (float)getAvgTemperature(8);
+        for(i = 0; i<4 ; i++){
+          tempByteArray[i] = ((uint8_t *)&temp)[i];
+        }
+        Bean.setScratchData(inputOutputScratch, tempByteArray, 4);
         endCommand();
         break;
       default:
-        //Bean.sleep(500);
+        Bean.sleep(500);
         break;
     }
   }
