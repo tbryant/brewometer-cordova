@@ -202,7 +202,7 @@ var app = (function()
                 var tZoneDays = date.getTimezoneOffset()/60/24;
                 var t = timeNow/1000/60/60/24 + 25569 - tZoneDays;
                 var brewNamePost = brewName.replace("<br />","");
-                console.log(brewNamePost);
+                //console.log(brewNamePost);
 
 
                 
