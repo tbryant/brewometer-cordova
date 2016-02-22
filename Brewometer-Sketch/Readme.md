@@ -23,7 +23,8 @@ When connected to a host, the Brewometer is reading the command register in a lo
 | Field | Bytes | Type | Comment |
 | -------------| -------------| -------------| -------------|
 | Name | 0-3 | char[4]| Bluetooth name|
-| cal0 cubic  | 4-7 | float | calibration coeff cal[0]|
-| cal1 square  | 8-11 | float | calibration coeff cal[1]|
-| cal2 linear  | 12-15 | float | calibration coeff cal[2]|
-| cal3 constant  | 16-19 | float | calibration coeff cal[3]|
+| cal0 cubic  | 4,5 | uint16 | calibration coeff cal[0]|
+| cal1 square  | 6,7 | uint16 | calibration coeff cal[1]|
+| cal2 linear  | 8,9 | uint16 | calibration coeff cal[2]|
+| cal3 constant  | 10,11 | uint16 | calibration coeff cal[3]|
+| tempcal   | 12,13 | uint16 | temp cal|
