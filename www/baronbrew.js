@@ -43,7 +43,7 @@ baronbrew = function() {
         var self = this;
         self.rssi = ko.observable(device.rssi);
         self.device = device;
-        self.color = ko.observable();
+        self.color = ko.observable("");
         self.command = 1;
         self.selectedCalPointIndex = 0;
 
@@ -57,15 +57,52 @@ baronbrew = function() {
         self.trueTemp = ko.observable(68);
         self.measuredTemp = ko.observable(68);
 
+        self.availableColors = [{
+            colorName: "Red",
+            hexString: "bb10"
+        }, {
+            colorName: "Green",
+            hexString: "bb20"
+        }, {
+            colorName: "Black",
+            hexString: "bb30"
+        }, {
+            colorName: "Purple",
+            hexString: "bb40"
+        }, {
+            colorName: "Orange",
+            hexString: "bb50"
+        }, {
+            colorName: "Blue",
+            hexString: "bb60"
+        }, {
+            colorName: "Yellow",
+            hexString: "bb70"
+        }, {
+            colorName: "Pink",
+            hexString: "bb80"
+        }];
+
+        self.brewColor = ko.observable(self.availableColors[0]);
+
+        self.brewColorHexString = ko.computed(function() {
+            return self.brewColor().hexString;        
+        }); 
+
+        self.brewColor.subscribe(function(newValue) {
+            console.log('setColorString');
+            self.color(newValue.hexString);            
+        });
+
         self.computeCal = function() {
 
             var data_x = [];
-            for (var i = 0; i < self.calPoints().length ; i++) {
+            for (var i = 0; i < self.calPoints().length; i++) {
                 data_x[i] = self.calPoints()[i].angle();
             }
 
             var data_y = [];
-            for (var i = 0; i < self.calPoints().length ; i++) {
+            for (var i = 0; i < self.calPoints().length; i++) {
                 data_y[i] = self.calPoints()[i].sg();
             }
             console.log(data_x[0]);
@@ -194,6 +231,12 @@ baronbrew = function() {
             });
         }
 
+        self.measureAngle = function(calPoint) {            
+            self.selectedCalPointIndex = self.calPoints().indexOf(calPoint);
+            console.log('setting selectedCalPointIndex = ' + self.selectedCalPointIndex);
+            self.readAngle();
+        }
+
 
         self.saveConfig = function() {
             self.command = 5;
@@ -225,11 +268,12 @@ baronbrew = function() {
                 case 6:
                     //angle
                     console.log("reading angle " + hexStringFromUint8Array(new Uint8Array(data)));
-                    self.angle((new Float32Array(data))[0]);
+                    var angle = Math.round((new Float32Array(data))[0]*1000)/1000.0; //round to 3 decimal places
+                    self.calPoints()[self.selectedCalPointIndex].angle(angle);
                     break;
 
                 case 7:
-                    //angle
+                    //temp
                     console.log("reading temp " + hexStringFromUint8Array(new Uint8Array(data)));
                     self.measuredTemp((new Float32Array(data))[0]);
                     break;

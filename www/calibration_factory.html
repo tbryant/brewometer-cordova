@@ -58,8 +58,9 @@
 			<tbody>
 			<tr>
 				<td style="width: 250px"> 0x<input data-bind="value: color"></input></td>
-				<td></td>
-				<td></td>
+				<td><select data-bind="options: availableColors, value: brewColor, optionsText: 'colorName'"></select></td>
+
+				<td><input data-bind="value: brewColorHexString"></input></td>
 			</tr>    
 		</tbody>
 		</table>
@@ -73,7 +74,7 @@
 			</tr></thead>
 			<tbody data-bind="foreach: coeffs">
 			<tr>
-				<td style="width: 250px" data-bind="text: $data"></td>
+				<td style="width: 250px"><input data-bind="value: $data"> </input></td>
 				<td></td>
 				<td></td>
 			</tr>    
@@ -92,8 +93,8 @@
 			<tr>
 				<td> <input data-bind="value: sg"> </input></td>
 				<td> <input data-bind="value: angle"> </input></td>
-				<td> <a href"#" data-bind="click: $parent.readAngle"> Measure </a></td>
-				<td> <text data-bind="text: $parent.angle"</td>
+				<td> <a href"#" data-bind="click: $parent.measureAngle"> Measure </a></td>
+				<td> </td>
 			</tr>    
 		</tbody>
 		</table>
