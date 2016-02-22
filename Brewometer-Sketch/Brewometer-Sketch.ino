@@ -229,7 +229,7 @@ void loop()
     double avgPitch = getAvgPitch(16);
     double avgPitchDiff = avgPitchPrev - avgPitch;
 
-    if (abs(avgPitchDiff) < .34) {
+    if (abs(avgPitchDiff) < .25) {
       avgPitchPrev = avgPitch;
       Bean.sleep(20000);
       //check if I should sleep more
