@@ -51,16 +51,16 @@
 		<br/>
 		<table >
 			<thead><tr>
-				<th style="width: 250px">Beacon Id (color)</th>
+				<th >Beacon Id (color)</th>
 				<th><a href="#" data-bind="click: readColor"> Read </a></th>
 				<th><a href="#" data-bind="click: writeColor"> Write </a></th>
 			</tr></thead>
 			<tbody>
 			<tr>
-				<td style="width: 250px"> 0x<input data-bind="value: color"></input></td>
+				<td > <input data-bind="value: color"></input></td>
 				<td><select data-bind="options: availableColors, value: brewColor, optionsText: 'colorName'"></select></td>
 
-				<td><input data-bind="value: brewColorHexString"></input></td>
+				<td></input></td>
 			</tr>    
 		</tbody>
 		</table>
@@ -68,13 +68,13 @@
 
 		<table >
 			<thead><tr>
-				<th style="width: 250px">Coefficients</th>
+				<th >Coefficients</th>
 				<th><a href="#" data-bind="click: readCoeffs"> Read </a></th>
 				<th><a href="#" data-bind="click: writeCoeffs"> Write </a></th>
 			</tr></thead>
 			<tbody data-bind="foreach: coeffs">
 			<tr>
-				<td style="width: 250px"><input data-bind="value: $data"> </input></td>
+				<td ><input data-bind="value: $data"> </input></td>
 				<td></td>
 				<td></td>
 			</tr>    
@@ -124,11 +124,11 @@
 
 	<table >
 		<thead><tr>
-			<th style="width: 250px">Name</th><th>rssi</th><th></th>
+			<th >Name</th><th>rssi</th><th></th>
 		</tr></thead>
 		<tbody data-bind="foreach: discoveredDevices">
 			<tr>
-				<td style="width: 250px" data-bind="text: device.name"></td>
+				<td  data-bind="text: device.name"></td>
 				<td data-bind="text: rssi"></td>
 				<td><a href="#" data-bind="click: $parent.selectBrewometer">Select</a></td>
 			</tr>    

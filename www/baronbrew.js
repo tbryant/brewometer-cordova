@@ -268,14 +268,15 @@ baronbrew = function() {
                 case 6:
                     //angle
                     console.log("reading angle " + hexStringFromUint8Array(new Uint8Array(data)));
-                    var angle = Math.round((new Float32Array(data))[0]*1000)/1000.0; //round to 3 decimal places
+                    var angle = Math.round((new Float32Array(data))[0]*100)/100.0; //round to 2 decimal places
                     self.calPoints()[self.selectedCalPointIndex].angle(angle);
                     break;
 
                 case 7:
                     //temp
                     console.log("reading temp " + hexStringFromUint8Array(new Uint8Array(data)));
-                    self.measuredTemp((new Float32Array(data))[0]);
+                    var temperature = Math.round((new Float32Array(data))[0]*100)/100.0;
+                    self.measuredTemp(temperature);
                     break;
             }
 
