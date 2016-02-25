@@ -52,8 +52,8 @@
 		<table >
 			<thead><tr>
 				<th >Beacon Id (color)</th>
-				<th><a href="#" data-bind="click: readColor"> Read </a></th>
-				<th><a href="#" data-bind="click: writeColor"> Write </a></th>
+				<th><button data-bind="click: readColor"> Read </button></th>
+				<th><button data-bind="click: writeColor"> Write </button></th>
 			</tr></thead>
 			<tbody>
 			<tr>
@@ -69,8 +69,8 @@
 		<table >
 			<thead><tr>
 				<th >Coefficients</th>
-				<th><a href="#" data-bind="click: readCoeffs"> Read </a></th>
-				<th><a href="#" data-bind="click: writeCoeffs"> Write </a></th>
+				<th><button data-bind="click: readCoeffs"> Read </button></th>
+				<th><button data-bind="click: writeCoeffs"> Write </button></th>
 			</tr></thead>
 			<tbody data-bind="foreach: coeffs">
 			<tr>
@@ -86,14 +86,14 @@
 			<thead><tr>
 				<th> SG x 1000</th>
 				<th> Angle </th>
-				<th><a href="#" data-bind="click: computeCal"> Compute </a></th>
+				<th><button data-bind="click: computeCal"> Compute </button></th>
 				<th> </th>
 			</tr></thead>
 			<tbody data-bind="foreach: calPoints">
 			<tr>
 				<td> <input data-bind="value: sg"> </input></td>
 				<td> <input data-bind="value: angle"> </input></td>
-				<td> <a href"#" data-bind="click: $parent.measureAngle"> Measure </a></td>
+				<td> <button data-bind="click: $parent.measureAngle"> Measure </button></td>
 				<td> </td>
 			</tr>    
 		</tbody>
@@ -108,7 +108,7 @@
 			<tr>
 				<td> <input data-bind="value: trueTemp"> </input></td>
 				<td> <input data-bind="value: measuredTemp"> </input></td>
-				<td> <a href"#" data-bind="click: readTemp"> Measure </a></td>
+				<td> <button data-bind="click: readTemp"> Measure </button></td>
 			</tr>    
 			</tbody>
 		</table>
@@ -130,7 +130,7 @@
 			<tr>
 				<td  data-bind="text: device.name"></td>
 				<td data-bind="text: rssi"></td>
-				<td><a href="#" data-bind="click: $parent.selectBrewometer">Select</a></td>
+				<td><button data-bind="click: $parent.selectBrewometer">Select</button></td>
 			</tr>    
 		</tbody>
 		<tbody></tbody>
