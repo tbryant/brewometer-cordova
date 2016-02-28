@@ -49,7 +49,7 @@ app.deviceIsLightBlueBeanWithBleId = function(device, bleId)
 
 app.connect = function(user)
 {
-	var BLEId = document.getElementById('BLEId').value;
+	var BLEId = "Brew";
 
 	app.showInfo('Trying to connect to "' + BLEId + '"');
 
@@ -104,8 +104,7 @@ app.connect = function(user)
 
 		// Connect if we have found a LightBlue Bean with the name from input (BLEId)
 		var found= app.deviceIsLightBlueBeanWithBleId(
-			device,
-			document.getElementById('BLEId').value);
+			device,"Brew");
 		if (found)
 		{
 			// Update user interface

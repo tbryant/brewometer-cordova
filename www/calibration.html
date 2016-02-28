@@ -77,11 +77,9 @@
 
 	</header>
 
-	<p>Place Brewometer in water at a stable temperature of about 68&deg;F (20&deg;C). Position screen immediately nearby and press START.</p>
+	<p><strong>Single-Point Calibration:</strong> Place Brewometer in water at a stable temperature of about 68&deg;F (20&deg;C). Position screen immediately nearby and press START. Note: Calibrate Brewometer first by rotating its battery along axis before attempting single point calibration. Calibrations greater than +/- 0.003 require multipoint calibration.</p>
 
-	<input id="BLEId" value="Brew" type="url">
-
-	<button id="BLEButton" class="green" onclick="app.connect()">START</button>
+	<button id="BLEButton" class="green" onclick="app.connect()">Start Single-Point Cal</button>
 	<br />
 
 	<p><b>Status:</b> <span id="BLEStatus">Waiting to Start Calibration</span></p>
@@ -97,12 +95,11 @@
 	<p class="topic">Specific Gravity</p>
 		<p class="temperatureLabel"><span id="specificgravity">N/A</span></p>
 		<p class="topic">Adjust Specific Gravity</p>
-		<input type="range" id="greenLed" min="0" max="40" step="1" value="20"><br>
+		<input type="range" id="greenLed" min="17" max="23" step="1" value="20"><br>
 		<p>Adjust specific gravity to read 1.000 in water at around 68&deg;F.</p>
 	</div>
-
-	<br />
-	<button id="BLEButton" class="green" onclick="location.href='calibration_factory.html';">Multipoint Cal</button>
+	<p><strong>Multi-Point Calibration:</strong> Advanced users only. Do not attempt without prior instruction. Contact Baron Brew if you think your Brewometer is out of calibration and cannot be addressed with above methods.</p>
+	<button id="BLEButton" class="green" onclick="location.href='calibration_factory.html';">Start Multipoint Cal</button>
 </body>
 
 </html>
