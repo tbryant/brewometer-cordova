@@ -49,6 +49,8 @@
 	<div data-bind="with:selectedBrewometer">
 		<span data-bind="text: device.name"></span>
 		<br/>
+
+		id:<input placeholder="1234" type="number" data-bind="value: id"></input>
 		<table >
 			<thead><tr>
 				<th >Beacon Id (color)</th>
@@ -118,10 +120,12 @@
 		<button id="BLEButton" class="green" data-bind="click: saveConfig">Save</button>
 
 		<br/>
+
 		<button id="BLEButton" class="green" data-bind="click: baronbrew.deselectBrewometer">Disconnect</button>
 	</div>
 
 
+	Cloud URL:<input id="BLEId" data-bind="value: cloudUrl" type="url">
 	<table >
 		<thead><tr>
 			<th >Name</th><th>rssi</th><th></th>
