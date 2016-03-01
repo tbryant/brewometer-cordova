@@ -140,6 +140,7 @@ baronbrew = function() {
             for (var j = 0; j < minimiser.solution.length; ++j) {
                 console.log(minimiser.solution[j]);
             }
+            //TODO  make the coeffs into angle and SG points
             coeffsArray = new Uint16Array(5)
                 //multiply and offset
             coeffsArray[0] = minimiser.solution[0] * (-1000000);

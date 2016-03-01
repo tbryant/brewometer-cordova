@@ -13,6 +13,8 @@ uint8_t tempOffset = 10;
 uint8_t sgOffset = 20;
 float factoryTempOffset = 0;
 float cal[4];
+float cal_SGs[5];
+float cal_angles[5];
 double avgPitchPrev;
 
 const uint8_t ledScratch = 1;
@@ -58,9 +60,22 @@ double getAvgPitch(int count) {
 }
 
 double convertPitch(double avgPitch) {
-  double sG  = cal[0] * avgPitch * avgPitch * avgPitch + cal[1] * avgPitch * avgPitch + cal[2] * avgPitch + cal[3] + sgOffset - 20;
-  return sG;
+  //double sg  = cal[0] * avgPitch * avgPitch * avgPitch + cal[1] * avgPitch * avgPitch + cal[2] * avgPitch + cal[3] + sgOffset - 20;
+  double sg = (double)FmultiMap((float)avgPitch); 
+  return sg;
 }
+
+float FmultiMap(float val)
+{
+  uint8_t pos = 1;
+  while((val > cal_angles[pos])&&(pos<4)) pos++;
+
+  if (val == cal_angles[pos]) return cal_SGs[pos];
+
+  // interpolate in the right segment for the rest
+  return (val - cal_angles[pos-1]) * (cal_SGs[pos] - cal_SGs[pos-1]) / (cal_angles[pos] - cal_angles[pos-1]) + cal_SGs[pos-1];
+}
+
 
 void setup() {
   Bean.enableWakeOnConnect(true);
@@ -74,13 +89,8 @@ void setup() {
   local_name[1] = 'r';
   local_name[2] = 'e';
   local_name[3] = 'w';
-  //multiply by appropriate factor per cal coeff
-  cal[0] = -0.000001 * (float)(((uint16_t *)(&(local_name[4])))[0]);
-  cal[1] = 0.0001 * (float)(((uint16_t *)(&(local_name[4])))[1]);
-  cal[2] = -0.001 * (float)(((uint16_t *)(&(local_name[4])))[2]);
-  cal[3] = 0.1 * (float)(((uint16_t *)(&(local_name[4])))[3]);
-  //temperature offset by 10
-  factoryTempOffset = (0.1 * ((uint16_t *)(&(local_name[4])))[4]) - 10;
+
+  copyCalCoeffsFromName();
 
   ibeacon_uuid = radioConfig.ibeacon_uuid;
 
@@ -90,6 +100,27 @@ void setup() {
   userCal[1] = sgOffset;
   Bean.setScratchData(ledScratch, userCal, 2);
 }
+
+
+void copyCalCoeffsFromName(){
+  //multiply by appropriate factor per cal coeff
+  cal_angles[0] = 0.01 * (float)(((uint16_t *)(&(local_name[4])))[0]);
+  cal_angles[1] = 0.01 * (float)(((uint16_t *)(&(local_name[6])))[0]);
+  cal_angles[2] = 0.01 * (float)(((uint16_t *)(&(local_name[8])))[0]);
+  cal_angles[3] = 0.01 * (float)(((uint16_t *)(&(local_name[10])))[0]);
+  cal_angles[4] = 0.01 * (float)(((uint16_t *)(&(local_name[12])))[0]);
+
+
+  cal_SGs[0] = (float)(((int8_t *)(&(local_name[14])))[0]);
+  cal_SGs[1] = (float)(((int8_t *)(&(local_name[15])))[0]);
+  cal_SGs[2] = (float)(((int8_t *)(&(local_name[16])))[0]);
+  cal_SGs[3] = (float)(((int8_t *)(&(local_name[17])))[0]);
+  cal_SGs[4] = (float)(((int8_t *)(&(local_name[18])))[0]);
+
+  //temperature
+  factoryTempOffset = 0.1 * (int8_t *)(&(local_name[4]))[19];
+}
+
 
 void resetRadioConfig() {
   radioConfig.adv_int = 500;
@@ -164,13 +195,7 @@ void loop()
         for (int i = 0; i < 16 ; i++) {
           local_name[i+4] = inputScratchData.data[i];
         }
-        //multiply by appropriate factor per cal coeff
-        cal[0] = -0.000001 * (float)(((uint16_t *)(&(local_name[4])))[0]);
-        cal[1] = 0.0001 * (float)(((uint16_t *)(&(local_name[4])))[1]);
-        cal[2] = -0.001 * (float)(((uint16_t *)(&(local_name[4])))[2]);
-        cal[3] = 0.1 * (float)(((uint16_t *)(&(local_name[4])))[3]);
-        //temperature offset by 10
-        factoryTempOffset = (0.1 * ((uint16_t *)(&(local_name[4])))[4]) - 10;
+        copyCalCoeffsFromName(local_name);
         
         endCommand();
         break;
