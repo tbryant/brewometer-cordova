@@ -2,6 +2,8 @@ baronbrew = function() {
     var baronbrew = {};
     baronbrew.discoveredDevices = ko.observableArray([]);
     baronbrew.selectedBrewometer = ko.observable();
+    baronbrew.cloudUrl = ko.observable('https://script.google.com/macros/s/AKfycbyqztVynRkEa0XKZpsa_fZcrtbXrbvQA0vdMjYHAoX5fIQr8cfc/exec');
+        //'https://script.googleusercontent.com/macros/echo?user_content_key=VjBuv7-OIeh0VYRauT9wCxSFV1jJm2u2h-2tF7mJhaZUk_fSePkKbqmy-0dZoBmdsZruB-x_AzpzZQ4ir3IPitU5j7QqrZY6m5_BxDlH2jW0nuo2oDemN9CCS2h10ox_1xSncGQajx_ryfhECjZEnDoDpoefBMFRFQCZyrN07Q_IoBoYKpVeedpHdRJcohMun1ZWMFj4e-Yzv88yNtMj6aBDjyR_X-nF&lib=MK7tboALFE_Ja-j0PFin833wQpTidpMma');
     baronbrew.connectedDevices = {};
 
     baronbrew.selectBrewometer = function(brewometer) {
@@ -43,7 +45,8 @@ baronbrew = function() {
         var self = this;
         self.rssi = ko.observable(device.rssi);
         self.device = device;
-        self.color = ko.observable();
+        self.id = ko.observable("");
+        self.color = ko.observable("");
         self.command = 1;
         self.selectedCalPointIndex = 0;
 
@@ -57,15 +60,52 @@ baronbrew = function() {
         self.trueTemp = ko.observable(68);
         self.measuredTemp = ko.observable(68);
 
+        self.availableColors = [{
+            colorName: "Red",
+            hexString: "bb10"
+        }, {
+            colorName: "Green",
+            hexString: "bb20"
+        }, {
+            colorName: "Black",
+            hexString: "bb30"
+        }, {
+            colorName: "Purple",
+            hexString: "bb40"
+        }, {
+            colorName: "Orange",
+            hexString: "bb50"
+        }, {
+            colorName: "Blue",
+            hexString: "bb60"
+        }, {
+            colorName: "Yellow",
+            hexString: "bb70"
+        }, {
+            colorName: "Pink",
+            hexString: "bb80"
+        }];
+
+        self.brewColor = ko.observable(self.availableColors[0]);
+
+        self.brewColorHexString = ko.computed(function() {
+            return self.brewColor().hexString;
+        });
+
+        self.brewColor.subscribe(function(newValue) {
+            console.log('setColorString');
+            self.color(newValue.hexString);
+        });
+
         self.computeCal = function() {
 
             var data_x = [];
-            for (var i = 0; i < self.calPoints().length ; i++) {
+            for (var i = 0; i < self.calPoints().length; i++) {
                 data_x[i] = self.calPoints()[i].angle();
             }
 
             var data_y = [];
-            for (var i = 0; i < self.calPoints().length ; i++) {
+            for (var i = 0; i < self.calPoints().length; i++) {
                 data_y[i] = self.calPoints()[i].sg();
             }
             console.log(data_x[0]);
@@ -194,6 +234,12 @@ baronbrew = function() {
             });
         }
 
+        self.measureAngle = function(calPoint) {
+            self.selectedCalPointIndex = self.calPoints().indexOf(calPoint);
+            console.log('setting selectedCalPointIndex = ' + self.selectedCalPointIndex);
+            self.readAngle();
+        }
+
 
         self.saveConfig = function() {
             self.command = 5;
@@ -204,8 +250,51 @@ baronbrew = function() {
             }, function(e) {
                 console.log('failed to write to ' + getScratchCharacteristicUUID(4) + ", " + e);
             });
+            self.postConfig();
         }
 
+        self.postConfig = function() {
+            // Sending and receiving data in JSON format using POST mothod
+            //
+            var data = {
+                "id": self.id(),
+                "color": self.color(),
+                "angle0": self.calPoints()[0].angle(),
+                "sg0": self.calPoints()[0].sg(),
+                "angle1": self.calPoints()[1].angle(),
+                "sg1": self.calPoints()[1].sg(),
+                "angle2": self.calPoints()[2].angle(),
+                "sg2": self.calPoints()[2].sg(),
+                "angle3": self.calPoints()[3].angle(),
+                "sg3": self.calPoints()[3].sg(),
+                "angle4": self.calPoints()[4].angle(),
+                "sg4": self.calPoints()[4].sg(),
+                "trueTemp": self.trueTemp(),
+                "measuredTemp": self.measuredTemp(),
+                "cal0": self.coeffs()[0],
+                "cal1": self.coeffs()[1],
+                "cal2": self.coeffs()[2],
+                "cal3": self.coeffs()[3],
+                "calT": self.coeffs()[4]
+            };
+
+            var url = baronbrew.cloudUrl();
+
+            //XHR wasn't redirecting as needed for google sheets app
+            // xhr = new XMLHttpRequest();
+            // xhr.open("POST", url, true);
+            // xhr.setRequestHeader("Content-type", "application/json");
+            // xhr.onreadystatechange = function() {
+            //     if (xhr.readyState == 4 && xhr.status == 200) {
+            //         console.log(xhr.responseText);
+            //     }
+            // }            
+            // console.log("post: "+ JSON.stringify(data);
+            // xhr.send(JSON.stringify(data);
+
+            $.post(url, data);
+
+        }
 
         self.parseResponse = function(data) {
             console.log('BLE characteristic data: ' + hexStringFromUint8Array(new Uint8Array(data)));
@@ -225,13 +314,15 @@ baronbrew = function() {
                 case 6:
                     //angle
                     console.log("reading angle " + hexStringFromUint8Array(new Uint8Array(data)));
-                    self.angle((new Float32Array(data))[0]);
+                    var angle = Math.round((new Float32Array(data))[0] * 100) / 100.0; //round to 2 decimal places
+                    self.calPoints()[self.selectedCalPointIndex].angle(angle);
                     break;
 
                 case 7:
-                    //angle
+                    //temp
                     console.log("reading temp " + hexStringFromUint8Array(new Uint8Array(data)));
-                    self.measuredTemp((new Float32Array(data))[0]);
+                    var temperature = Math.round((new Float32Array(data))[0] * 100) / 100.0;
+                    self.measuredTemp(temperature);
                     break;
             }
 

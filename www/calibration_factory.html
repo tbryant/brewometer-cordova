@@ -49,17 +49,20 @@
 	<div data-bind="with:selectedBrewometer">
 		<span data-bind="text: device.name"></span>
 		<br/>
+
+		id:<input placeholder="1234" type="number" data-bind="value: id"></input>
 		<table >
 			<thead><tr>
-				<th style="width: 250px">Beacon Id (color)</th>
-				<th><a href="#" data-bind="click: readColor"> Read </a></th>
-				<th><a href="#" data-bind="click: writeColor"> Write </a></th>
+				<th >Beacon Id (color)</th>
+				<th><button data-bind="click: readColor"> Read </button></th>
+				<th><button data-bind="click: writeColor"> Write </button></th>
 			</tr></thead>
 			<tbody>
 			<tr>
-				<td style="width: 250px"> 0x<input data-bind="value: color"></input></td>
-				<td></td>
-				<td></td>
+				<td > <input data-bind="value: color"></input></td>
+				<td><select data-bind="options: availableColors, value: brewColor, optionsText: 'colorName'"></select></td>
+
+				<td></input></td>
 			</tr>    
 		</tbody>
 		</table>
@@ -67,13 +70,13 @@
 
 		<table >
 			<thead><tr>
-				<th style="width: 250px">Coefficients</th>
-				<th><a href="#" data-bind="click: readCoeffs"> Read </a></th>
-				<th><a href="#" data-bind="click: writeCoeffs"> Write </a></th>
+				<th >Coefficients</th>
+				<th><button data-bind="click: readCoeffs"> Read </button></th>
+				<th><button data-bind="click: writeCoeffs"> Write </button></th>
 			</tr></thead>
 			<tbody data-bind="foreach: coeffs">
 			<tr>
-				<td style="width: 250px" data-bind="text: $data"></td>
+				<td ><input data-bind="value: $data"> </input></td>
 				<td></td>
 				<td></td>
 			</tr>    
@@ -85,15 +88,15 @@
 			<thead><tr>
 				<th> SG x 1000</th>
 				<th> Angle </th>
-				<th><a href="#" data-bind="click: computeCal"> Compute </a></th>
+				<th><button data-bind="click: computeCal"> Compute </button></th>
 				<th> </th>
 			</tr></thead>
 			<tbody data-bind="foreach: calPoints">
 			<tr>
 				<td> <input data-bind="value: sg"> </input></td>
 				<td> <input data-bind="value: angle"> </input></td>
-				<td> <a href"#" data-bind="click: $parent.readAngle"> Measure </a></td>
-				<td> <text data-bind="text: $parent.angle"</td>
+				<td> <button data-bind="click: $parent.measureAngle"> Measure </button></td>
+				<td> </td>
 			</tr>    
 		</tbody>
 		</table>
@@ -107,7 +110,7 @@
 			<tr>
 				<td> <input data-bind="value: trueTemp"> </input></td>
 				<td> <input data-bind="value: measuredTemp"> </input></td>
-				<td> <a href"#" data-bind="click: readTemp"> Measure </a></td>
+				<td> <button data-bind="click: readTemp"> Measure </button></td>
 			</tr>    
 			</tbody>
 		</table>
@@ -117,19 +120,21 @@
 		<button id="BLEButton" class="green" data-bind="click: saveConfig">Save</button>
 
 		<br/>
+
 		<button id="BLEButton" class="green" data-bind="click: baronbrew.deselectBrewometer">Disconnect</button>
 	</div>
 
 
+	Cloud URL:<input id="BLEId" data-bind="value: cloudUrl" type="url">
 	<table >
 		<thead><tr>
-			<th style="width: 250px">Name</th><th>rssi</th><th></th>
+			<th >Name</th><th>rssi</th><th></th>
 		</tr></thead>
 		<tbody data-bind="foreach: discoveredDevices">
 			<tr>
-				<td style="width: 250px" data-bind="text: device.name"></td>
+				<td  data-bind="text: device.name"></td>
 				<td data-bind="text: rssi"></td>
-				<td><a href="#" data-bind="click: $parent.selectBrewometer">Select</a></td>
+				<td><button data-bind="click: $parent.selectBrewometer">Select</button></td>
 			</tr>    
 		</tbody>
 		<tbody></tbody>

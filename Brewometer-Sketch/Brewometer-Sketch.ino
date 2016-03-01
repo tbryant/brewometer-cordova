@@ -31,6 +31,16 @@ int16_t getAvgTemperature(int count) {
   return int16_t(temperatureFahrenheit);
 }
 
+float getAvgTemperatureNoCalibration(int count) {
+  long temperatureBuffer = 0;
+  for (int i = 0; i < count; i++) {
+    temperatureBuffer += Bean.getTemperature();
+  }
+  float temperatureFahrenheit = (((float)temperatureBuffer / count) * 1.8) + 32.0;
+
+  return temperatureFahrenheit;
+}
+
 double getAvgPitch(int count) {
   AccelerationReading accel = {0, 0, 0};
   double x = 0;
@@ -200,7 +210,7 @@ void loop()
         //Measure Temp
         uint8_t tempByteArray[4];
         float temp;
-        temp = (float)getAvgTemperature(8);
+        temp = getAvgTemperatureNoCalibration(16);
         for(i = 0; i<4 ; i++){
           tempByteArray[i] = ((uint8_t *)&temp)[i];
         }
@@ -219,7 +229,7 @@ void loop()
     double avgPitch = getAvgPitch(16);
     double avgPitchDiff = avgPitchPrev - avgPitch;
 
-    if (abs(avgPitchDiff) < .34) {
+    if (abs(avgPitchDiff) < .25) {
       avgPitchPrev = avgPitch;
       Bean.sleep(20000);
       //check if I should sleep more
