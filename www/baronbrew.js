@@ -52,7 +52,7 @@ baronbrew = function() {
         self.coeffs = ko.observableArray([]);
         self.coeffsArray = new Uint16Array(5);
 
-        self.calPoints = ko.observableArray([new CalPoint(1000, 64.5), new CalPoint(1014, 60.5), new CalPoint(1051, 46.3), new CalPoint(1097, 22.5), new CalPoint(1127, 13.3)]);
+        self.calPoints = ko.observableArray([new CalPoint(1000, 64.5), new CalPoint(1014, 60.5), new CalPoint(1061, 46.3), new CalPoint(1097, 22.5), new CalPoint(1127, 13.3)]);
         self.name = ko.observable();
 
         self.angleSampleCount = 0;
