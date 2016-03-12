@@ -15,6 +15,9 @@
         },
         "cordova-plugin-ipad-multitasking": {
             "PACKAGE_NAME": "com.baronbrew.brewometer"
+        },
+        "cordova-plugin-whitelist": {
+            "PACKAGE_NAME": "com.baronbrew.brewometercordova"
         }
     },
     "dependent_plugins": {}

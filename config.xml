@@ -9,6 +9,7 @@
     </author>
     <content src="index.html" />
     <access origin="*" /><allow-intent href="http://*/*" />
+    <allow-navigation href="http://*/*" />
     <allow-intent href="https://*/*" />
 
     <gap:plugin name="cordova-plugin-ble"/>
