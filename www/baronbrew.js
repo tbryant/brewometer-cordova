@@ -8,7 +8,6 @@ baronbrew = function() {
 
     baronbrew.selectBrewometer = function(brewometer) {
         console.log("selecting brewometer:" + brewometer.device.name);
-        baronbrew.selectedBrewometer(brewometer);
         brewometer.connect();
     }
 
@@ -56,7 +55,12 @@ baronbrew = function() {
         self.calPoints = ko.observableArray([new CalPoint(1000, 64.5), new CalPoint(1014, 60.5), new CalPoint(1051, 46.3), new CalPoint(1097, 22.5), new CalPoint(1127, 13.3)]);
         self.name = ko.observable();
 
+        self.angleSampleCount = 0;
+        self.angleCumulativeSum = 0;
         self.angle = ko.observable();
+
+        self.tempSampleCount = 0;
+        self.tempCumulativeSum = 0;
         self.trueTemp = ko.observable(68);
         self.measuredTemp = ko.observable(68);
 
@@ -234,7 +238,15 @@ baronbrew = function() {
             });
         }
 
+        self.measureTemp = function(calPoint) {
+            self.tempSampleCount = 0;
+            self.tempCumulativeSum = 0;
+            self.readTemp();
+        }
+
         self.measureAngle = function(calPoint) {
+            self.angleSampleCount = 0;
+            self.angleCumulativeSum = 0;
             self.selectedCalPointIndex = self.calPoints().indexOf(calPoint);
             console.log('setting selectedCalPointIndex = ' + self.selectedCalPointIndex);
             self.readAngle();
@@ -314,14 +326,27 @@ baronbrew = function() {
                 case 6:
                     //angle
                     console.log("reading angle " + hexStringFromUint8Array(new Uint8Array(data)));
-                    var angle = Math.round((new Float32Array(data))[0] * 100) / 100.0; //round to 2 decimal places
+                    self.angleCumulativeSum += (new Float32Array(data))[0];
+                    self.angleSampleCount++;
+                    //average many samples
+                    if(self.angleSampleCount < 5){
+                        self.readAngle();
+                    }
+                    var angle = Math.round((self.angleCumulativeSum / self.angleSampleCount)* 10) / 10.0;
                     self.calPoints()[self.selectedCalPointIndex].angle(angle);
+                    
                     break;
 
                 case 7:
                     //temp
+                    self.tempCumulativeSum += (new Float32Array(data))[0];
+                    self.tempSampleCount++;
                     console.log("reading temp " + hexStringFromUint8Array(new Uint8Array(data)));
-                    var temperature = Math.round((new Float32Array(data))[0] * 100) / 100.0;
+                    //average many samples
+                    if(self.tempSampleCount < 5){
+                        self.readTemp();
+                    }
+                    var temperature = Math.round((self.tempCumulativeSum / self.tempSampleCount)* 10) / 10.0;                    
                     self.measuredTemp(temperature);
                     break;
             }
@@ -334,6 +359,8 @@ baronbrew = function() {
 
             function onConnectSuccess(device) {
                 function onServiceSuccess(device) {
+                    baronbrew.selectedBrewometer(self);
+
                     console.log('enabling notifications');
                     self.device.enableNotification(
                         getScratchCharacteristicUUID(5),
