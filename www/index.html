@@ -42,7 +42,8 @@
 	</header>
 
 	<!--<h1>Brewometers</h1>-->
-	<p id="warning">Scanning for Brewometers...
+	<p id="warning">Scanning for Brewometers...<br />
+		(Make sure Bluetooth and Location Services are turned on.)
 	</p>
 
 
@@ -59,15 +60,47 @@
   <option value="PINK">PINK</option>
 </select> <input id="beerName" placeholder="Baron Brew Pale Ale" name="" value="" type="text"><br />
 <button id="setBeerNameButton" class="green" onclick="setBeerName()">Set Beer Name</button>
-<br /><hr><!-- 
-<strong>Calibration Settings</strong><br />
-<button id="BLEButton" class="green" onclick="location.href='calibration.html';">Start Calibration</button><br /><hr> -->
+<br />
+<hr>
 <strong>Cloud Settings</strong><br />
-Enter Cloud URL below:<br />
+Enter Cloud URL:<br />
 <input id="cloudUrl" placeholder="https://..." name="" value="" type="url"><br />
 <input type="checkbox" id="checkCloud" onclick="saveCloudUrl(this)"> Check here to start logging data to the Cloud.<br />
 <span id="cloudResponse"></span><br />
 <hr>
+<strong>Post Comment to Cloud</strong><br />
+<select id="beerColorComment">
+  <option value="RED">RED</option>
+  <option value="GREEN">GREEN</option>
+  <option value="BLACK">BLACK</option>
+  <option value="PURPLE">PURPLE</option>
+  <option value="ORANGE">ORANGE</option>
+  <option value="BLUE">BLUE</option>
+  <option value="YELLOW">YELLOW</option>
+  <option value="PINK">PINK</option>
+</select> <input id="commentPost" placeholder="Original Gravity" name="" value="" type="text"><br />
+<button id="setCommentButton" class="green" onclick="setComment()">Post Comment</button>
+<br />
+<hr>
+<strong>Calibration Settings</strong><br />
+Enter Specific Gravity:<br />
+<input id="measuredCal" placeholder="Brewometer SG" name="" value="" maxlength="5" type="text"><br />
+<input id="actualCal" placeholder="actual SG" name="" maxlength="5" type="text"><br />
+<select id="beerColorCal">
+  <option value="RED">RED</option>
+  <option value="GREEN">GREEN</option>
+  <option value="BLACK">BLACK</option>
+  <option value="PURPLE">PURPLE</option>
+  <option value="ORANGE">ORANGE</option>
+  <option value="BLUE">BLUE</option>
+  <option value="YELLOW">YELLOW</option>
+  <option value="PINK">PINK</option>
+</select> <br />
+<button id="setBeerNameCalButton" class="green" onclick="setCal()">Set</button>
+<button id="setBeerNameCalClearButton" class="green" onclick="clearCal()">Clear All</button>
+<br /><hr><!-- 
+<strong>Calibration Settings</strong><br />
+<button id="BLEButton" class="green" onclick="location.href='calibration.html';">Start Calibration</button><br /><hr> -->
 
 </div>
 

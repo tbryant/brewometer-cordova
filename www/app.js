@@ -116,10 +116,6 @@ var app = (function() {
                 var TempC1 = TempC.toFixed(1);
 
 
-                // Convert SG units and map the specific gravity to a width in percent for the indicator.
-                var sgStandardUnits = beacon.minor / 1000;
-                var sgFix3 = sgStandardUnits.toFixed(3);
-
                 var sgWidth = 1; // Used when SG is less than 990.
                 if (beacon.minor > 1120) { sgWidth = 100; } else if (beacon.minor < 990) { sgWidth = 1; } else { sgWidth = (beacon.minor - 990) / 130 * 100; }
 
@@ -156,6 +152,17 @@ var app = (function() {
                         var brewVarietyValue = brewVariety[i];
                     }
                 }
+
+                // Convert SG units and use calibratation points to display calibrated value
+                var sgStandardUnits = beacon.minor / 1000;
+                var calSetM = localStorage.getItem(brewVarietyValue + '-calM');
+                var calSetA = localStorage.getItem(brewVarietyValue + '-calA');
+                var calVal = evaluateLinear([sgStandardUnits],JSON.parse(calSetM),JSON.parse(calSetA));
+                console.log(calSetM);
+                console.log(calSetA);
+                var sgFix3 = calVal[0].toFixed(3);
+                var sgFix3Uncal = sgStandardUnits.toFixed(3);
+
                 var brewName = localStorage.getItem(brewVarietyValue);
                 if (brewName == null) {
                     brewName = "";
@@ -165,7 +172,7 @@ var app = (function() {
                 var element = $(
                     '<li>'
                     //+	'<strong>UUID: ' + beacon.uuid + '</strong><br />'
-                    + brewName + '<strong>BREWOMETER | ' + brewVarietyValue + '</strong><br />' + '<div style="background:' + brewVarietyValue + ';height:40px;width:' + 100 + '%;"></div>' + 'Specific Gravity:<br /><h1>' + sgFix3 + '</h1>' + '<div style="background:' + brewVarietyValue + ';height:10px;width:' + sgWidth + '%;"></div>' + 'Temperature:<br /><h1>' + beacon.major + '°F</h1><h7>' + TempC1 + '°C</h7>' + '<div style="background:' + brewVarietyValue + ';height:10px;width:' + tempWidth + '%;"></div>' + '<h2>' + dateFormatted + '<br />' + 'Received ' + lastUpdated1 + ' seconds ago ' + rssiCorrected + ' dBm</h2>'
+                    + brewName + '<strong>BREWOMETER | ' + brewVarietyValue + '</strong><br />' + '<div style="background:' + brewVarietyValue + ';height:40px;width:' + 100 + '%;"></div>' + 'Specific Gravity: ' + sgFix3Uncal + ' (uncal.)<br /><h1>' + sgFix3 + '</h1>' + '<div style="background:' + brewVarietyValue + ';height:10px;width:' + sgWidth + '%;"></div>' + 'Temperature:<br /><h1>' + beacon.major + '°F</h1><h7>' + TempC1 + '°C</h7>' + '<div style="background:' + brewVarietyValue + ';height:10px;width:' + tempWidth + '%;"></div>' + '<h2>' + dateFormatted + '<br />' + 'Received ' + lastUpdated1 + ' seconds ago ' + rssiCorrected + ' dBm</h2>'
                     //+	'Proximity: ' + beacon.proximity + '<br />'
                     + '</li>'
                 );
@@ -177,7 +184,8 @@ var app = (function() {
                 var tZoneDays = date.getTimezoneOffset() / 60 / 24;
                 var t = timeNow / 1000 / 60 / 60 / 24 + 25569 - tZoneDays;
                 var brewNamePost = brewName.replace("<br />", "");
-                //console.log(brewNamePost);
+                var commentPost = localStorage.getItem(brewVarietyValue + '-comment');
+                
 
                 if (cloudUrl != null) {
                     $('#cloudUrl').val(cloudUrl);
@@ -210,8 +218,10 @@ var app = (function() {
                             setTimer += 900000;
                             displayRefresh = 0;
                         } else {
-                            $.post(brewURL, { SG: sgFix3, Temp: beacon.major, Color: brewVarietyValue, Timepoint: t, Beer: brewNamePost }, function(data) {
+                            $.post(brewURL, { SG: sgFix3, Temp: beacon.major, Color: brewVarietyValue, Timepoint: t, Beer: brewNamePost, Comment: commentPost }, function(data) {
                                 $("#cloudResponse").text(JSON.stringify(data));
+                                localStorage.setItem(brewVarietyValue + '-comment',"");
+                                //$('#checkCloud').prop('checked', true);
                                 console.log(data);
                             });
                         }
@@ -227,13 +237,34 @@ var app = (function() {
             }
         });
     }
-
+//initialize variables
     var setTimer = Date.now();
     var displayRefresh = 0;
+    var initialM = JSON.stringify([0.900, 1.200]);
+    var initialA = JSON.stringify([0.900, 1.200]);
+    localStorage.setItem("RED-calM", initialM);
+    localStorage.setItem("RED-calA", initialA);
+    localStorage.setItem("GREEN-calM", initialM);
+    localStorage.setItem("GREEN-calA", initialA);
+    localStorage.setItem("BLACK-calM", initialM);
+    localStorage.setItem("BLACK-calA", initialA);
+    localStorage.setItem("PURPLE-calM", initialM);
+    localStorage.setItem("PURPLE-calA", initialA);
+    localStorage.setItem("ORANGE-calM", initialM);
+    localStorage.setItem("ORANGE-calA", initialA);
+    localStorage.setItem("BLUE-calM", initialM);
+    localStorage.setItem("BLUE-calA", initialA);
+    localStorage.setItem("YELLOW-calM", initialM);
+    localStorage.setItem("YELLOW-calA", initialA);
+    localStorage.setItem("PINK-calM", initialM);
+    localStorage.setItem("PINK-calA", initialA);
+
     return app;
 })();
 
 app.initialize();
+
+//function for setting beer name
 
 function setBeerName() {
     var beerName = $('#beerName').val() + '<br />';
@@ -245,6 +276,88 @@ function setBeerName() {
     }
 }
 
+//function for setting comment
+
+function setComment() {
+    //$('#checkCloud').prop('checked', false);
+    var commentPost = $('#commentPost').val();
+    var beerColorComment = $('#beerColorComment').val() + '-comment';
+    localStorage.setItem(beerColorComment, commentPost);
+}
+
+//functions for app-level calibration
+
+function setCal() {
+    //get cal brewometer color from user's entry
+    var beerColorCalMeas = $('#beerColorCal').val() + '-calM';
+    var beerColorCalAct = $('#beerColorCal').val() + '-calA';
+    //get initial/previous values
+    var initialM = JSON.parse(localStorage.getItem(beerColorCalMeas));
+    var initialA = JSON.parse(localStorage.getItem(beerColorCalAct));
+    //combine and sort values
+    initialM.push(Number($('#measuredCal').val()));
+    initialM.sort(function(a, b){return a-b});
+    initialA.push(Number($('#actualCal').val()));
+    initialA.sort(function(a, b){return a-b});
+    //save modified calibration values back to local storage
+    localStorage.setItem(beerColorCalMeas, JSON.stringify(initialM));
+    localStorage.setItem(beerColorCalAct, JSON.stringify(initialA));
+
+}
+
+function clearCal() {
+    var beerColorCalMeas = $('#beerColorCal').val() + '-calM';
+    var beerColorCalAct = $('#beerColorCal').val() + '-calA';
+    localStorage.setItem(beerColorCalMeas, JSON.stringify([0.900, 1.200]));
+    localStorage.setItem(beerColorCalAct, JSON.stringify([0.900, 1.200]));
+}
+
+function evaluateLinear (pointsToEvaluate, functionValuesX, functionValuesY) {
+  var results = []
+  pointsToEvaluate = makeItArrayIfItsNot(pointsToEvaluate)
+  pointsToEvaluate.forEach(function (point) {
+    var index = findIntervalLeftBorderIndex(point, functionValuesX)
+    if (index == functionValuesX.length - 1)
+      index--
+    results.push(linearInterpolation(point, functionValuesX[index], functionValuesY[index]
+      , functionValuesX[index + 1], functionValuesY[index + 1]))
+  })
+  return results
+}
+
+function linearInterpolation (x, x0, y0, x1, y1) {
+  var a = (y1 - y0) / (x1 - x0)
+  var b = -a * x0 + y0
+  return a * x + b
+}
+
+function makeItArrayIfItsNot (input) {
+  return Object.prototype.toString.call( input ) !== '[object Array]'
+    ? [input]
+    : input
+}
+
+function findIntervalLeftBorderIndex (point, intervals) {
+  //If point is beyond given intervals
+  if (point < intervals[0])
+    return 0
+  if (point > intervals[intervals.length - 1])
+    return intervals.length - 1
+  //If point is inside interval
+  //Start searching on a full range of intervals
+  var indexOfNumberToCompare 
+    , leftBorderIndex = 0
+    , rightBorderIndex = intervals.length - 1
+  //Reduce searching range till it find an interval point belongs to using binary search
+  while (rightBorderIndex - leftBorderIndex !== 1) {
+    indexOfNumberToCompare = leftBorderIndex + Math.floor((rightBorderIndex - leftBorderIndex)/2)
+    point >= intervals[indexOfNumberToCompare]
+      ? leftBorderIndex = indexOfNumberToCompare
+      : rightBorderIndex = indexOfNumberToCompare
+  }
+  return leftBorderIndex
+}
+//function for saving CloudURL
 // assign function to onclick property of checkbox
 function saveCloudUrl(checkbox) {
     var cloudUrl = $('#cloudUrl').val();
@@ -255,3 +368,5 @@ function saveCloudUrl(checkbox) {
 };
 //load cloudUrl from localstorage
 var cloudUrl = localStorage.getItem("cloudUrl");
+
+
