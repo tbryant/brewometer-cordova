@@ -158,8 +158,8 @@ var app = (function() {
                 var calSetM = localStorage.getItem(brewVarietyValue + '-calM');
                 var calSetA = localStorage.getItem(brewVarietyValue + '-calA');
                 var calVal = evaluateLinear([sgStandardUnits],JSON.parse(calSetM),JSON.parse(calSetA));
-                console.log(calSetM);
-                console.log(calSetA);
+                //console.log(calSetM);
+                //console.log(calSetA);
                 var sgFix3 = calVal[0].toFixed(3);
                 var sgFix3Uncal = sgStandardUnits.toFixed(3);
 
@@ -185,6 +185,12 @@ var app = (function() {
                 var t = timeNow / 1000 / 60 / 60 / 24 + 25569 - tZoneDays;
                 var brewNamePost = brewName.replace("<br />", "");
                 var commentPost = localStorage.getItem(brewVarietyValue + '-comment');
+                
+                //Post now if comment available to post
+                if (commentPost != "") {
+                    setTimer = Date.now()-1000;
+                    //console.log(commentPost);
+                }
                 
 
                 if (cloudUrl != null) {
@@ -220,10 +226,10 @@ var app = (function() {
                         } else {
                             $.post(brewURL, { SG: sgFix3, Temp: beacon.major, Color: brewVarietyValue, Timepoint: t, Beer: brewNamePost, Comment: commentPost }, function(data) {
                                 $("#cloudResponse").text(JSON.stringify(data));
-                                localStorage.setItem(brewVarietyValue + '-comment',"");
-                                //$('#checkCloud').prop('checked', true);
                                 console.log(data);
                             });
+                                localStorage.setItem(brewVarietyValue + '-comment',"");
+                                $('#commentPost').val('');
                         }
                         //console.log(brewVarietyValue);
 
@@ -237,9 +243,10 @@ var app = (function() {
             }
         });
     }
-//initialize variables
+//initialize timer variables
     var setTimer = Date.now();
     var displayRefresh = 0;
+    //initialize calibration storage
     var initialM = JSON.stringify([0.900, 1.200]);
     var initialA = JSON.stringify([0.900, 1.200]);
     localStorage.setItem("RED-calM", initialM);
@@ -258,6 +265,15 @@ var app = (function() {
     localStorage.setItem("YELLOW-calA", initialA);
     localStorage.setItem("PINK-calM", initialM);
     localStorage.setItem("PINK-calA", initialA);
+    //initialize comment storage
+    localStorage.setItem("RED-comment", "");
+    localStorage.setItem("GREEN-comment", "");
+    localStorage.setItem("BLACK-comment", "");
+    localStorage.setItem("PURPLE-comment", "");
+    localStorage.setItem("ORANGE-comment", "");
+    localStorage.setItem("BLUE-comment", "");
+    localStorage.setItem("YELLOW-comment", "");
+    localStorage.setItem("PINK-comment", "");
 
     return app;
 })();
