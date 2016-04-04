@@ -48,7 +48,7 @@ var app = (function() {
                 // Insert beacon into table of found beacons.
                 var beacon = pluginResult.beacons[i];
                 beacon.timeStamp = Date.now();
-                var key = beacon.uuid; //+ ':' + beacon.major + ':' + beacon.minor;
+                var key = beacon.uuid;
                 beacons[key] = beacon;
 
             }
@@ -98,6 +98,13 @@ var app = (function() {
 
         var timeNow = Date.now();
 
+        //display cal points
+        $("#calPointsSg").text(localStorage.getItem($('#beerColorCal').val() + '-calM') + ',' + localStorage.getItem($('#beerColorCal').val() + '-calA'));
+
+        $("#calPointsTemp").text(localStorage.getItem($('#beerColorCalTemp').val() + '-calM-Temp') + ',' + localStorage.getItem($('#beerColorCalTemp').val() + '-calA-Temp'));
+
+
+
         // Update beacon list.
         $.each(beacons, function(key, beacon) {
             // Only show beacons that are updated during the last 120 seconds.
@@ -109,11 +116,7 @@ var app = (function() {
                 var date = new Date(beacon.timeStamp);
                 var dateFormatted = date.toLocaleString();
 
-                // Map the temperature to a width in percent for the indicator.
-                var tempWidth = beacon.major / 185 * 100;
-                //Convert to degrees celsius
-                var TempC = (beacon.major - 32) * 5 / 9;
-                var TempC1 = TempC.toFixed(1);
+                
 
 
                 var sgWidth = 1; // Used when SG is less than 990.
@@ -152,14 +155,25 @@ var app = (function() {
                         var brewVarietyValue = brewVariety[i];
                     }
                 }
+                // Map the temperature to a width in percent for the indicator.
+                // Convert Temp units and use calibratation points to display calibrated value
+                var tempStandardUnits = beacon.major;
+                var calSetMTemp = localStorage.getItem(brewVarietyValue + '-calM-Temp');
+                var calSetATemp = localStorage.getItem(brewVarietyValue + '-calA-Temp');
+                var calValTemp = evaluateLinear([tempStandardUnits],JSON.parse(calSetMTemp),JSON.parse(calSetATemp));
+
+                var tempWidth = calValTemp/ 185 * 100;
+                //Convert to degrees celsius
+                var TempC = (calValTemp - 32) * 5 / 9;
+                var TempC1 = TempC.toFixed(1);
+                var TempF1 = calValTemp[0].toFixed(1);
 
                 // Convert SG units and use calibratation points to display calibrated value
                 var sgStandardUnits = beacon.minor / 1000;
                 var calSetM = localStorage.getItem(brewVarietyValue + '-calM');
                 var calSetA = localStorage.getItem(brewVarietyValue + '-calA');
                 var calVal = evaluateLinear([sgStandardUnits],JSON.parse(calSetM),JSON.parse(calSetA));
-                //console.log(calSetM);
-                //console.log(calSetA);
+
                 var sgFix3 = calVal[0].toFixed(3);
                 var sgFix3Uncal = sgStandardUnits.toFixed(3);
 
@@ -172,7 +186,7 @@ var app = (function() {
                 var element = $(
                     '<li>'
                     //+	'<strong>UUID: ' + beacon.uuid + '</strong><br />'
-                    + brewName + '<strong>BREWOMETER | ' + brewVarietyValue + '</strong><br />' + '<div style="background:' + brewVarietyValue + ';height:40px;width:' + 100 + '%;"></div>' + 'Specific Gravity: ' + sgFix3Uncal + ' (uncal.)<br /><h1>' + sgFix3 + '</h1>' + '<div style="background:' + brewVarietyValue + ';height:10px;width:' + sgWidth + '%;"></div>' + 'Temperature:<br /><h1>' + beacon.major + '°F</h1><h7>' + TempC1 + '°C</h7>' + '<div style="background:' + brewVarietyValue + ';height:10px;width:' + tempWidth + '%;"></div>' + '<h2>' + dateFormatted + '<br />' + 'Received ' + lastUpdated1 + ' seconds ago ' + rssiCorrected + ' dBm</h2>'
+                    + brewName + '<strong>BREWOMETER | ' + brewVarietyValue + '</strong><br />' + '<div style="background:' + brewVarietyValue + ';height:40px;width:' + 100 + '%;"></div>' + 'Specific Gravity: ' + sgFix3Uncal + ' (uncal.)<br /><h1>' + sgFix3 + '</h1>' + '<div style="background:' + brewVarietyValue + ';height:10px;width:' + sgWidth + '%;"></div>' + 'Temperature: ' + tempStandardUnits + ' (uncal.)<br /><h1>' + TempF1 + '°F</h1><h7>' + TempC1 + '°C</h7>' + '<div style="background:' + brewVarietyValue + ';height:10px;width:' + tempWidth + '%;"></div>' + '<h2>' + dateFormatted + '<br />' + 'Received ' + lastUpdated1 + ' seconds ago ' + rssiCorrected + ' dBm</h2>'
                     //+	'Proximity: ' + beacon.proximity + '<br />'
                     + '</li>'
                 );
@@ -224,7 +238,7 @@ var app = (function() {
                             setTimer += 900000;
                             displayRefresh = 0;
                         } else {
-                            $.post(brewURL, { SG: sgFix3, Temp: beacon.major, Color: brewVarietyValue, Timepoint: t, Beer: brewNamePost, Comment: commentPost }, function(data) {
+                            $.post(brewURL, { SG: sgFix3, Temp: TempF1, Color: brewVarietyValue, Timepoint: t, Beer: brewNamePost, Comment: commentPost }, function(data) {
                                 $("#cloudResponse").text(JSON.stringify(data));
                                 console.log(data);
                             });
@@ -274,6 +288,26 @@ var app = (function() {
     localStorage.setItem("BLUE-comment", "");
     localStorage.setItem("YELLOW-comment", "");
     localStorage.setItem("PINK-comment", "");
+
+    initialM = JSON.stringify([-200, 200]);
+    initialA = JSON.stringify([-200, 200]);
+    localStorage.setItem("RED-calM-Temp", initialM);
+    localStorage.setItem("RED-calA-Temp", initialA);
+    localStorage.setItem("GREEN-calM-Temp", initialM);
+    localStorage.setItem("GREEN-calA-Temp", initialA);
+    localStorage.setItem("BLACK-calM-Temp", initialM);
+    localStorage.setItem("BLACK-calA-Temp", initialA);
+    localStorage.setItem("PURPLE-calM-Temp", initialM);
+    localStorage.setItem("PURPLE-calA-Temp", initialA);
+    localStorage.setItem("ORANGE-calM-Temp", initialM);
+    localStorage.setItem("ORANGE-calA-Temp", initialA);
+    localStorage.setItem("BLUE-calM-Temp", initialM);
+    localStorage.setItem("BLUE-calA-Temp", initialA);
+    localStorage.setItem("YELLOW-calM-Temp", initialM);
+    localStorage.setItem("YELLOW-calA-Temp", initialA);
+    localStorage.setItem("PINK-calM-Temp", initialM);
+    localStorage.setItem("PINK-calA-Temp", initialA);
+
 
     return app;
 })();
@@ -327,6 +361,32 @@ function clearCal() {
     localStorage.setItem(beerColorCalMeas, JSON.stringify([0.900, 1.200]));
     localStorage.setItem(beerColorCalAct, JSON.stringify([0.900, 1.200]));
 }
+
+
+function setCalTemp() {
+    //get cal brewometer color from user's entry
+    var beerColorCalMeas = $('#beerColorCalTemp').val() + '-calM-Temp';
+    var beerColorCalAct = $('#beerColorCalTemp').val() + '-calA-Temp';
+    //get initial/previous values
+    var initialM = JSON.parse(localStorage.getItem(beerColorCalMeas));
+    var initialA = JSON.parse(localStorage.getItem(beerColorCalAct));
+    //combine and sort values
+    initialM.push(Number($('#measuredCalTemp').val()));
+    initialM.sort(function(a, b){return a-b});
+    initialA.push(Number($('#actualCalTemp').val()));
+    initialA.sort(function(a, b){return a-b});
+    //save modified calibration values back to local storage
+    localStorage.setItem(beerColorCalMeas, JSON.stringify(initialM));
+    localStorage.setItem(beerColorCalAct, JSON.stringify(initialA));
+}
+
+function clearCalTemp() {
+    var beerColorCalMeas = $('#beerColorCalTemp').val() + '-calM-Temp';
+    var beerColorCalAct = $('#beerColorCalTemp').val() + '-calA-Temp';
+    localStorage.setItem(beerColorCalMeas, JSON.stringify([-200, 200]));
+    localStorage.setItem(beerColorCalAct, JSON.stringify([-200, 200]));
+}
+
 
 function evaluateLinear (pointsToEvaluate, functionValuesX, functionValuesY) {
   var results = []
