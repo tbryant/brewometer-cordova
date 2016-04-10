@@ -260,9 +260,10 @@ var app = (function() {
 //initialize timer variables
     var setTimer = Date.now();
     var displayRefresh = 0;
-    //initialize calibration storage
+    //initialize calibration storage if runnig app for the first time
     var initialM = JSON.stringify([0.900, 1.200]);
     var initialA = JSON.stringify([0.900, 1.200]);
+    if (localStorage.getItem("storage") != "initialized"){
     localStorage.setItem("RED-calM", initialM);
     localStorage.setItem("RED-calA", initialA);
     localStorage.setItem("GREEN-calM", initialM);
@@ -307,8 +308,9 @@ var app = (function() {
     localStorage.setItem("YELLOW-calA-Temp", initialA);
     localStorage.setItem("PINK-calM-Temp", initialM);
     localStorage.setItem("PINK-calA-Temp", initialA);
-
-
+    //set flag that localstorage is initialized
+    localStorage.setItem("storage","initialized");
+}
     return app;
 })();
 
