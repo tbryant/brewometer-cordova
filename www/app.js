@@ -194,6 +194,11 @@ var app = (function() {
                 $('#warning').remove();
                 $('#found-beacons').append(element);
 
+                //save last SG to localStorage and update calibration settings section
+                localStorage.setItem(brewVarietyValue + '-SG', sgFix3Uncal);
+                localStorage.setItem(brewVarietyValue + '-Temp', tempStandardUnits);
+
+
                 //post to cloud
                 var tZoneDays = date.getTimezoneOffset() / 60 / 24;
                 var t = timeNow / 1000 / 60 / 60 / 24 + 25569 - tZoneDays;
@@ -261,8 +266,8 @@ var app = (function() {
     var setTimer = Date.now();
     var displayRefresh = 0;
     //initialize calibration storage if runnig app for the first time
-    var initialM = JSON.stringify([0.900, 1.200]);
-    var initialA = JSON.stringify([0.900, 1.200]);
+    var initialM = JSON.stringify([0, 10]);
+    var initialA = JSON.stringify([0, 10]);
     if (localStorage.getItem("storage") != "initialized"){
     localStorage.setItem("RED-calM", initialM);
     localStorage.setItem("RED-calA", initialA);
@@ -343,6 +348,9 @@ function setCal() {
     //get cal brewometer color from user's entry
     var beerColorCalMeas = $('#beerColorCal').val() + '-calM';
     var beerColorCalAct = $('#beerColorCal').val() + '-calA';
+    //get measured value
+    var measuredValue = localStorage.getItem($('#beerColorCal').val() + '-SG');
+    $('#measuredCal').val(measuredValue);
     //get initial/previous values
     var initialM = JSON.parse(localStorage.getItem(beerColorCalMeas));
     var initialA = JSON.parse(localStorage.getItem(beerColorCalAct));
@@ -360,8 +368,8 @@ function setCal() {
 function clearCal() {
     var beerColorCalMeas = $('#beerColorCal').val() + '-calM';
     var beerColorCalAct = $('#beerColorCal').val() + '-calA';
-    localStorage.setItem(beerColorCalMeas, JSON.stringify([0.900, 1.200]));
-    localStorage.setItem(beerColorCalAct, JSON.stringify([0.900, 1.200]));
+    localStorage.setItem(beerColorCalMeas, JSON.stringify([0, 10]));
+    localStorage.setItem(beerColorCalAct, JSON.stringify([0, 10]));
 }
 
 
@@ -369,6 +377,9 @@ function setCalTemp() {
     //get cal brewometer color from user's entry
     var beerColorCalMeas = $('#beerColorCalTemp').val() + '-calM-Temp';
     var beerColorCalAct = $('#beerColorCalTemp').val() + '-calA-Temp';
+    //get measured value
+    var measuredValueTemp = localStorage.getItem($('#beerColorCalTemp').val() + '-Temp');
+    $('#measuredCalTemp').val(measuredValueTemp);
     //get initial/previous values
     var initialM = JSON.parse(localStorage.getItem(beerColorCalMeas));
     var initialA = JSON.parse(localStorage.getItem(beerColorCalAct));
