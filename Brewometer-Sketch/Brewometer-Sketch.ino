@@ -11,10 +11,12 @@ int i;
 
 uint8_t tempOffset = 10;
 uint8_t sgOffset = 20;
+uint16_t batteryVoltage = 0;
 float factoryTempOffset = 0;
 float cal[4];
 double avgPitchPrev;
 
+const int versionNumber = 1;
 const uint8_t ledScratch = 1;
 const uint8_t temperatureScratch = 2;
 const uint8_t sgScratch = 3;
@@ -217,6 +219,11 @@ void loop()
         Bean.setScratchData(inputOutputScratch, tempByteArray, 4);
         endCommand();
         break;
+      case 8:
+        //Version
+        Bean.setScratchNumber(inputOutputScratch, versionNumber);
+        endCommand();
+        break;  
       default:
         Bean.sleep(500);
         break;
@@ -228,6 +235,9 @@ void loop()
     temperatureBufferAverage = getAvgTemperature(8);
     double avgPitch = getAvgPitch(16);
     double avgPitchDiff = avgPitchPrev - avgPitch;
+    batteryVoltage = Bean.getBatteryVoltage();
+
+    uint16_t temperatureAndBattery = 1000*(batteryVoltage/10) + temperatureBufferAverage; 
 
     if (abs(avgPitchDiff) < .25) {
       avgPitchPrev = avgPitch;
@@ -267,7 +277,7 @@ void loop()
     int16_t avgPitch16;
     avgPitch16 = (int16_t) avgPitch;
 
-    updateBeaconParameters(temperatureBufferAverage, sG16);
+    updateBeaconParameters(temperatureAndBattery, sG16);
     Bean.sleep(10000);
   }
 }
