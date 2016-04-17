@@ -243,7 +243,7 @@ var app = (function() {
                             setTimer += 900000;
                             displayRefresh = 0;
                         } else {
-                            $.post(brewURL, { SG: sgFix3, Temp: TempF1, TempC: TempC1, Color: brewVarietyValue, Timepoint: t, Beer: brewNamePost, Comment: commentPost }, function(data) {
+                            $.post(brewURL, { SG: sgFix3, Temp: TempF1, Color: brewVarietyValue, Timepoint: t, Beer: brewNamePost, Comment: commentPost }, function(data) {
                                 $("#cloudResponse").text(JSON.stringify(data));
                                 console.log(data);
                             });
