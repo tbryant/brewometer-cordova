@@ -82,13 +82,7 @@ Enter Cloud URL:<br />
 <button id="setCommentButton" class="green" onclick="setComment()">Post Comment</button>
 <br />
 <hr>
-<strong>Multi-Point Calibration</strong><br />
-Specific Gravity: <input id="measuredCal" size="5"><br />
-<p>To calibrate, place Brewometer in 68°F (20°C) water, select Brewometer color and press ADD.</p>
-Actual SG:<input id="actualCal" placeholder="Actual SG" name="" value="1.000" maxlength="5" type="text"><br />
-<p>(Enter 1.000 for water or any known SG and press ADD. Saved cal points listed below includes default values.)</p>
-<div id="calPointsSg">
-</div>
+<strong>Calibrate Specific Gravity </strong><br />
 <select id="beerColorCal">
   <option value="RED">RED</option>
   <option value="GREEN">GREEN</option>
@@ -99,15 +93,17 @@ Actual SG:<input id="actualCal" placeholder="Actual SG" name="" value="1.000" ma
   <option value="YELLOW">YELLOW</option>
   <option value="PINK">PINK</option>
 </select> <br />
-<button id="setBeerNameCalButton" class="green" onclick="setCal()">Add</button>
-<button id="setBeerNameCalClearButton" class="green" onclick="clearCal()">Clear</button>
-<br />
-Temperature: <input id="measuredCalTemp" size="5"><br />
-<p>To calibrate, place Brewometer in room temperature water for at least one hour. Measure temperature with a thermometer, enter value below, select Brewometer color and press ADD.</p>
-Actual T:<input id="actualCalTemp" placeholder="Actual Temp. (°F)" name="" maxlength="5" type="text"><br />
-<p>(Enter temperature taken with an accurate thermometer. Saved cal points listed below includes default values.)</p>
-<div id="calPointsTemp">
+<button id="setBeerNameCalButton" class="green" onclick="setTare()">TARE IN WATER</button>
+Uncalibrated SG:<br />
+<input id="measuredCal" placeholder="Brewometer SG" type="text"> <input type="checkbox" id="checkAuto" onclick="getMeasuredSG()"> auto<br />
+Actual SG:<br /><input id="actualCal" placeholder="Actual SG" name="" value="" maxlength="5" type="text"> <input type="checkbox" id="checkWater" onclick=""> water<br />
+Calibration Points:
+<div id="calPointsSg">
 </div>
+<button id="setBeerNameCalButton" class="green" onclick="setCal()">Add Point</button>
+<button id="setBeerNameCalClearButton" class="green" onclick="clearCal()">Clear</button>
+<br /><hr>
+<strong>Calibrate Temperature</strong>
 <select id="beerColorCalTemp">
   <option value="RED">RED</option>
   <option value="GREEN">GREEN</option>
@@ -118,7 +114,12 @@ Actual T:<input id="actualCalTemp" placeholder="Actual Temp. (°F)" name="" maxl
   <option value="YELLOW">YELLOW</option>
   <option value="PINK">PINK</option>
 </select> <br />
-<button id="setBeerNameCalTempButton" class="green" onclick="setCalTemp()">Add</button>
+Uncalibrated Temp. (°F):<br /><input id="measuredCalTemp" placeholder="Brewometer Temp." type="text"> <input type="checkbox" id="checkAutoTemp" onclick="getMeasuredTemp()"> auto<br />
+Actual Temp. (°F):<br /><input id="actualCalTemp" placeholder="Actual Temp." name="" maxlength="5" type="text"><br />
+Calibration Points:
+<div id="calPointsTemp">
+</div>
+<button id="setBeerNameCalTempButton" class="green" onclick="setCalTemp()">Add Point</button>
 <button id="setBeerNameCalTempClearButton" class="green" onclick="clearCalTemp()">Clear</button>
 <br /><hr><!-- 
 <strong>Calibration Settings</strong><br />
@@ -134,5 +135,17 @@ $("#settingsdiv").hide();
 $("#settings").click(function(){
         $("#settingsdiv").toggle(100);
     });
+$("#checkWater").click(function(){
+  $("#actualCal").val("1.000");
+});
+$("#actualCal").click(function(){
+  $("#checkWater").prop("checked", false);
+});
+$("#measuredCal").click(function(){
+  $("#checkAuto").prop("checked", false);
+});
+$("#measuredCalTemp").click(function(){
+  $("#checkAutoTemp").prop("checked", false);
+});
 	</script>
 </html>
