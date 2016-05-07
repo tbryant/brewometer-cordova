@@ -6,3 +6,5 @@ platforms/
 
 # res
 resources/signing
+
+*.zip

@@ -99,9 +99,9 @@ var app = (function() {
         var timeNow = Date.now();
 
         //display cal points
-        $("#calPointsSg").text(localStorage.getItem($('#beerColorCal').val() + '-calM') + ',' + localStorage.getItem($('#beerColorCal').val() + '-calA'));
+        $("#calPointsSg").text(localStorage.getItem($('#beerColorCal').val() + '-calM').replace("0,","").replace("10","") + ' , ' + localStorage.getItem($('#beerColorCal').val() + '-calA').replace("0,","").replace("10",""));
 
-        $("#calPointsTemp").text(localStorage.getItem($('#beerColorCalTemp').val() + '-calM-Temp') + ',' + localStorage.getItem($('#beerColorCalTemp').val() + '-calA-Temp'));
+        $("#calPointsTemp").text(localStorage.getItem($('#beerColorCalTemp').val() + '-calM-Temp').replace("-200,","").replace("200","") +  ' , ' + localStorage.getItem($('#beerColorCalTemp').val() + '-calA-Temp').replace("-200,","").replace("200",""));
 
 
 
@@ -348,8 +348,32 @@ function setCal() {
     //get cal brewometer color from user's entry
     var beerColorCalMeas = $('#beerColorCal').val() + '-calM';
     var beerColorCalAct = $('#beerColorCal').val() + '-calA';
+    //get initial/previous values
+    var initialM = JSON.parse(localStorage.getItem(beerColorCalMeas));
+    var initialA = JSON.parse(localStorage.getItem(beerColorCalAct));
+    //combine and sort values
+    initialM.push(Number($('#measuredCal').val()));
+    initialM.sort(function(a, b){return a-b});
+    initialA.push(Number($('#actualCal').val()));
+    initialA.sort(function(a, b){return a-b});
+    //save modified calibration values back to local storage
+    localStorage.setItem(beerColorCalMeas, JSON.stringify(initialM));
+    localStorage.setItem(beerColorCalAct, JSON.stringify(initialA));
+
+}
+
+function setTare() {
+    //get cal brewometer color from user's entry
+    var beerColorCalMeas = $('#beerColorCal').val() + '-calM';
+    var beerColorCalAct = $('#beerColorCal').val() + '-calA';
     //get measured value
     var measuredValue = localStorage.getItem($('#beerColorCal').val() + '-SG');
+    if(measuredValue == null){
+        measuredValue = "Error: Check color"
+    }
+    $("#checkAuto").prop("checked", true);
+    $("#checkWater").prop("checked", true);
+    $("#actualCal").val("1.000");
     $('#measuredCal').val(measuredValue);
     //get initial/previous values
     var initialM = JSON.parse(localStorage.getItem(beerColorCalMeas));
@@ -365,6 +389,16 @@ function setCal() {
 
 }
 
+function getMeasuredSG (){
+    var measuredValue = localStorage.getItem($('#beerColorCal').val() + '-SG');
+    $('#measuredCal').val(measuredValue);
+}
+
+function getMeasuredTemp (){
+    var measuredValue = localStorage.getItem($('#beerColorCalTemp').val() + '-Temp');
+    $('#measuredCalTemp').val(measuredValue);
+}
+
 function clearCal() {
     var beerColorCalMeas = $('#beerColorCal').val() + '-calM';
     var beerColorCalAct = $('#beerColorCal').val() + '-calA';
@@ -377,9 +411,6 @@ function setCalTemp() {
     //get cal brewometer color from user's entry
     var beerColorCalMeas = $('#beerColorCalTemp').val() + '-calM-Temp';
     var beerColorCalAct = $('#beerColorCalTemp').val() + '-calA-Temp';
-    //get measured value
-    var measuredValueTemp = localStorage.getItem($('#beerColorCalTemp').val() + '-Temp');
-    $('#measuredCalTemp').val(measuredValueTemp);
     //get initial/previous values
     var initialM = JSON.parse(localStorage.getItem(beerColorCalMeas));
     var initialA = JSON.parse(localStorage.getItem(beerColorCalAct));
