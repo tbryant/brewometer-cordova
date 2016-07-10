@@ -34,7 +34,7 @@ float FmultiMap(float value, float * in, float * out, uint8_t size)
 {
   // search right intervalue
   uint8_t i = 1;
-  while ((value > in[i]) && (i < size)) i++;
+  while ((value > in[i]) && (i < size-1)) i++;
 
   // interpolate in the right segment for the rest
   return (value - in[i - 1]) * (out[i] - out[i - 1]) / (in[i] - in[i - 1]) + out[i - 1];
