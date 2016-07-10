@@ -145,12 +145,13 @@ baronbrew = function() {
                 console.log(minimiser.solution[j]);
             }
             coeffsArray = new Uint16Array(5)
-                //multiply and offset
-            coeffsArray[0] = minimiser.solution[0] * (-1000000);
-            coeffsArray[1] = minimiser.solution[1] * (10000);
-            coeffsArray[2] = minimiser.solution[2] * (-1000);
-            coeffsArray[3] = minimiser.solution[3] * (10);
-            coeffsArray[4] = (self.trueTemp() - self.measuredTemp() + 10) * 10;
+
+            //cal coefficients are based on multimap
+            coeffsArray[0] = 0;
+            coeffsArray[1] = 0;
+            coeffsArray[2] = 0;
+            coeffsArray[3] = 0;
+            coeffsArray[4] = 0;
             self.coeffs(coeffsArray);
 
         }
@@ -313,7 +314,7 @@ baronbrew = function() {
             switch (self.command) {
                 case 1:
                     //coeffs
-                    console.log("read coeffs " + hexStringFromUint8Array(data));
+                    console.log("read coeffs " + hexStringFromUint8Array(new Uint8Array(data)));
                     self.coeffs(new Uint16Array(data));
                     break;
 
