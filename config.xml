@@ -1,11 +1,11 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.baronbrew.brewometercordova" version="1.3" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0" xmlns:gap="http://phonegap.com/ns/1.0">
-    <name>Brewometer</name>
+<widget id="com.baronbrew.brewometercordova" version="1.4" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0" xmlns:gap="http://phonegap.com/ns/1.0">
+    <name>Tilt</name>
     <description>
-        Reads data from your brewometers.  Buy more brewometers here: http://brewometer.net
+        Reads data from your Tilt.  Buy more Tilts here: http://tilthydrometer.com
     </description>
-    <author email="info@baronbrew.com" href="http://baronbrew.com">
-        Brewometer Team
+    <author email="info@baronbrew.com" href="http://tilthydrometer.com">
+        Tilt Team
     </author>
     <content src="index.html" />
     <access origin="*" /><allow-intent href="http://*/*" />

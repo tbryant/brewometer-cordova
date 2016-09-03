@@ -98,11 +98,26 @@ var app = (function() {
 
         var timeNow = Date.now();
 
+        var calM = JSON.parse(localStorage.getItem($('#beerColorCal').val() + '-calM'));
+        var calA = JSON.parse(localStorage.getItem($('#beerColorCal').val() + '-calA'));
         //display cal points
-        $("#calPointsSg").text(localStorage.getItem($('#beerColorCal').val() + '-calM').replace("0,","").replace("10","") + ' , ' + localStorage.getItem($('#beerColorCal').val() + '-calA').replace("0,","").replace("10",""));
+        var calPointsSgTable = "<table><tr><td>Uncalibrated</td><td>Actual</td></tr>";
+        for (var i = 1 ; i < calM.length-1 ; i++){
+            calPointsSgTable += "<tr><td>" + calM[i] + "</td>";
+            calPointsSgTable += "<td>" + calA[i] + "</td></tr>";
+        }
+        $("#calPointsSg").html(calPointsSgTable);
 
-        $("#calPointsTemp").text(localStorage.getItem($('#beerColorCalTemp').val() + '-calM-Temp').replace("-200,","").replace("200","") +  ' , ' + localStorage.getItem($('#beerColorCalTemp').val() + '-calA-Temp').replace("-200,","").replace("200",""));
+        var calMTemp = JSON.parse(localStorage.getItem($('#beerColorCal').val() + '-calM-Temp'));
+        var calATemp = JSON.parse(localStorage.getItem($('#beerColorCal').val() + '-calA-Temp'));
+        //display cal points
+        var calPointsTempTable = "<table><tr><td>Uncalibrated</td><td>Actual</td></tr>";
+        for (var i = 1 ; i < calMTemp.length-1 ; i++){
+            calPointsTempTable += "<tr><td>" + calMTemp[i] + "</td>";
+            calPointsTempTable += "<td>" + calATemp[i] + "</td></tr>";
+        }
 
+        $("#calPointsTemp").html(calPointsTempTable);
 
 
         // Update beacon list.
@@ -157,16 +172,28 @@ var app = (function() {
                 }
                 // Map the temperature to a width in percent for the indicator.
                 // Convert Temp units and use calibratation points to display calibrated value
+
                 var tempStandardUnits = beacon.major;
+                var temperatureUnitString = "°F"; 
+                var maxTemp = 185;
+
+                var useCelsiusChecked = localStorage.getItem("useCelsiusChecked");               
+                if(useCelsiusChecked=="true"){
+                    tempStandardUnits = (tempStandardUnits - 32) * 5 / 9;
+                    temperatureUnitString = "°C";
+                    maxTemp = (maxTemp - 32) * 5 / 9;
+                    $('#checkUseCelsius').prop('checked', true);
+                } else {
+                    $('#checkUseCelsius').prop('checked', false);
+                }
+
                 var calSetMTemp = localStorage.getItem(brewVarietyValue + '-calM-Temp');
                 var calSetATemp = localStorage.getItem(brewVarietyValue + '-calA-Temp');
                 var calValTemp = evaluateLinear([tempStandardUnits],JSON.parse(calSetMTemp),JSON.parse(calSetATemp));
-
-                var tempWidth = calValTemp/ 185 * 100;
+                var tempWidth = (calValTemp / maxTemp) * 100;
                 //Convert to degrees celsius
-                var TempC = (calValTemp - 32) * 5 / 9;
-                var TempC1 = TempC.toFixed(1);
-                var TempF1 = calValTemp[0].toFixed(1);
+                var uncalTempDisplay = tempStandardUnits.toFixed(1);
+                var calTempDisplay = calValTemp[0].toFixed(1);
 
                 // Convert SG units and use calibratation points to display calibrated value
                 var sgStandardUnits = beacon.minor / 1000;
@@ -186,7 +213,7 @@ var app = (function() {
                 var element = $(
                     '<li>'
                     //+	'<strong>UUID: ' + beacon.uuid + '</strong><br />'
-                    + brewName + '<strong>BREWOMETER | ' + brewVarietyValue + '</strong><br />' + '<div style="background:' + brewVarietyValue + ';height:40px;width:' + 100 + '%;"></div>' + 'Specific Gravity: ' + sgFix3Uncal + ' (uncal.)<br /><h1>' + sgFix3 + '</h1>' + '<div style="background:' + brewVarietyValue + ';height:10px;width:' + sgWidth + '%;"></div>' + 'Temperature: ' + tempStandardUnits + ' (uncal.)<br /><h1>' + TempF1 + '°F</h1><h7>' + TempC1 + '°C</h7>' + '<div style="background:' + brewVarietyValue + ';height:10px;width:' + tempWidth + '%;"></div>' + '<h2>' + dateFormatted + '<br />' + 'Received ' + lastUpdated1 + ' seconds ago ' + rssiCorrected + ' dBm</h2>'
+                    + brewName + '<strong>TILT | ' + brewVarietyValue + '</strong><br />' + '<div style="background:' + brewVarietyValue + ';height:40px;width:' + 100 + '%;"></div>' + 'Specific Gravity: ' + sgFix3Uncal + ' (uncal.)<br /><h1>' + sgFix3 + '</h1>' + '<div style="background:' + brewVarietyValue + ';height:10px;width:' + sgWidth + '%;"></div>' + 'Temperature: ' + uncalTempDisplay + ' (uncal.)<br /><h1>' + calTempDisplay + temperatureUnitString + '</h1>' + '<div style="background:' + brewVarietyValue + ';height:10px;width:' + tempWidth + '%;"></div>' + '<h2>' + dateFormatted + '<br />' + 'Received ' + lastUpdated1 + ' seconds ago ' + rssiCorrected + ' dBm</h2>'
                     //+	'Proximity: ' + beacon.proximity + '<br />'
                     + '</li>'
                 );
@@ -226,6 +253,11 @@ var app = (function() {
                     // console.log('post to cloud checked=' + checkCloud);
 
                 }
+                 if (serviceUrl != null) {
+                    $('#serviceUrl').val(serviceUrl);
+                    console.log('loaded Url from localStorage:' + serviceUrl);
+                    serviceUrl = null;                    
+                }
 
                 var brewURL = $('#cloudUrl').val();
                 var brewCheck = $('#checkCloud').prop('checked');
@@ -238,12 +270,12 @@ var app = (function() {
                     if (timeNow - setTimer > 100) {
                         //start counting number of refresh cycles
                         displayRefresh++;
-                        //List of Brewometers will increment at same rate of counting refresh cycles until list repeats itself making them unequal
+                        //List of Tilts will increment at same rate of counting refresh cycles until list repeats itself making them unequal
                         if (brewNumber != displayRefresh) {
                             setTimer += 900000;
                             displayRefresh = 0;
                         } else {
-                            $.post(brewURL, { SG: sgFix3, Temp: TempF1, Color: brewVarietyValue, Timepoint: t, Beer: brewNamePost, Comment: commentPost }, function(data) {
+                            $.post(brewURL, { SG: sgFix3, Temp: calValTemp[0], Color: brewVarietyValue, Timepoint: t, Beer: brewNamePost, Comment: commentPost }, function(data) {
                                 $("#cloudResponse").text(JSON.stringify(data));
                                 console.log(data);
                             });
@@ -345,7 +377,7 @@ function setComment() {
 //functions for app-level calibration
 
 function setCal() {
-    //get cal brewometer color from user's entry
+    //get cal Tilt color from user's entry
     var beerColorCalMeas = $('#beerColorCal').val() + '-calM';
     var beerColorCalAct = $('#beerColorCal').val() + '-calA';
     //get initial/previous values
@@ -363,7 +395,8 @@ function setCal() {
 }
 
 function setTare() {
-    //get cal brewometer color from user's entry
+    clearCal();
+    //get cal Tilt color from user's entry
     var beerColorCalMeas = $('#beerColorCal').val() + '-calM';
     var beerColorCalAct = $('#beerColorCal').val() + '-calA';
     //get measured value
@@ -408,7 +441,7 @@ function clearCal() {
 
 
 function setCalTemp() {
-    //get cal brewometer color from user's entry
+    //get cal Tilt color from user's entry
     var beerColorCalMeas = $('#beerColorCalTemp').val() + '-calM-Temp';
     var beerColorCalAct = $('#beerColorCalTemp').val() + '-calA-Temp';
     //get initial/previous values
@@ -489,4 +522,17 @@ function saveCloudUrl(checkbox) {
 //load cloudUrl from localstorage
 var cloudUrl = localStorage.getItem("cloudUrl");
 
+//function for saving useCelsius
+// assign function to onclick property of checkbox
+function saveUseCelsius(checkbox) {
+    localStorage.setItem("useCelsiusChecked", checkbox.checked);
+    console.log('useCelsiusChecked=' + checkbox.checked);
+};
 
+function goServiceUrl(){
+    var serviceUrl = $('#serviceUrl').val();
+    localStorage.setItem("serviceUrl", serviceUrl);
+    location.href = serviceUrl;
+}
+//load serviceUrl from localstorage
+var serviceUrl = localStorage.getItem("serviceUrl");

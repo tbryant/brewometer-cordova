@@ -9,7 +9,7 @@
     <meta http-equiv="Content-Security-Policy" content="default-src *; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'unsafe-eval'">
 
 
-	<title>Brewometer</title>
+	<title>Tilt</title>
 
 	<style>
 		@import 'ui/css/evothings-app.css';
@@ -31,18 +31,14 @@
 <body>
 
 	<header>
-		<!--<button class="back" onclick="history.back()"><img src="ui/images/arrow-left.svg" /></button>-->
 
 		<button id=settings class="back"> <img src="ui/images/Gear_icon.svg" alt="Settings"/></button>
 
-		<img class="logotype" src="ui/images/brewometer.svg" alt="Brewometer" />
-
-		<!--<button class="menu" onclick=""><img src="ui/images/menu.svg" /></button>-->
+		<img class="logotype" src="ui/images/tilt_logo.svg" alt="Tilt" />
 
 	</header>
 
-	<!--<h1>Brewometers</h1>-->
-	<p id="warning">Scanning for Brewometers...<br />
+	<p id="warning">Scanning for Tilts...<br />
 		(Make sure Bluetooth and Location Services are turned on.)
 	</p>
 
@@ -95,15 +91,22 @@ Enter Cloud URL:<br />
 </select> <br />
 <button id="setBeerNameCalButton" class="green" onclick="setTare()">TARE IN WATER</button>
 Uncalibrated SG:<br />
-<input id="measuredCal" placeholder="Brewometer SG" type="text"> <input type="button" id="checkAuto" onclick="getMeasuredSG()" value="update"><br />
+<input id="measuredCal" placeholder="Tilt SG" type="text"> <input type="button" id="checkAuto" onclick="getMeasuredSG()" value="update"><br />
 Actual SG:<br /><input id="actualCal" placeholder="Actual SG" name="" value="" maxlength="5" type="text"> <input type="button" id="checkWater" onclick="" value="water"><br />
+
+<button id="setBeerNameCalButton" class="green" onclick="setCal()">Add Point</button>
+<button id="setBeerNameCalClearButton" class="green" onclick="clearCal()">Clear</button>
+<br />
 Calibration Points:
 <div id="calPointsSg">
 </div>
-<button id="setBeerNameCalButton" class="green" onclick="setCal()">Add Point</button>
-<button id="setBeerNameCalClearButton" class="green" onclick="clearCal()">Clear</button>
-<br /><hr>
+<hr>
+<strong>Temperature</strong>
+<br>
+<input type="checkbox" id="checkUseCelsius" onclick="saveUseCelsius(this)"> Use Celsius <br />
+<hr>
 <strong>Calibrate Temperature</strong>
+<br>
 <select id="beerColorCalTemp">
   <option value="RED">RED</option>
   <option value="GREEN">GREEN</option>
@@ -114,17 +117,20 @@ Calibration Points:
   <option value="YELLOW">YELLOW</option>
   <option value="PINK">PINK</option>
 </select> <br />
-Uncalibrated Temp. (°F):<br /><input id="measuredCalTemp" placeholder="Brewometer Temp." type="text"> <input type="button" id="checkAutoTemp" onclick="getMeasuredTemp()" value="update"><br />
-Actual Temp. (°F):<br /><input id="actualCalTemp" placeholder="Actual Temp." name="" maxlength="5" type="text"><br />
-Calibration Points:
-<div id="calPointsTemp">
-</div>
+
+Uncalibrated Temp. :<br /><input id="measuredCalTemp" placeholder="Tilt Temp." type="text"> <input type="button" id="checkAutoTemp" onclick="getMeasuredTemp()" value="update"><br />
+Actual Temp. :<br /><input id="actualCalTemp" placeholder="Actual Temp." name="" maxlength="5" type="text"><br />
 <button id="setBeerNameCalTempButton" class="green" onclick="setCalTemp()">Add Point</button>
 <button id="setBeerNameCalTempClearButton" class="green" onclick="clearCalTemp()">Clear</button>
-<br /><hr><!-- 
+<br />
+Calibration Points:
+<div id="calPointsTemp"></div>
+<hr><!-- 
 <strong>Calibration Settings</strong><br />
 <button id="BLEButton" class="green" onclick="location.href='calibration.html';">Start Calibration</button><br /><hr> -->
-
+<input id="serviceUrl" placeholder="Service Port" name="" value="" type="url">
+<input type="button" id="goServiceUrl" onclick="goServiceUrl()" value="go"><br />
+<hr>
 </div>
 
 	<ul id="found-beacons" class="dynamic"></ul>

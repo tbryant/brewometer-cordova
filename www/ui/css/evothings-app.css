@@ -138,11 +138,11 @@ header button.back img {
 
 header img.logotype {
 	position: absolute;
-	top: 55%;
+	top: 50%;
 	left: 0;
 	right: 0;
 
-	height: 60%;
+	height: 100%;
 
 	margin: 0 auto;
 
