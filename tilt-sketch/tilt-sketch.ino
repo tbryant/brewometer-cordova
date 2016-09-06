@@ -15,10 +15,10 @@ float factoryTempOffset = 0;
 float cal[4];
 float calTemperature = 75.0; //temperature of final solution for temp cal
 int calTemperatureIntervals = 4; //number of 10 second intervals to wait
-float calRangesHigh[3] = {75.0, 55.0, 30.0};  //upper bounds for angle at cal set points
-float calRangesLow[3] = {55.0, 30.0, 10.0}; //lower bounds for angle at cal set points
-float calSetPoints[3] = {1.000, 1.061, 1.127}; //cal SG set points
-float standardCurve[4] = { -0.001691, 0.1837, -8.018, 1204.6}; //coefficients for 3rd order polynomial
+float calRangesHigh[3] = {75.0, 55.0, 20.0};  //upper bounds for angle at cal set points
+float calRangesLow[3] = {55.0, 20.0, 2.0}; //lower bounds for angle at cal set points
+float calSetPoints[3] = {1.000, 1.061, 1.110}; //cal SG set points
+float standardCurve[4] = { -0.000840, 0.0952, -4.855, 1139.8 }; //coefficients for 3rd order polynomial
 float avgPitchPrev;
 uint8_t calibrationState = 0;
 int currentCalPoint = 2;
