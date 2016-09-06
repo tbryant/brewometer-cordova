@@ -1,19 +1,19 @@
 baronbrew = function() {
     var baronbrew = {};
     baronbrew.discoveredDevices = ko.observableArray([]);
-    baronbrew.selectedBrewometer = ko.observable();
+    baronbrew.selectedTilt = ko.observable();
     baronbrew.cloudUrl = ko.observable('https://script.google.com/macros/s/AKfycbyqztVynRkEa0XKZpsa_fZcrtbXrbvQA0vdMjYHAoX5fIQr8cfc/exec');
         //'https://script.googleusercontent.com/macros/echo?user_content_key=VjBuv7-OIeh0VYRauT9wCxSFV1jJm2u2h-2tF7mJhaZUk_fSePkKbqmy-0dZoBmdsZruB-x_AzpzZQ4ir3IPitU5j7QqrZY6m5_BxDlH2jW0nuo2oDemN9CCS2h10ox_1xSncGQajx_ryfhECjZEnDoDpoefBMFRFQCZyrN07Q_IoBoYKpVeedpHdRJcohMun1ZWMFj4e-Yzv88yNtMj6aBDjyR_X-nF&lib=MK7tboALFE_Ja-j0PFin833wQpTidpMma');
     baronbrew.connectedDevices = {};
 
-    baronbrew.selectBrewometer = function(brewometer) {
-        console.log("selecting brewometer:" + brewometer.device.name);
-        brewometer.connect();
+    baronbrew.selectTilt = function(tilt) {
+        console.log("selecting tilt:" + tilt.device.name);
+        tilt.connect();
     }
 
-    baronbrew.deselectBrewometer = function() {
-        console.log("deselecting brewometer");
-        baronbrew.selectedBrewometer(null);
+    baronbrew.deselectTilt = function() {
+        console.log("deselecting tilt");
+        baronbrew.selectedTilt(null);
         baronbrew.disconnect();
         baronbrew.scan();
     }
@@ -33,14 +33,12 @@ baronbrew = function() {
         ][scratchNumber - 1];
     };
 
-    var CalPoint = function(sg, angle) {
+    var CoeffPoint = function(value) {
         var self = this;
-        self.sg = ko.observable(sg);
-        self.angle = ko.observable(angle);
+        self.value = ko.observable(value);
     }
 
-
-    var Brewometer = function(device) {
+    var Tilt = function(device) {
         var self = this;
         self.rssi = ko.observable(device.rssi);
         self.device = device;
@@ -49,10 +47,9 @@ baronbrew = function() {
         self.command = 1;
         self.selectedCalPointIndex = 0;
 
-        self.coeffs = ko.observableArray([]);
         self.coeffsArray = new Uint16Array(5);
+        self.coeffs = ko.observableArray([]);
 
-        self.calPoints = ko.observableArray([new CalPoint(1000, 64.5), new CalPoint(1014, 60.5), new CalPoint(1061, 46.3), new CalPoint(1097, 22.5), new CalPoint(1127, 13.3)]);
         self.name = ko.observable();
 
         self.angleSampleCount = 0;
@@ -61,7 +58,7 @@ baronbrew = function() {
 
         self.tempSampleCount = 0;
         self.tempCumulativeSum = 0;
-        self.trueTemp = ko.observable(68);
+        self.trueTemp = ko.observable(localStorage.getItem("calibrationTemperature")||68);
         self.measuredTemp = ko.observable(68);
 
         self.availableColors = [{
@@ -101,61 +98,6 @@ baronbrew = function() {
             self.color(newValue.hexString);
         });
 
-        self.computeCal = function() {
-
-            var data_x = [];
-            for (var i = 0; i < self.calPoints().length; i++) {
-                data_x[i] = self.calPoints()[i].angle();
-            }
-
-            var data_y = [];
-            for (var i = 0; i < self.calPoints().length; i++) {
-                data_y[i] = self.calPoints()[i].sg();
-            }
-            console.log(data_x[0]);
-            console.log(data_y[0]);
-
-            var cubic = function(params, x) {
-                return params[0] * x * x * x +
-                    params[1] * x * x +
-                    params[2] * x +
-                    params[3];
-            };
-
-            var objective = function(params) {
-                var total = 0.0;
-                for (var i = 0; i < data_x.length; ++i) {
-                    var resultThisDatum = cubic(params, data_x[i]);
-                    var delta = resultThisDatum - data_y[i];
-                    total += (delta * delta);
-                }
-                return total;
-            };
-
-            var initial = [1, 1, 1, 1];
-            var minimiser = numeric.uncmin(objective, initial);
-
-            console.log("initial:");
-            for (var j = 0; j < initial.length; ++j) {
-                console.log(initial[j]);
-            }
-
-            console.log("minimiser:");
-            for (var j = 0; j < minimiser.solution.length; ++j) {
-                console.log(minimiser.solution[j]);
-            }
-            coeffsArray = new Uint16Array(5)
-
-            //cal coefficients are based on multimap
-            coeffsArray[0] = 0;
-            coeffsArray[1] = 0;
-            coeffsArray[2] = 0;
-            coeffsArray[3] = 0;
-            coeffsArray[4] = 0;
-            self.coeffs(coeffsArray);
-
-        }
-
         self.readCoeffs = function() {
             self.command = 1;
             var commandArray = new Uint8Array([self.command]); //read calibration
@@ -171,9 +113,13 @@ baronbrew = function() {
         self.writeCoeffs = function() {
             self.command = 2;
             var commandArray = new Uint8Array([self.command]); //write
-            console.log("writing coeffs " + hexStringFromUint8Array(self.coeffs()));
 
-            self.device.writeCharacteristic(getScratchCharacteristicUUID(5), self.coeffs(), function() {
+            for (var i = 0; i < self.coeffs().length ; i++){
+                self.coeffsArray[i] = self.coeffs()[i].value();
+            }
+            console.log("writing coeffs " + hexStringFromUint8Array(self.coeffsArray));
+
+            self.device.writeCharacteristic(getScratchCharacteristicUUID(5), self.coeffsArray, function() {
                 self.device.writeCharacteristic(getScratchCharacteristicUUID(4), commandArray, function() {
                     console.log('wrote ' + getScratchCharacteristicUUID(4) + ' with command: ' + self.command);
                 }, function(e) {
@@ -184,8 +130,13 @@ baronbrew = function() {
             });
 
         }
+        self.writeTemperature = function() {    
+            localStorage.setItem("calibrationTemperature",self.trueTemp());
+            self.coeffs()[3].value(self.trueTemp());
+            self.writeCoeffs();
+        }
 
-        self.readColor = function() {
+        self.readColorAndCoeffs = function() {
             self.command = 3;
             var commandArray = new Uint8Array([self.command]); //read color
             console.log('reading color');
@@ -272,23 +223,13 @@ baronbrew = function() {
             var data = {
                 "id": self.id(),
                 "color": self.color(),
-                "angle0": self.calPoints()[0].angle(),
-                "sg0": self.calPoints()[0].sg(),
-                "angle1": self.calPoints()[1].angle(),
-                "sg1": self.calPoints()[1].sg(),
-                "angle2": self.calPoints()[2].angle(),
-                "sg2": self.calPoints()[2].sg(),
-                "angle3": self.calPoints()[3].angle(),
-                "sg3": self.calPoints()[3].sg(),
-                "angle4": self.calPoints()[4].angle(),
-                "sg4": self.calPoints()[4].sg(),
                 "trueTemp": self.trueTemp(),
                 "measuredTemp": self.measuredTemp(),
-                "cal0": self.coeffs()[0],
-                "cal1": self.coeffs()[1],
-                "cal2": self.coeffs()[2],
-                "cal3": self.coeffs()[3],
-                "calT": self.coeffs()[4]
+                "cal0": self.coeffs()[0].value(),
+                "cal1": self.coeffs()[1].value(),
+                "cal2": self.coeffs()[2].value(),
+                "cal3": self.coeffs()[3].value(),
+                "calT": self.coeffs()[4].value()
             };
 
             var url = baronbrew.cloudUrl();
@@ -315,13 +256,16 @@ baronbrew = function() {
                 case 1:
                     //coeffs
                     console.log("read coeffs " + hexStringFromUint8Array(new Uint8Array(data)));
-                    self.coeffs(new Uint16Array(data));
+                    self.coeffsArray = new Uint16Array(data);
+                    self.coeffs([new CoeffPoint(self.coeffsArray[0]),new CoeffPoint(self.coeffsArray[1]),new CoeffPoint(self.coeffsArray[2]),new CoeffPoint(self.coeffsArray[3]),new CoeffPoint(self.coeffsArray[4])]);
+
                     break;
 
                 case 3:
                     //beaconId
                     console.log("read beaconId " + hexStringFromUint8Array(new Uint8Array(data)));
                     self.color(hexStringFromUint8Array(new Uint8Array(data)));
+                    self.readCoeffs();
                     break;
 
                 case 6:
@@ -360,7 +304,7 @@ baronbrew = function() {
 
             function onConnectSuccess(device) {
                 function onServiceSuccess(device) {
-                    baronbrew.selectedBrewometer(self);
+                    baronbrew.selectedTilt(self);
 
                     console.log('enabling notifications');
                     self.device.enableNotification(
@@ -373,7 +317,7 @@ baronbrew = function() {
                             console.log('BLE startNotification error');
                         });
 
-                    self.readColor();
+                    self.readColorAndCoeffs();
 
                 }
 
@@ -464,8 +408,8 @@ baronbrew = function() {
                 if (foundDevice == -1) {
                     console.log(device.name + ' added to discovered devices');
                     // Insert the device into table of found devices.
-                    //baronbrew.discoveredDevices[device.id] = new Brewometer(device);  
-                    baronbrew.discoveredDevices.push(new Brewometer(device));
+                    //baronbrew.discoveredDevices[device.id] = new Tilt(device);  
+                    baronbrew.discoveredDevices.push(new Tilt(device));
                 } else {
                     foundDevice.rssi(device.rssi);
                     // console.log('foundDevice: ' + foundDevice.device.address);

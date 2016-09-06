@@ -8,3 +8,5 @@ platforms/
 resources/signing
 
 *.zip
+
+.vscode

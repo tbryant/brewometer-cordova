@@ -173,7 +173,7 @@ var app = (function() {
                 // Map the temperature to a width in percent for the indicator.
                 // Convert Temp units and use calibratation points to display calibrated value
 
-                var tempStandardUnits = beacon.major;
+                var tempStandardUnits = Number(beacon.major);
                 var temperatureUnitString = "°F"; 
                 var maxTemp = 185;
 
@@ -189,11 +189,19 @@ var app = (function() {
 
                 var calSetMTemp = localStorage.getItem(brewVarietyValue + '-calM-Temp');
                 var calSetATemp = localStorage.getItem(brewVarietyValue + '-calA-Temp');
-                var calValTemp = evaluateLinear([tempStandardUnits],JSON.parse(calSetMTemp),JSON.parse(calSetATemp));
+                var calValTemp = evaluateLinear([tempStandardUnits],JSON.parse(calSetMTemp),JSON.parse(calSetATemp))[0];
                 var tempWidth = (calValTemp / maxTemp) * 100;
+
                 //Convert to degrees celsius
                 var uncalTempDisplay = tempStandardUnits.toFixed(1);
-                var calTempDisplay = calValTemp[0].toFixed(1);
+                var calTempDisplay = calValTemp.toFixed(1);
+
+                //prepare cloud post  (F)
+                var calValTempCloud = calValTemp;
+                if( useCelsiusChecked){
+                    calValTempCloud = 1.8*calValTemp + 32;
+                }
+                calValTempCloud = calValTempCloud.toFixed(1);
 
                 // Convert SG units and use calibratation points to display calibrated value
                 var sgStandardUnits = beacon.minor / 1000;
@@ -275,7 +283,7 @@ var app = (function() {
                             setTimer += 900000;
                             displayRefresh = 0;
                         } else {
-                            $.post(brewURL, { SG: sgFix3, Temp: calValTemp[0], Color: brewVarietyValue, Timepoint: t, Beer: brewNamePost, Comment: commentPost }, function(data) {
+                            $.post(brewURL, { SG: sgFix3, Temp: calValTempCloud, Color: brewVarietyValue, Timepoint: t, Beer: brewNamePost, Comment: commentPost }, function(data) {
                                 $("#cloudResponse").text(JSON.stringify(data));
                                 console.log(data);
                             });
