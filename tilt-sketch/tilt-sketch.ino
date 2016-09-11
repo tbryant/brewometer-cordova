@@ -23,7 +23,7 @@ float avgPitchPrev;
 uint8_t calibrationState = 0;
 uint8_t tareCalibrationState = 0;
 uint8_t tareStabilityCount = 0;
-float tareValue = 0.0;
+float tareValue = 1.000;
 int tareCalibrationIntervals = 30; //number of 10 second intervals to wait
 int currentCalPoint = 2;
 uint32_t tempCalSampleCount = 0;
@@ -85,6 +85,14 @@ float getAvgPitch(int count) {
 
 float applyFactoryCal(float sgInput) {
   return 1000*FmultiMap(0.001*sgInput, cal, calSetPoints, 3);
+}
+
+float applyTareCalibration(float sgInput) {
+  float tarePoints[3];
+  tarePoints[0] = tareValue;
+  tarePoints[1] = calSetPoints[1] + 0.5*(tareValue-1.000);
+  tarePoints[2] = calSetPoints[2];
+  return 1000 * FmultiMap(0.001*sgInput, tarePoints, calSetPoints, 3);
 }
 
 float convertPitch(float avgPitch) {
@@ -155,7 +163,7 @@ void loop()
     Bean.setScratchNumber(temperatureScratch,(uint32_t)applyFactoryTemperatureCal(avgTemperature));
 
     float avgPitch = getAvgPitch(16);
-    Bean.setScratchNumber(sgScratch, (uint32_t)(applyFactoryCal(convertPitch(avgPitch))+ 0.5));
+    Bean.setScratchNumber(sgScratch, (uint32_t)(applyTareCalibration(applyFactoryCal(convertPitch(avgPitch)))+ 0.5));
 
     //blink green
     Bean.setLed(0, 255, 0);
@@ -365,7 +373,7 @@ void loop()
         case 1:  
           //look for stable in water solution         
           if (((spGr < 1015) && (spGr > 985))&&(abs(avgPitchDiff) < .5)) {
-            tareValue = 1000 - spGr;
+            tareValue = 0.001*spGr;
             //entering tare calibration mode
             for (int i = 0; i < 5; i++) {
               delay(200);
@@ -387,7 +395,7 @@ void loop()
           Bean.setLed(0, 0, 0);     
     }
     
-    spGr = spGr + tareValue;   
+    spGr = applyTareCalibration(spGr);   
 
     int16_t sG16 = (int16_t) (spGr + 0.5);
     int16_t temperatureInt16 = (int16_t)temperatureBufferAverage;
