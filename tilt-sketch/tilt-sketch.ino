@@ -88,11 +88,14 @@ float applyFactoryCal(float sgInput) {
 }
 
 float applyTareCalibration(float sgInput) {
-  float tarePoints[3];
+  float tarePoints[2];
+  float tareSetPoints[2];
   tarePoints[0] = tareValue;
-  tarePoints[1] = calSetPoints[1] + 0.5*(tareValue-1.000);
-  tarePoints[2] = calSetPoints[2];
-  return 1000 * FmultiMap(0.001*sgInput, tarePoints, calSetPoints, 3);
+  tarePoints[1] = 1.120;
+  tareSetPoints[0] = 1.000;
+  tareSetPoints[1] = tarePoints[1];
+
+  return 1000 * FmultiMap(0.001*sgInput, tarePoints, tareSetPoints, 2);
 }
 
 float convertPitch(float avgPitch) {
@@ -373,13 +376,15 @@ void loop()
         case 1:  
           //look for stable in water solution         
           if (((spGr < 1015) && (spGr > 985))&&(abs(avgPitchDiff) < .5)) {
-            tareValue = 0.001*spGr;
-            //entering tare calibration mode
+            
+            avgPitch = 0;
             for (int i = 0; i < 5; i++) {
+              avgPitch += 0.2 * getAvgPitch(16);
               delay(200);
-              Bean.setLed(0, 255, 0);
+              Bean.setLed(0, 0, 255);
               Bean.setLed(0, 0, 0);
-            }            
+            }
+            tareValue = 0.001*applyFactoryCal(convertPitch(avgPitch));            
             tareCalibrationState++;
            }
            if(tareCalibrationIntervals-- < 0){
