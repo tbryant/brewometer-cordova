@@ -5,68 +5,31 @@
 
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, user-scalable=no
-		initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" />
+	initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" />
 
 	<title>Tilt Calibration</title>
 
 	<style>
 		@import 'ui/css/evothings-app.css';
-
-		input[type=range] {
-		    -webkit-appearance: none;
-		    background-color: silver;
-		    width: 100%;
-		    height:20px;
-		    margin-top: 15px;
-		    margin-bottom: 15px;
-		}
-
-		input[type="range"]::-webkit-slider-thumb {
-		     -webkit-appearance: none;
-		     border-radius: 2px;
-		    background-color: red;
-		    opacity: 1;
-		    width: 40px;
-		    height: 30px;
-		}
-
-		#redLed::-webkit-slider-thumb {
-		    background-color: red;
-		}
-
-		#greenLed::-webkit-slider-thumb {
-		    background-color: green;
-		}
-
-		#blueLed::-webkit-slider-thumb {
-		    background-color: blue;
-		}
-
-		p.temperatureLabel {
-			font-size: xx-large;
-			text-align: center;
-		}
-
-		p.topic {
-			font-weight: bold;
-		}
 	</style>
 
 	<script>
 	// Redirect console.log to Evothings Workbench.
 	if (window.hyper && window.hyper.log) { console.log = hyper.log }
-	</script>
+</script>
 
-    <script src="cordova.js"></script>
-	<script src="libs/jquery/jquery.js"></script>
-	<script src="libs/evothings/evothings.js"></script>
-	<script src="app.js"></script>
-	<script src="libs/evothings/easyble/easyble.js"></script>
-	<script src="calapp.js"></script>
+<script src="cordova.js"></script>
+<script src="libs/jquery/jquery.js"></script>
+<script src="libs/evothings/evothings.js"></script>
+<script src="libs/evothings/easyble/easyble.js"></script>
+<script src="libs/knockout-3.4.0.js"></script>
+<script src="libs/numeric-1.2.6.min.js"></script>
+<script src="baronbrew.js"></script>
 
 </head>
-
-<body ontouchstart="">
+<!-- <button id="BLEButton" class="green" onload="baronbrew.scan()">rescan</button><br /><hr>
+ -->
+<body onload="baronbrew.scan()" onbeforeunload="baronbrew.cleanUp()">
 	<header>
 
 		<button class="back" onclick="history.back()">
@@ -76,30 +39,94 @@
 		<img class="logotype" src="ui/images/tilt_logo.svg" alt="Tilt logo" />
 
 	</header>
+	
+	<style type="text/css">
+		th,td {
+			width: 100px;
+		}
+	</style>
 
-	<p><strong>Single-Point Calibration:</strong> Place Tilt in water at a stable temperature of about 68&deg;F (20&deg;C). Position screen immediately nearby and press START. Note: Calibrations greater than +/- 0.003 require multipoint calibration.</p>
+	<div data-bind="with:selectedTilt">
+		<span data-bind="text: device.name"></span>
+		<br/>
 
-	<button id="BLEButton" class="green" onclick="app.connect()">Start Single-Point Cal</button>
-	<br />
+		id:<input placeholder="1234" type="number" data-bind="value: id"></input>
+		<table >
+			<thead><tr>
+				<th >Beacon Id (color)</th>
+				<th><button data-bind="click: readColorAndCoeffs"> Read </button></th>
+				<th><button data-bind="click: writeColor"> Write </button></th>
+			</tr></thead>
+			<tbody>
+			<tr>
+				<td > <input data-bind="value: color"></input></td>
+				<td><select data-bind="options: availableColors, value: brewColor, optionsText: 'colorName'"></select></td>
 
-	<p><b>Status:</b> <span id="BLEStatus">Waiting to Start Calibration</span></p>
+				<td></input></td>
+			</tr>    
+		</tbody>
+		</table>
+		<br/>
+		<table >
+			<thead><tr>
+				<th>Calibration Temperature</th>
+				<th></th>
+				<th><button data-bind="click: writeTemperature"> Write </button></th>
+			</tr></thead>
+			<tbody>
+			<tr>
+				<td > <input type="number" data-bind="value: trueTemp"></input></td>
+				<td></td>
 
-	<div id="temperatureDisplay" style="display:none">
-		<hr>
-	<p class="topic">Temperature</p>
-		<p class="temperatureLabel"><span id="temperature">N/A</span>&deg;F</p>
-		<p class="topic">Adjust Temperature (+/- 10 &deg;F</p>
-		<input type="range" id="redLed" min="0" max="20" step="1" value="10"><br>
-		<p>Adjust temperature to match read out of a calibrated thermometer.</p>
-		<hr>
-	<p class="topic">Specific Gravity</p>
-		<p class="temperatureLabel"><span id="specificgravity">N/A</span></p>
-		<p class="topic">Adjust Specific Gravity (+/- 0.003)</p>
-		<input type="range" id="greenLed" min="17" max="23" step="1" value="20"><br>
-		<p>Adjust specific gravity to read 1.000 in water at around 68&deg;F.</p>
+				<td></td>
+			</tr>    
+		</tbody>
+		</table>
+		<br/>
+
+		<table >
+			<thead><tr>
+				<th >Coefficients</th>
+				<th><button data-bind="click: readCoeffs"> Read </button></th>
+				<th><button data-bind="click: writeCoeffs"> Write </button></th>
+			</tr></thead>
+			<tbody data-bind="foreach: coeffs">
+			<tr>
+				<td ><input data-bind="value: value"> </input></td>
+				<td></td>
+				<td></td>
+			</tr>    
+		</tbody>		
+		</table>
+
+		<br/>
+
+		<button id="BLEButton" class="green" data-bind="click: saveConfig">Save</button>
+
+		<br/>
+
+		<button id="BLEButton" class="green" data-bind="click: baronbrew.deselectTilt">Disconnect</button>
 	</div>
-	<p><strong>Multi-Point Calibration:</strong> Note: Multi-Point Calibration requires 5 specific calibration solutions and will overwrite the factory calibration of your device.</p>
-	<button id="BLEButton" class="green" onclick="location.href='calibration_factory.html';">Start Multipoint Cal</button>
+
+
+	Cloud URL:<input id="BLEId" data-bind="value: cloudUrl" type="url">
+	<table >
+		<thead><tr>
+			<th >Name</th><th>rssi</th><th></th>
+		</tr></thead>
+		<tbody data-bind="foreach: discoveredDevices">
+			<tr>
+				<td  data-bind="text: device.name"></td>
+				<td data-bind="text: rssi"></td>
+				<td><button data-bind="click: $parent.selectTilt">Select</button></td>
+			</tr>    
+		</tbody>
+		<tbody></tbody>
+	</table>
+
 </body>
+<script>
+	ko.applyBindings(baronbrew);
+</script>
 
 </html>

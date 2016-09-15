@@ -38,13 +38,6 @@
 
 	</header>
 
-	<p id="warning">Scanning for Tilts...<br />
-		(Make sure Bluetooth and Location Services are turned on.)
-    <br>
-    <img src="ui/images/tilt_splash.png" style="display:block; margin:auto; width:55%">
-	</p>
-
-
 <div id="settingsdiv" class=""><hr>
 <strong>Set Beer Names</strong><br />
 <select id="beerColor">
@@ -137,7 +130,13 @@ Calibration Points:
 
 	<ul id="found-beacons" class="dynamic"></ul>
 
+<p id="warning">Scanning for Tilts...<br />
+		Make sure Bluetooth and Location Services are turned on and the Tilt is not vertical (sleep mode).
+    <br>
+    <img src="ui/images/tilt_splash.png" style="display:block; margin:auto; width:55%">
+	</p>
 </body>
+
 <script>
 $("#settingsdiv").hide();
 $("#settings").click(function(){

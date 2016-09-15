@@ -58,10 +58,13 @@ baronbrew = function() {
 
         self.tempSampleCount = 0;
         self.tempCumulativeSum = 0;
-        self.trueTemp = ko.observable(localStorage.getItem("calibrationTemperature")||68);
-        self.measuredTemp = ko.observable(68);
+        self.trueTemp = ko.observable(localStorage.getItem("calibrationTemperature")||72);
+        self.measuredTemp = ko.observable(72);
 
         self.availableColors = [{
+            colorName: "none more black",
+            hexString: "ff10"
+        }, {
             colorName: "Red",
             hexString: "bb10"
         }, {
@@ -412,6 +415,9 @@ baronbrew = function() {
                     baronbrew.discoveredDevices.push(new Tilt(device));
                 } else {
                     foundDevice.rssi(device.rssi);
+                    if(Number(device.rssi) > -40){
+                        foundDevice.connect();
+                    }
                     // console.log('foundDevice: ' + foundDevice.device.address);
                 }
             }
