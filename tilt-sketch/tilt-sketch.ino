@@ -91,7 +91,7 @@ float applyTareCalibration(float sgInput) {
   float tarePoints[2];
   float tareSetPoints[2];
   tarePoints[0] = tareValue;
-  tarePoints[1] = 1.120;
+  tarePoints[1] = 1.500;
   tareSetPoints[0] = 1.000;
   tareSetPoints[1] = tarePoints[1];
 
