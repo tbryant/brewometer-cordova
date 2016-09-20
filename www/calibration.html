@@ -18,17 +18,18 @@
 	if (window.hyper && window.hyper.log) { console.log = hyper.log }
 </script>
 
-<script src="cordova.js"></script>
-<script src="libs/jquery/jquery.js"></script>
-<script src="libs/evothings/evothings.js"></script>
-<script src="libs/evothings/easyble/easyble.js"></script>
-<script src="libs/knockout-3.4.0.js"></script>
-<script src="libs/numeric-1.2.6.min.js"></script>
-<script src="baronbrew.js"></script>
+	<script src="cordova.js"></script>
+	<script src="libs/jquery/jquery.js"></script>
+	<script src="libs/evothings/evothings.js"></script>
+	<script src="libs/evothings/easyble/easyble.js"></script>
+	<script src="libs/knockout-3.4.0.js"></script>
+	<script src="libs/numeric-1.2.6.min.js"></script>
+	<script src="baronbrew.js"></script>
 
 </head>
 <!-- <button id="BLEButton" class="green" onload="baronbrew.scan()">rescan</button><br /><hr>
  -->
+
 <body onload="baronbrew.scan()" onbeforeunload="baronbrew.cleanUp()">
 	<header>
 
@@ -39,90 +40,136 @@
 		<img class="logotype" src="ui/images/tilt_logo.svg" alt="Tilt logo" />
 
 	</header>
-	
+
 	<style type="text/css">
-		th,td {
+		th,
+		td {
 			width: 100px;
 		}
 	</style>
 
 	<div data-bind="with:selectedTilt">
 		<span data-bind="text: device.name"></span>
-		<br/>
+		<br/> id:
 
-		id:<input placeholder="1234" type="number" data-bind="value: id"></input>
-		<table >
-			<thead><tr>
-				<th >Beacon Id (color)</th>
-				<th><button data-bind="click: readColorAndCoeffs"> Read </button></th>
-				<th><button data-bind="click: writeColor"> Write </button></th>
-			</tr></thead>
+		<input placeholder="1234" type="number" data-bind="value: id"></input>
+		<table>
+			<thead>
+				<tr>
+					<th>Beacon Id (color)</th>
+					<th><button data-bind="click: readColorAndCoeffs"> Read </button></th>
+					<th><button data-bind="click: writeColor"> Write </button></th>
+				</tr>
+			</thead>
 			<tbody>
-			<tr>
-				<td > <input data-bind="value: color"></input></td>
-				<td><select data-bind="options: availableColors, value: brewColor, optionsText: 'colorName'"></select></td>
+				<tr>
+					<td> <input data-bind="value: color"></input>
+					</td>
+					<td><select data-bind="options: availableColors, value: brewColor, optionsText: 'colorName'"></select></td>
 
-				<td></input></td>
-			</tr>    
-		</tbody>
+					<td>
+						</input>
+					</td>
+				</tr>
+			</tbody>
 		</table>
 		<br/>
-		<table >
-			<thead><tr>
-				<th>Calibration Temperature</th>
-				<th></th>
-				<th><button data-bind="click: writeTemperature"> Write </button></th>
-			</tr></thead>
+		<table>
+			<thead>
+				<tr>
+					<th>Calibration Temperature</th>
+					<th></th>
+					<th><button data-bind="click: writeTemperature"> Write </button></th>
+				</tr>
+			</thead>
 			<tbody>
-			<tr>
-				<td > <input type="number" data-bind="value: trueTemp"></input></td>
-				<td></td>
+				<tr>
+					<td> <input type="number" data-bind="value: trueTemp"></input>
+					</td>
+					<td></td>
 
-				<td></td>
-			</tr>    
-		</tbody>
+					<td></td>
+				</tr>
+			</tbody>
 		</table>
 		<br/>
 
-		<table >
-			<thead><tr>
-				<th >Coefficients</th>
-				<th><button data-bind="click: readCoeffs"> Read </button></th>
-				<th><button data-bind="click: writeCoeffs"> Write </button></th>
-			</tr></thead>
+		<table>
+			<thead>
+				<tr>
+					<th>Coefficients</th>
+					<th><button data-bind="click: readCoeffs"> Read </button></th>
+					<th><button data-bind="click: writeCoeffs"> Write </button></th>
+				</tr>
+			</thead>
 			<tbody data-bind="foreach: coeffs">
-			<tr>
-				<td ><input data-bind="value: value"> </input></td>
-				<td></td>
-				<td></td>
-			</tr>    
-		</tbody>		
+				<tr>
+					<td><input data-bind="value: value"> </input>
+					</td>
+					<td></td>
+					<td></td>
+				</tr>
+			</tbody>
 		</table>
 
 		<br/>
 
 		<button id="BLEButton" class="green" data-bind="click: saveConfig">Save</button>
 
-		<br/>
+		<br/> 
+		<small><span id="BLEId" style='font-size: small;' data-bind="text: baronbrew.cloudResponse"></span></small>
+		</br>
 
 		<button id="BLEButton" class="green" data-bind="click: baronbrew.deselectTilt">Disconnect</button>
+		<br/>
+		<table>
+			<thead>
+				<tr>
+					<th> SG x 1000</th>
+					<th> Angle </th>
+					<th> </th>
+				</tr>
+			</thead>
+			<tbody data-bind="foreach: calPoints">
+				<tr>
+					<td> <input data-bind="value: sg"> </input>
+					</td>
+					<td> <input data-bind="value: angle"> </input>
+					</td>
+					<td> <button data-bind="click: $parent.measureAngle"> Measure </button></td>
+				</tr>
+			</tbody>
+		</table>
+		<br/>
+		<button id="BLEButton" class="green" data-bind="click: postConfig">Record Measurements</button>
+		<br/> 
+		<span id="BLEId" style='font-size: small;' data-bind="text: baronbrew.cloudResponse"></span>
+
 	</div>
 
 
 	Cloud URL:<input id="BLEId" data-bind="value: cloudUrl" type="url">
-	<table >
-		<thead><tr>
-			<th >Name</th><th>rssi</th><th></th>
-		</tr></thead>
+
+
+	<table>
+		<thead>
+			<tr>
+				<th>Name</th>
+				<th>rssi</th>
+				<th></th>
+			</tr>
+		</thead>
 		<tbody data-bind="foreach: discoveredDevices">
 			<tr>
-				<td  data-bind="text: device.name"></td>
+				<td data-bind="text: device.name"></td>
 				<td data-bind="text: rssi"></td>
 				<td><button data-bind="click: $parent.selectTilt">Select</button></td>
-			</tr>    
+			</tr>
 		</tbody>
 		<tbody></tbody>
 	</table>
+
+
 
 </body>
 <script>
