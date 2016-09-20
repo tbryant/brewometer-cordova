@@ -11,21 +11,21 @@ int i;
 
 uint8_t sgOffset = 20;
 float factoryTempOffset = 0;
-float factoryCalBathTemperature = 72.0;
 float cal[4];
 float calTemperature = 72.0; //temperature of final solution for temp cal
 int calTemperatureIntervals = 30; //number of 10 second intervals to wait
-float calRangesHigh[3] = {75.0, 55.0, 20.0};  //upper bounds for angle at cal set points
-float calRangesLow[3] = {55.0, 20.0, 2.0}; //lower bounds for angle at cal set points
-float calSetPoints[3] = {1.000, 1.061, 1.110}; //cal SG set points
-float standardCurve[4] = { -0.000840, 0.0952, -4.855, 1139.8 }; //coefficients for 3rd order polynomial
+float calRangesHigh[4] = {75.0, 55.0, 20.0, 20.0};  //upper bounds for angle at cal set points
+float calPreviousPitch = 0.0; 
+float calRangesLow[4] = {55.0, 20.0, 5.0, 5.0}; //lower bounds for angle at cal set points
+float calSetPoints[4] = {1.000, 1.061, 1.110, 1.127}; //cal SG set points
+float standardCurve[4] = { -0.001467, 0.18647, -8.80063, 1195.27 }; //coefficients for 3rd order polynomial
 float avgPitchPrev;
 uint8_t calibrationState = 0;
 uint8_t tareCalibrationState = 0;
 uint8_t tareStabilityCount = 0;
 float tareValue = 1.000;
 int tareCalibrationIntervals = 30; //number of 10 second intervals to wait
-int currentCalPoint = 2;
+int currentCalPoint = 3;
 uint32_t tempCalSampleCount = 0;
 
 const uint8_t temperatureScratch = 2;
@@ -37,14 +37,14 @@ float FmultiMap(float value, float * in, float * out, uint8_t size)
 {
   // search right intervalue
   uint8_t i = 1;
-  while ((value > in[i]) && (i < size-1)) i++;
+  while ((value > in[i]) && (i < size - 1)) i++;
 
   // interpolate in the right segment for the rest
   return (value - in[i - 1]) * (out[i] - out[i - 1]) / (in[i] - in[i - 1]) + out[i - 1];
 }
 
 float applyFactoryTemperatureCal(float temperature) {
-  return temperature + factoryTempOffset + (calTemperature - factoryCalBathTemperature);
+  return temperature + factoryTempOffset;
 }
 
 float getAvgTemperature(int count) {
@@ -84,7 +84,7 @@ float getAvgPitch(int count) {
 }
 
 float applyFactoryCal(float sgInput) {
-  return 1000*FmultiMap(0.001*sgInput, cal, calSetPoints, 3);
+  return 1000 * FmultiMap(0.001 * sgInput, cal, calSetPoints, 4);
 }
 
 float applyTareCalibration(float sgInput) {
@@ -95,7 +95,7 @@ float applyTareCalibration(float sgInput) {
   tareSetPoints[0] = 1.000;
   tareSetPoints[1] = tarePoints[1];
 
-  return 1000 * FmultiMap(0.001*sgInput, tarePoints, tareSetPoints, 2);
+  return 1000 * FmultiMap(0.001 * sgInput, tarePoints, tareSetPoints, 2);
 }
 
 float convertPitch(float avgPitch) {
@@ -120,8 +120,8 @@ void setup() {
   cal[0] = 0.001 * (float)(((uint16_t *)(&(local_name[4])))[0]);
   cal[1] = 0.001 * (float)(((uint16_t *)(&(local_name[4])))[1]);
   cal[2] = 0.001 * (float)(((uint16_t *)(&(local_name[4])))[2]);
-  factoryCalBathTemperature = (float)(((uint16_t *)(&(local_name[4])))[3]);
-  
+  cal[3] = 0.001 * (float)(((uint16_t *)(&(local_name[4])))[3]);
+
   //temperature offset by 10
   factoryTempOffset = (0.1 * ((uint16_t *)(&(local_name[4])))[4]) - 10;
 
@@ -149,6 +149,27 @@ void updateBeaconParameters(uint16_t major, uint16_t minor) {
   Bean.setRadioConfig(radioConfig, false);
 }
 
+void batteryCheck() {
+  // Returns the voltage with conversion of 0.01 V/unit
+  uint16_t batteryReading =  Bean.getBatteryVoltage();
+  if (batteryReading > 280) {
+    //blink green
+    for (int i = 0; i < 3 ; i++) {
+      delay(200);
+      Bean.setLed(0, 255, 0);
+      Bean.setLed(0, 0, 0);
+    }
+  }
+  else {
+    //blink red
+    for (int i = 0; i < 3 ; i++) {
+      delay(200);
+      Bean.setLed(255, 0, 0);
+      Bean.setLed(0, 0, 0);
+    }
+  }
+}
+
 void endCommand() {
   //set command back to 0 and turn off LED
   command = 0;
@@ -163,15 +184,15 @@ void loop()
     Bean.setLed(0, 0, 0);
     // Write current temperature and SG to a scratches
     uint8_t avgTemperature = getAvgTemperature(8);
-    Bean.setScratchNumber(temperatureScratch,(uint32_t)applyFactoryTemperatureCal(avgTemperature));
+    Bean.setScratchNumber(temperatureScratch, (uint32_t)applyFactoryTemperatureCal(avgTemperature));
 
     float avgPitch = getAvgPitch(16);
-    Bean.setScratchNumber(sgScratch, (uint32_t)(applyTareCalibration(applyFactoryCal(convertPitch(avgPitch)))+ 0.5));
+    Bean.setScratchNumber(sgScratch, (uint32_t)(applyTareCalibration(applyFactoryCal(convertPitch(avgPitch))) + 0.5));
 
     //blink green
     Bean.setLed(0, 255, 0);
     Bean.setLed(0, 0, 0);
- 
+
     //look for command in Scratch 4
     bool newCommand = false;
     if (command != Bean.readScratchNumber(commandScratch)) {
@@ -196,7 +217,7 @@ void loop()
         cal[0] = 0.001 * (float)(((uint16_t *)(&(local_name[4])))[0]);
         cal[1] = 0.001 * (float)(((uint16_t *)(&(local_name[4])))[1]);
         cal[2] = 0.001 * (float)(((uint16_t *)(&(local_name[4])))[2]);
-        factoryCalBathTemperature = (float)(((uint16_t *)(&(local_name[4])))[3]);
+        cal[3] = 0.001 * (float)(((uint16_t *)(&(local_name[4])))[3]);
         //temperature offset by 10
         factoryTempOffset = (0.1 * ((uint16_t *)(&(local_name[4])))[4]) - 10;
 
@@ -261,7 +282,7 @@ void loop()
 
     if (abs(avgPitchDiff) < .25) {
       avgPitchPrev = avgPitch;
-      if(calibrationState == 0){
+      if (calibrationState == 0) {
         //lower power as long as not calibrating
         Bean.sleep(20000);
       }
@@ -270,6 +291,8 @@ void loop()
         if (Bean.getAdvertisingState()) {
           Bean.enableAdvertising(false);
           calibrationState = 0;
+          currentCalPoint = 3;
+          calPreviousPitch = 0;
           //skip the user tare if it goes to sleep
           tareCalibrationState = 2;
         }
@@ -290,7 +313,8 @@ void loop()
     }
     if (abs(avgPitch) < 75) {
       if (!Bean.getAdvertisingState()) {
-        Bean.enableAdvertising(true);
+        batteryCheck();  
+        Bean.enableAdvertising(true);        
       }
     }
 
@@ -299,8 +323,8 @@ void loop()
 
     if (factoryTempOffset == -10.0) {
       //calibration routine
-      //starts because temp cal hasn't been set  
-      tareCalibrationState = 2; //don't tare after factory cal   
+      //starts because temp cal hasn't been set
+      tareCalibrationState = 2; //don't tare after factory cal
       switch (calibrationState) {
         case 0:
           //entering calibration mode
@@ -309,12 +333,12 @@ void loop()
             Bean.setLed(255, 255, 0);
             Bean.setLed(0, 0, 0);
           }
-          currentCalPoint = 2;  //start with high gravity and end in temp-controlled water
+          currentCalPoint = 3;  //start with high gravity and end in temp-controlled water
           calibrationState++;
-          break;         
+          break;
         case 1:
-          //look for calibration solution
-          if ((abs(avgPitchDiff) < .5) && ((avgPitch < calRangesHigh[currentCalPoint]) && (avgPitch > calRangesLow[currentCalPoint]))) {
+          //look for calibration solution (still, in angle range, and sufficient change from previous angle)
+          if (((abs(avgPitchDiff) < .5) && (avgPitch > calPreviousPitch + 1)) && ((avgPitch < calRangesHigh[currentCalPoint]) && (avgPitch > calRangesLow[currentCalPoint]))) {
             avgPitch = 0;
             for (int i = 0; i < 5; i++) {
               avgPitch += 0.2 * getAvgPitch(16);
@@ -322,22 +346,23 @@ void loop()
               Bean.setLed(0, 0, 255);
               Bean.setLed(0, 0, 0);
             }
+            calPreviousPitch = avgPitch; //store to ensure that overlapping ranges don't calibrate in the wrong solution
             spGr = convertPitch(avgPitch);
             ((uint16_t *)(&(local_name[4])))[currentCalPoint] = (uint16_t) (spGr + 0.5);
             cal[currentCalPoint] = 0.001 * (float)(((uint16_t *)(&(local_name[4])))[currentCalPoint]);
-            
+
             currentCalPoint--;
-            if(currentCalPoint<0){
+            if (currentCalPoint < 0) {
               //move on to temp cal
               tempCalSampleCount = 0;
               calibrationState++;
             }
           }
           //blink green when done with current temperature
-          if (currentCalPoint<2){
-            if((abs(avgPitchDiff) < 2) && ((avgPitch < calRangesHigh[currentCalPoint+1]) && (avgPitch > calRangesLow[currentCalPoint+1]))) {
-               Bean.setLed(0, 255, 0);
-               Bean.setLed(0, 0, 0);
+          if (currentCalPoint < 3) {
+            if ((abs(avgPitchDiff) < 2) && ((avgPitch < calPreviousPitch + 0.5) && (avgPitch > calPreviousPitch - 0.5))) {
+              Bean.setLed(0, 255, 0);
+              Bean.setLed(0, 0, 0);
             }
           }
           break;
@@ -345,8 +370,7 @@ void loop()
           //temperature
           tempCalSampleCount++;
           if (tempCalSampleCount > calTemperatureIntervals) {
-                       
-            ((uint16_t *)(&(local_name[4])))[4] = (uint16_t) (calTemperature - temperatureBufferAverage + 10)*10.0;
+            ((uint16_t *)(&(local_name[4])))[4] = (uint16_t) (calTemperature - temperatureBufferAverage + 10) * 10.0;
 
             //temperature offset by 10
             factoryTempOffset = (0.1 * ((uint16_t *)(&(local_name[4])))[4]) - 10;
@@ -355,15 +379,15 @@ void loop()
             Bean.setRadioConfig(radioConfig, true);
             calibrationState++;
           }
-          break;        
+          break;
       }
     }
     else {
       spGr = applyFactoryCal(spGr);
       temperatureBufferAverage = applyFactoryTemperatureCal(temperatureBufferAverage);
-      
+
       //User Tare
-      switch(tareCalibrationState){
+      switch (tareCalibrationState) {
         case 0:
           //entering tare calibration mode
           for (int i = 0; i < 5; i++) {
@@ -373,10 +397,10 @@ void loop()
           }
           tareCalibrationState++;
           break;
-        case 1:  
-          //look for stable in water solution         
-          if (((spGr < 1015) && (spGr > 985))&&(abs(avgPitchDiff) < .5)) {
-            
+        case 1:
+          //look for stable in water solution
+          if (((spGr < 1015) && (spGr > 985)) && (abs(avgPitchDiff) < .5)) {
+
             avgPitch = 0;
             for (int i = 0; i < 5; i++) {
               avgPitch += 0.2 * getAvgPitch(16);
@@ -384,23 +408,23 @@ void loop()
               Bean.setLed(0, 0, 255);
               Bean.setLed(0, 0, 0);
             }
-            tareValue = 0.001*applyFactoryCal(convertPitch(avgPitch));            
+            tareValue = 0.001 * applyFactoryCal(convertPitch(avgPitch));
             tareCalibrationState++;
-           }
-           if(tareCalibrationIntervals-- < 0){
-             //timeout
-             tareCalibrationState++;
-           }            
+          }
+          if (tareCalibrationIntervals-- < 0) {
+            //timeout
+            tareCalibrationState++;
+          }
           break;
-        }
+      }
     }
     //keep blinking when calibration is complete until put to sleep
-    if(calibrationState==3){
-          Bean.setLed(0, 255, 0);
-          Bean.setLed(0, 0, 0);     
+    if (calibrationState == 3) {
+      Bean.setLed(0, 255, 0);
+      Bean.setLed(0, 0, 0);
     }
-    
-    spGr = applyTareCalibration(spGr);   
+
+    spGr = applyTareCalibration(spGr);
 
     int16_t sG16 = (int16_t) (spGr + 0.5);
     int16_t temperatureInt16 = (int16_t)temperatureBufferAverage;
