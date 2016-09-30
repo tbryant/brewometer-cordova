@@ -105,6 +105,7 @@ float convertPitch(float avgPitch) {
 }
 
 void setup() {
+  Bean.enableConfigSave(false);
   Bean.enableWakeOnConnect(true);
   Bean.setBeaconEnable(true);
   //read name (cal coefficients) from persistent memory
