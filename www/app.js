@@ -198,7 +198,7 @@ var app = (function() {
 
                 //prepare cloud post  (F)
                 var calValTempCloud = calValTemp;
-                if( useCelsiusChecked){
+                if(useCelsiusChecked=="true"){
                     calValTempCloud = 1.8*calValTemp + 32;
                 }
                 calValTempCloud = calValTempCloud.toFixed(1);
