@@ -10,3 +10,4 @@ resources/signing
 *.zip
 
 .vscode
+ArduinoBuilds

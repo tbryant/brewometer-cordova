@@ -7,18 +7,19 @@
         "files": {}
     },
     "installed_plugins": {
-        "com.evothings.ble": {
-            "PACKAGE_NAME": "com.baronbrew.brewometercordova"
-        },
-        "com.unarin.cordova.beacon": {
-            "PACKAGE_NAME": "com.baronbrew.brewometercordova"
-        },
         "cordova-plugin-ipad-multitasking": {
-            "PACKAGE_NAME": "com.baronbrew.brewometercordova"
+            "PACKAGE_NAME": "com.baronbrew.tiltcordova"
         },
         "cordova-plugin-whitelist": {
-            "PACKAGE_NAME": "com.baronbrew.brewometercordova"
+            "PACKAGE_NAME": "com.baronbrew.tiltcordova"
         }
     },
-    "dependent_plugins": {}
+    "dependent_plugins": {
+        "com.evothings.ble": {
+            "PACKAGE_NAME": "com.baronbrew.tiltcordova"
+        },
+        "com.unarin.cordova.beacon": {
+            "PACKAGE_NAME": "com.baronbrew.tiltcordova"
+        }
+    }
 }

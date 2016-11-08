@@ -29,7 +29,7 @@ var app = (function() {
         // Specify a shortcut for the location manager holding the iBeacon functions.
         window.locationManager = cordova.plugins.locationManager;
 
-        // Start tracking beacons!
+        // Start tracking beacons
         startScan();
 
         // Display refresh timer.
@@ -54,18 +54,6 @@ var app = (function() {
             }
         };
 
-        // Called when starting to monitor a region.
-        // (Not used in this example, included as a reference.)
-        delegate.didStartMonitoringForRegion = function(pluginResult) {
-            //console.log('didStartMonitoringForRegion:' + JSON.stringify(pluginResult))
-        };
-
-        // Called when monitoring and the state of a region changes.
-        // (Not used in this example, included as a reference.)
-        delegate.didDetermineStateForRegion = function(pluginResult) {
-            //console.log('didDetermineStateForRegion: ' + JSON.stringify(pluginResult))
-        };
-
         // Set the delegate object to use.
         locationManager.setDelegate(delegate);
 
@@ -73,7 +61,7 @@ var app = (function() {
         // This is needed on iOS 8.
         locationManager.requestAlwaysAuthorization();
 
-        // Start monitoring and ranging beacons.
+        // Start ranging beacons.
         for (var i in regions) {
             var beaconRegion = new locationManager.BeaconRegion(
                 i + 1,
@@ -81,12 +69,6 @@ var app = (function() {
 
             // Start ranging.
             locationManager.startRangingBeaconsInRegion(beaconRegion)
-                .fail(console.error)
-                .done();
-
-            // Start monitoring.
-            // (Not used in this example, included as a reference.)
-            locationManager.startMonitoringForRegion(beaconRegion)
                 .fail(console.error)
                 .done();
         }
