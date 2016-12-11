@@ -11,3 +11,5 @@ resources/signing
 
 .vscode
 ArduinoBuilds
+node_modules
+plugins
