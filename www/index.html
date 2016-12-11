@@ -26,7 +26,6 @@
 	<script src="libs/evothings/evothings.js"></script>
 	<script src="app.js"></script>
 	<script src="libs/evothings/easyble/easyble.js"></script>
-	<script src="calapp.js"></script>
 
 </head>
 <body>
@@ -73,6 +72,10 @@ Enter Cloud URL:<br />
 </select> <input id="commentPost" placeholder="Original Gravity" name="" value="" type="text"><br />
 <button id="setCommentButton" class="green" onclick="setComment()">Post Comment</button>
 <br />
+<hr>
+Enter Subscribe URL:<br />
+<input id="cloudSubscribeUrl" placeholder="https://..." name="" value="" type="url"><br />
+<input type="checkbox" id="checkSubscribeCloud" onclick="saveCloudSubscribeUrl(this)"> Check here to start reading data from the Cloud.<br />
 <hr>
 <strong>Calibrate Specific Gravity </strong><br />
 <select id="beerColorCal">

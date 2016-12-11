@@ -1,4 +1,4 @@
-var app = (function() {
+var app = (function () {
     // Application object
     var app = {};
 
@@ -21,7 +21,9 @@ var app = (function() {
     // Timer that displays list of beacons.
     var updateTimer = null;
 
-    app.initialize = function() {
+    var subscribeTimer = null;
+
+    app.initialize = function () {
         document.addEventListener('deviceready', onDeviceReady, false);
     };
 
@@ -34,6 +36,8 @@ var app = (function() {
 
         // Display refresh timer.
         updateTimer = setInterval(displayBeaconList, 500);
+
+        subscribeTimer = setInterval(updateSubscriptions, 3000)
     }
 
     function startScan() {
@@ -42,7 +46,7 @@ var app = (function() {
         var delegate = new locationManager.Delegate();
 
         // Called continuously when ranging beacons.
-        delegate.didRangeBeaconsInRegion = function(pluginResult) {
+        delegate.didRangeBeaconsInRegion = function (pluginResult) {
             //console.log('didRangeBeaconsInRegion: ' + JSON.stringify(pluginResult))
             for (var i in pluginResult.beacons) {
                 // Insert beacon into table of found beacons.
@@ -74,6 +78,28 @@ var app = (function() {
         }
     }
 
+    function updateSubscriptions(){
+        //get cloud subscribe URL
+        if (cloudSubscribeUrl != null) {
+            $('#cloudSubscribeUrl').val(cloudSubscribeUrl);
+            console.log('loaded Url from localStorage:' + cloudSubscribeUrl);
+            //cloudSubscribeUrl = null;
+            var checkSubscribeCloud = localStorage.getItem("cloudSubscribeChecked");
+            if (checkSubscribeCloud == "true") {
+                console.log('reading subscribe url: ' + localStorage.getItem("cloudSubscribeUrl"))
+                $('#checkSubscribeCloud').prop('checked', true);
+                $.getJSON(localStorage.getItem("cloudSubscribeUrl"), function (data) {
+                    var beacon = data.with[0].content;
+                    var key = beacon.uuid;
+                    beacons[key] = beacon;
+                });
+            } else {
+                console.log('unchecked');
+                $('#checkSubscribeCloud').prop('checked', false);
+            }
+        }
+    }
+
     function displayBeaconList() {
         // Clear beacon list.
         $('#found-beacons').empty();
@@ -84,7 +110,7 @@ var app = (function() {
         var calA = JSON.parse(localStorage.getItem($('#beerColorCal').val() + '-calA'));
         //display cal points
         var calPointsSgTable = "<table><tr><td>Uncalibrated</td><td>Actual</td></tr>";
-        for (var i = 1 ; i < calM.length-1 ; i++){
+        for (var i = 1; i < calM.length - 1; i++) {
             calPointsSgTable += "<tr><td>" + calM[i] + "</td>";
             calPointsSgTable += "<td>" + calA[i] + "</td></tr>";
         }
@@ -94,16 +120,15 @@ var app = (function() {
         var calATemp = JSON.parse(localStorage.getItem($('#beerColorCal').val() + '-calA-Temp'));
         //display cal points
         var calPointsTempTable = "<table><tr><td>Uncalibrated</td><td>Actual</td></tr>";
-        for (var i = 1 ; i < calMTemp.length-1 ; i++){
+        for (var i = 1; i < calMTemp.length - 1; i++) {
             calPointsTempTable += "<tr><td>" + calMTemp[i] + "</td>";
             calPointsTempTable += "<td>" + calATemp[i] + "</td></tr>";
         }
 
         $("#calPointsTemp").html(calPointsTempTable);
 
-
         // Update beacon list.
-        $.each(beacons, function(key, beacon) {
+        $.each(beacons, function (key, beacon) {
             // Only show beacons that are updated during the last 120 seconds.
             if (beacon.timeStamp + 120000 > timeNow) {
                 // correct RSSI value when unknown.
@@ -113,7 +138,7 @@ var app = (function() {
                 var date = new Date(beacon.timeStamp);
                 var dateFormatted = date.toLocaleString();
 
-                
+
 
 
                 var sgWidth = 1; // Used when SG is less than 990.
@@ -148,7 +173,7 @@ var app = (function() {
                 var brewVariety = ["RED", "RED", "GREEN", "GREEN", "BLACK", "BLACK", "PURPLE", "PURPLE", "ORANGE", "ORANGE", "BLUE", "BLUE", "YELLOW", "YELLOW", "PINK", "PINK"];
 
                 for (var i = 0; i < brewArray.length; i++) {
-                    if (brewUUID == brewArray[i]) {
+                    if (brewUUID.replace(/-/g,'').toLowerCase() == brewArray[i].replace(/-/g,'').toLowerCase()) {
                         var brewVarietyValue = brewVariety[i];
                     }
                 }
@@ -156,11 +181,11 @@ var app = (function() {
                 // Convert Temp units and use calibratation points to display calibrated value
 
                 var tempStandardUnits = Number(beacon.major);
-                var temperatureUnitString = "°F"; 
+                var temperatureUnitString = "°F";
                 var maxTemp = 185;
 
-                var useCelsiusChecked = localStorage.getItem("useCelsiusChecked");               
-                if(useCelsiusChecked=="true"){
+                var useCelsiusChecked = localStorage.getItem("useCelsiusChecked");
+                if (useCelsiusChecked == "true") {
                     tempStandardUnits = (tempStandardUnits - 32) * 5 / 9;
                     temperatureUnitString = "°C";
                     maxTemp = (maxTemp - 32) * 5 / 9;
@@ -171,7 +196,7 @@ var app = (function() {
 
                 var calSetMTemp = localStorage.getItem(brewVarietyValue + '-calM-Temp');
                 var calSetATemp = localStorage.getItem(brewVarietyValue + '-calA-Temp');
-                var calValTemp = evaluateLinear([tempStandardUnits],JSON.parse(calSetMTemp),JSON.parse(calSetATemp))[0];
+                var calValTemp = evaluateLinear([tempStandardUnits], JSON.parse(calSetMTemp), JSON.parse(calSetATemp))[0];
                 var tempWidth = (calValTemp / maxTemp) * 100;
 
                 //Convert to degrees celsius
@@ -180,8 +205,8 @@ var app = (function() {
 
                 //prepare cloud post  (F)
                 var calValTempCloud = calValTemp;
-                if(useCelsiusChecked=="true"){
-                    calValTempCloud = 1.8*calValTemp + 32;
+                if (useCelsiusChecked == "true") {
+                    calValTempCloud = 1.8 * calValTemp + 32;
                 }
                 calValTempCloud = calValTempCloud.toFixed(1);
 
@@ -189,7 +214,7 @@ var app = (function() {
                 var sgStandardUnits = beacon.minor / 1000;
                 var calSetM = localStorage.getItem(brewVarietyValue + '-calM');
                 var calSetA = localStorage.getItem(brewVarietyValue + '-calA');
-                var calVal = evaluateLinear([sgStandardUnits],JSON.parse(calSetM),JSON.parse(calSetA));
+                var calVal = evaluateLinear([sgStandardUnits], JSON.parse(calSetM), JSON.parse(calSetA));
 
                 var sgFix3 = calVal[0].toFixed(3);
                 var sgFix3Uncal = sgStandardUnits.toFixed(3);
@@ -221,13 +246,13 @@ var app = (function() {
                 var t = timeNow / 1000 / 60 / 60 / 24 + 25569 - tZoneDays;
                 var brewNamePost = brewName.replace("<br />", "");
                 var commentPost = localStorage.getItem(brewVarietyValue + '-comment');
-                
+
                 //Post now if comment available to post
                 if (commentPost != "") {
-                    setTimer = Date.now()-1000;
+                    setTimer = Date.now() - 1000;
                     //console.log(commentPost);
                 }
-                
+
 
                 if (cloudUrl != null) {
                     $('#cloudUrl').val(cloudUrl);
@@ -243,10 +268,10 @@ var app = (function() {
                     // console.log('post to cloud checked=' + checkCloud);
 
                 }
-                 if (serviceUrl != null) {
+                if (serviceUrl != null) {
                     $('#serviceUrl').val(serviceUrl);
                     console.log('loaded Url from localStorage:' + serviceUrl);
-                    serviceUrl = null;                    
+                    serviceUrl = null;
                 }
 
                 var brewURL = $('#cloudUrl').val();
@@ -265,12 +290,12 @@ var app = (function() {
                             setTimer += 900000;
                             displayRefresh = 0;
                         } else {
-                            $.post(brewURL, { SG: sgFix3, Temp: calValTempCloud, Color: brewVarietyValue, Timepoint: t, Beer: brewNamePost, Comment: commentPost }, function(data) {
+                            $.post(brewURL, { SG: sgFix3, Temp: calValTempCloud, Color: brewVarietyValue, Timepoint: t, Beer: brewNamePost, Comment: commentPost }, function (data) {
                                 $("#cloudResponse").text(JSON.stringify(data));
                                 console.log(data);
                             });
-                                localStorage.setItem(brewVarietyValue + '-comment',"");
-                                $('#commentPost').val('');
+                            localStorage.setItem(brewVarietyValue + '-comment', "");
+                            $('#commentPost').val('');
                         }
                         //console.log(brewVarietyValue);
 
@@ -284,60 +309,60 @@ var app = (function() {
             }
         });
     }
-//initialize timer variables
+    //initialize timer variables
     var setTimer = Date.now();
     var displayRefresh = 0;
     //initialize calibration storage if runnig app for the first time
     var initialM = JSON.stringify([0, 10]);
     var initialA = JSON.stringify([0, 10]);
-    if (localStorage.getItem("storage") != "initialized"){
-    localStorage.setItem("RED-calM", initialM);
-    localStorage.setItem("RED-calA", initialA);
-    localStorage.setItem("GREEN-calM", initialM);
-    localStorage.setItem("GREEN-calA", initialA);
-    localStorage.setItem("BLACK-calM", initialM);
-    localStorage.setItem("BLACK-calA", initialA);
-    localStorage.setItem("PURPLE-calM", initialM);
-    localStorage.setItem("PURPLE-calA", initialA);
-    localStorage.setItem("ORANGE-calM", initialM);
-    localStorage.setItem("ORANGE-calA", initialA);
-    localStorage.setItem("BLUE-calM", initialM);
-    localStorage.setItem("BLUE-calA", initialA);
-    localStorage.setItem("YELLOW-calM", initialM);
-    localStorage.setItem("YELLOW-calA", initialA);
-    localStorage.setItem("PINK-calM", initialM);
-    localStorage.setItem("PINK-calA", initialA);
-    //initialize comment storage
-    localStorage.setItem("RED-comment", "");
-    localStorage.setItem("GREEN-comment", "");
-    localStorage.setItem("BLACK-comment", "");
-    localStorage.setItem("PURPLE-comment", "");
-    localStorage.setItem("ORANGE-comment", "");
-    localStorage.setItem("BLUE-comment", "");
-    localStorage.setItem("YELLOW-comment", "");
-    localStorage.setItem("PINK-comment", "");
+    if (localStorage.getItem("storage") != "initialized") {
+        localStorage.setItem("RED-calM", initialM);
+        localStorage.setItem("RED-calA", initialA);
+        localStorage.setItem("GREEN-calM", initialM);
+        localStorage.setItem("GREEN-calA", initialA);
+        localStorage.setItem("BLACK-calM", initialM);
+        localStorage.setItem("BLACK-calA", initialA);
+        localStorage.setItem("PURPLE-calM", initialM);
+        localStorage.setItem("PURPLE-calA", initialA);
+        localStorage.setItem("ORANGE-calM", initialM);
+        localStorage.setItem("ORANGE-calA", initialA);
+        localStorage.setItem("BLUE-calM", initialM);
+        localStorage.setItem("BLUE-calA", initialA);
+        localStorage.setItem("YELLOW-calM", initialM);
+        localStorage.setItem("YELLOW-calA", initialA);
+        localStorage.setItem("PINK-calM", initialM);
+        localStorage.setItem("PINK-calA", initialA);
+        //initialize comment storage
+        localStorage.setItem("RED-comment", "");
+        localStorage.setItem("GREEN-comment", "");
+        localStorage.setItem("BLACK-comment", "");
+        localStorage.setItem("PURPLE-comment", "");
+        localStorage.setItem("ORANGE-comment", "");
+        localStorage.setItem("BLUE-comment", "");
+        localStorage.setItem("YELLOW-comment", "");
+        localStorage.setItem("PINK-comment", "");
 
-    initialM = JSON.stringify([-200, 200]);
-    initialA = JSON.stringify([-200, 200]);
-    localStorage.setItem("RED-calM-Temp", initialM);
-    localStorage.setItem("RED-calA-Temp", initialA);
-    localStorage.setItem("GREEN-calM-Temp", initialM);
-    localStorage.setItem("GREEN-calA-Temp", initialA);
-    localStorage.setItem("BLACK-calM-Temp", initialM);
-    localStorage.setItem("BLACK-calA-Temp", initialA);
-    localStorage.setItem("PURPLE-calM-Temp", initialM);
-    localStorage.setItem("PURPLE-calA-Temp", initialA);
-    localStorage.setItem("ORANGE-calM-Temp", initialM);
-    localStorage.setItem("ORANGE-calA-Temp", initialA);
-    localStorage.setItem("BLUE-calM-Temp", initialM);
-    localStorage.setItem("BLUE-calA-Temp", initialA);
-    localStorage.setItem("YELLOW-calM-Temp", initialM);
-    localStorage.setItem("YELLOW-calA-Temp", initialA);
-    localStorage.setItem("PINK-calM-Temp", initialM);
-    localStorage.setItem("PINK-calA-Temp", initialA);
-    //set flag that localstorage is initialized
-    localStorage.setItem("storage","initialized");
-}
+        initialM = JSON.stringify([-200, 200]);
+        initialA = JSON.stringify([-200, 200]);
+        localStorage.setItem("RED-calM-Temp", initialM);
+        localStorage.setItem("RED-calA-Temp", initialA);
+        localStorage.setItem("GREEN-calM-Temp", initialM);
+        localStorage.setItem("GREEN-calA-Temp", initialA);
+        localStorage.setItem("BLACK-calM-Temp", initialM);
+        localStorage.setItem("BLACK-calA-Temp", initialA);
+        localStorage.setItem("PURPLE-calM-Temp", initialM);
+        localStorage.setItem("PURPLE-calA-Temp", initialA);
+        localStorage.setItem("ORANGE-calM-Temp", initialM);
+        localStorage.setItem("ORANGE-calA-Temp", initialA);
+        localStorage.setItem("BLUE-calM-Temp", initialM);
+        localStorage.setItem("BLUE-calA-Temp", initialA);
+        localStorage.setItem("YELLOW-calM-Temp", initialM);
+        localStorage.setItem("YELLOW-calA-Temp", initialA);
+        localStorage.setItem("PINK-calM-Temp", initialM);
+        localStorage.setItem("PINK-calA-Temp", initialA);
+        //set flag that localstorage is initialized
+        localStorage.setItem("storage", "initialized");
+    }
     return app;
 })();
 
@@ -375,9 +400,9 @@ function setCal() {
     var initialA = JSON.parse(localStorage.getItem(beerColorCalAct));
     //combine and sort values
     initialM.push(Number($('#measuredCal').val()));
-    initialM.sort(function(a, b){return a-b});
+    initialM.sort(function (a, b) { return a - b });
     initialA.push(Number($('#actualCal').val()));
-    initialA.sort(function(a, b){return a-b});
+    initialA.sort(function (a, b) { return a - b });
     //save modified calibration values back to local storage
     localStorage.setItem(beerColorCalMeas, JSON.stringify(initialM));
     localStorage.setItem(beerColorCalAct, JSON.stringify(initialA));
@@ -391,7 +416,7 @@ function setTare() {
     var beerColorCalAct = $('#beerColorCal').val() + '-calA';
     //get measured value
     var measuredValue = localStorage.getItem($('#beerColorCal').val() + '-SG');
-    if(measuredValue == null){
+    if (measuredValue == null) {
         measuredValue = "Error: Check color"
     }
     $("#checkAuto").prop("checked", true);
@@ -403,21 +428,21 @@ function setTare() {
     var initialA = JSON.parse(localStorage.getItem(beerColorCalAct));
     //combine and sort values
     initialM.push(Number($('#measuredCal').val()));
-    initialM.sort(function(a, b){return a-b});
+    initialM.sort(function (a, b) { return a - b });
     initialA.push(Number($('#actualCal').val()));
-    initialA.sort(function(a, b){return a-b});
+    initialA.sort(function (a, b) { return a - b });
     //save modified calibration values back to local storage
     localStorage.setItem(beerColorCalMeas, JSON.stringify(initialM));
     localStorage.setItem(beerColorCalAct, JSON.stringify(initialA));
 
 }
 
-function getMeasuredSG (){
+function getMeasuredSG() {
     var measuredValue = localStorage.getItem($('#beerColorCal').val() + '-SG');
     $('#measuredCal').val(measuredValue);
 }
 
-function getMeasuredTemp (){
+function getMeasuredTemp() {
     var measuredValue = localStorage.getItem($('#beerColorCalTemp').val() + '-Temp');
     $('#measuredCalTemp').val(measuredValue);
 }
@@ -439,9 +464,9 @@ function setCalTemp() {
     var initialA = JSON.parse(localStorage.getItem(beerColorCalAct));
     //combine and sort values
     initialM.push(Number($('#measuredCalTemp').val()));
-    initialM.sort(function(a, b){return a-b});
+    initialM.sort(function (a, b) { return a - b });
     initialA.push(Number($('#actualCalTemp').val()));
-    initialA.sort(function(a, b){return a-b});
+    initialA.sort(function (a, b) { return a - b });
     //save modified calibration values back to local storage
     localStorage.setItem(beerColorCalMeas, JSON.stringify(initialM));
     localStorage.setItem(beerColorCalAct, JSON.stringify(initialA));
@@ -455,50 +480,50 @@ function clearCalTemp() {
 }
 
 
-function evaluateLinear (pointsToEvaluate, functionValuesX, functionValuesY) {
-  var results = []
-  pointsToEvaluate = makeItArrayIfItsNot(pointsToEvaluate)
-  pointsToEvaluate.forEach(function (point) {
-    var index = findIntervalLeftBorderIndex(point, functionValuesX)
-    if (index == functionValuesX.length - 1)
-      index--
-    results.push(linearInterpolation(point, functionValuesX[index], functionValuesY[index]
-      , functionValuesX[index + 1], functionValuesY[index + 1]))
-  })
-  return results
+function evaluateLinear(pointsToEvaluate, functionValuesX, functionValuesY) {
+    var results = []
+    pointsToEvaluate = makeItArrayIfItsNot(pointsToEvaluate)
+    pointsToEvaluate.forEach(function (point) {
+        var index = findIntervalLeftBorderIndex(point, functionValuesX)
+        if (index == functionValuesX.length - 1)
+            index--
+        results.push(linearInterpolation(point, functionValuesX[index], functionValuesY[index]
+            , functionValuesX[index + 1], functionValuesY[index + 1]))
+    })
+    return results
 }
 
-function linearInterpolation (x, x0, y0, x1, y1) {
-  var a = (y1 - y0) / (x1 - x0)
-  var b = -a * x0 + y0
-  return a * x + b
+function linearInterpolation(x, x0, y0, x1, y1) {
+    var a = (y1 - y0) / (x1 - x0)
+    var b = -a * x0 + y0
+    return a * x + b
 }
 
-function makeItArrayIfItsNot (input) {
-  return Object.prototype.toString.call( input ) !== '[object Array]'
-    ? [input]
-    : input
+function makeItArrayIfItsNot(input) {
+    return Object.prototype.toString.call(input) !== '[object Array]'
+        ? [input]
+        : input
 }
 
-function findIntervalLeftBorderIndex (point, intervals) {
-  //If point is beyond given intervals
-  if (point < intervals[0])
-    return 0
-  if (point > intervals[intervals.length - 1])
-    return intervals.length - 1
-  //If point is inside interval
-  //Start searching on a full range of intervals
-  var indexOfNumberToCompare 
-    , leftBorderIndex = 0
-    , rightBorderIndex = intervals.length - 1
-  //Reduce searching range till it find an interval point belongs to using binary search
-  while (rightBorderIndex - leftBorderIndex !== 1) {
-    indexOfNumberToCompare = leftBorderIndex + Math.floor((rightBorderIndex - leftBorderIndex)/2)
-    point >= intervals[indexOfNumberToCompare]
-      ? leftBorderIndex = indexOfNumberToCompare
-      : rightBorderIndex = indexOfNumberToCompare
-  }
-  return leftBorderIndex
+function findIntervalLeftBorderIndex(point, intervals) {
+    //If point is beyond given intervals
+    if (point < intervals[0])
+        return 0
+    if (point > intervals[intervals.length - 1])
+        return intervals.length - 1
+    //If point is inside interval
+    //Start searching on a full range of intervals
+    var indexOfNumberToCompare
+        , leftBorderIndex = 0
+        , rightBorderIndex = intervals.length - 1
+    //Reduce searching range till it find an interval point belongs to using binary search
+    while (rightBorderIndex - leftBorderIndex !== 1) {
+        indexOfNumberToCompare = leftBorderIndex + Math.floor((rightBorderIndex - leftBorderIndex) / 2)
+        point >= intervals[indexOfNumberToCompare]
+            ? leftBorderIndex = indexOfNumberToCompare
+            : rightBorderIndex = indexOfNumberToCompare
+    }
+    return leftBorderIndex
 }
 //function for saving CloudURL
 // assign function to onclick property of checkbox
@@ -512,6 +537,18 @@ function saveCloudUrl(checkbox) {
 //load cloudUrl from localstorage
 var cloudUrl = localStorage.getItem("cloudUrl");
 
+//function for saving CloudSubscribeURL
+// assign function to onclick property of checkbox
+function saveCloudSubscribeUrl(checkbox) {
+    var cloudSubscribeUrl = $('#cloudSubscribeUrl').val();
+    localStorage.setItem("cloudSubscribeUrl", cloudSubscribeUrl);
+    console.log('saving cloud subscribe URL ' + cloudSubscribeUrl);
+    localStorage.setItem("cloudSubscribeChecked", checkbox.checked);
+    console.log('cloudSubscribeChecked=' + checkbox.checked);
+};
+//load cloudSubscribeUrl from localstorage
+var cloudSubscribeUrl = localStorage.getItem("cloudSubscribeUrl");
+
 //function for saving useCelsius
 // assign function to onclick property of checkbox
 function saveUseCelsius(checkbox) {
@@ -519,7 +556,7 @@ function saveUseCelsius(checkbox) {
     console.log('useCelsiusChecked=' + checkbox.checked);
 };
 
-function goServiceUrl(){
+function goServiceUrl() {
     var serviceUrl = $('#serviceUrl').val();
     localStorage.setItem("serviceUrl", serviceUrl);
     location.href = serviceUrl;
