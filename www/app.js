@@ -37,7 +37,7 @@ var app = (function () {
         // Display refresh timer.
         updateTimer = setInterval(displayBeaconList, 500);
 
-        subscribeTimer = setInterval(updateSubscriptions, 3000)
+        subscribeTimer = setInterval(updateSubscriptions, 5000)
     }
 
     function startScan() {
@@ -78,26 +78,33 @@ var app = (function () {
         }
     }
 
-    function updateSubscriptions(){
+    function updateSubscriptions() {
         //get cloud subscribe URL
         if (cloudSubscribeUrl != null) {
             $('#cloudSubscribeUrl').val(cloudSubscribeUrl);
             console.log('loaded Url from localStorage:' + cloudSubscribeUrl);
-            //cloudSubscribeUrl = null;
-            var checkSubscribeCloud = localStorage.getItem("cloudSubscribeChecked");
-            if (checkSubscribeCloud == "true") {
-                console.log('reading subscribe url: ' + localStorage.getItem("cloudSubscribeUrl"))
-                $('#checkSubscribeCloud').prop('checked', true);
-                $.getJSON(localStorage.getItem("cloudSubscribeUrl"), function (data) {
-                    var beacon = data.with[0].content;
-                    var key = beacon.uuid;
-                    beacons[key] = beacon;
-                });
-            } else {
-                console.log('unchecked');
-                $('#checkSubscribeCloud').prop('checked', false);
-            }
+            cloudSubscribeUrl = null;
         }
+
+        var checkSubscribeCloud = localStorage.getItem("cloudSubscribeChecked");
+        if (checkSubscribeCloud == "true") {
+            console.log('reading subscribe url: ' + localStorage.getItem("cloudSubscribeUrl"))
+            $('#checkSubscribeCloud').prop('checked', true);
+            $.getJSON(localStorage.getItem("cloudSubscribeUrl"), function (data) {
+                var beacon = data.with[0].content;
+                beacon.timeStamp = Date.now();
+                beacon.major = beacon.Temp;
+                beacon.minor = 1000*beacon.SG;
+                console.dir(beacon);
+
+                var key = beacon.uuid;
+                beacons[key] = beacon;
+            });
+        } else {
+            console.log('unchecked');
+            $('#checkSubscribeCloud').prop('checked', false);
+        }
+
     }
 
     function displayBeaconList() {
@@ -151,32 +158,42 @@ var app = (function () {
                 //time since last update
                 var lastUpdated = (timeNow - beacon.timeStamp) / 1000;
                 var lastUpdated1 = lastUpdated.toFixed(1);
+                var brewVarietyValue = "";
+                console.dir(beacon);
+                if (beacon.hasOwnProperty("uuid")) {
+                    var brewUUID = beacon.uuid;
+                    var brewArray = ["A495BB10-C5B1-4B44-B512-1370F02D74DE",
+                        "a495bb10-c5b1-4b44-b512-1370f02d74de",
+                        "A495BB20-C5B1-4B44-B512-1370F02D74DE",
+                        "a495bb20-c5b1-4b44-b512-1370f02d74de",
+                        "A495BB30-C5B1-4B44-B512-1370F02D74DE",
+                        "a495bb30-c5b1-4b44-b512-1370f02d74de",
+                        "A495BB40-C5B1-4B44-B512-1370F02D74DE",
+                        "a495bb40-c5b1-4b44-b512-1370f02d74de",
+                        "A495BB50-C5B1-4B44-B512-1370F02D74DE",
+                        "a495bb50-c5b1-4b44-b512-1370f02d74de",
+                        "A495BB60-C5B1-4B44-B512-1370F02D74DE",
+                        "a495bb60-c5b1-4b44-b512-1370f02d74de",
+                        "A495BB70-C5B1-4B44-B512-1370F02D74DE",
+                        "a495bb70-c5b1-4b44-b512-1370f02d74de",
+                        "A495BB80-C5B1-4B44-B512-1370F02D74DE",
+                        "a495bb80-c5b1-4b44-b512-1370f02d74de"
+                    ];
+                    var brewVariety = ["RED", "RED", "GREEN", "GREEN", "BLACK", "BLACK", "PURPLE", "PURPLE", "ORANGE", "ORANGE", "BLUE", "BLUE", "YELLOW", "YELLOW", "PINK", "PINK"];
 
-                var brewUUID = beacon.uuid;
-                var brewArray = ["A495BB10-C5B1-4B44-B512-1370F02D74DE",
-                    "a495bb10-c5b1-4b44-b512-1370f02d74de",
-                    "A495BB20-C5B1-4B44-B512-1370F02D74DE",
-                    "a495bb20-c5b1-4b44-b512-1370f02d74de",
-                    "A495BB30-C5B1-4B44-B512-1370F02D74DE",
-                    "a495bb30-c5b1-4b44-b512-1370f02d74de",
-                    "A495BB40-C5B1-4B44-B512-1370F02D74DE",
-                    "a495bb40-c5b1-4b44-b512-1370f02d74de",
-                    "A495BB50-C5B1-4B44-B512-1370F02D74DE",
-                    "a495bb50-c5b1-4b44-b512-1370f02d74de",
-                    "A495BB60-C5B1-4B44-B512-1370F02D74DE",
-                    "a495bb60-c5b1-4b44-b512-1370f02d74de",
-                    "A495BB70-C5B1-4B44-B512-1370F02D74DE",
-                    "a495bb70-c5b1-4b44-b512-1370f02d74de",
-                    "A495BB80-C5B1-4B44-B512-1370F02D74DE",
-                    "a495bb80-c5b1-4b44-b512-1370f02d74de"
-                ];
-                var brewVariety = ["RED", "RED", "GREEN", "GREEN", "BLACK", "BLACK", "PURPLE", "PURPLE", "ORANGE", "ORANGE", "BLUE", "BLUE", "YELLOW", "YELLOW", "PINK", "PINK"];
-
-                for (var i = 0; i < brewArray.length; i++) {
-                    if (brewUUID.replace(/-/g,'').toLowerCase() == brewArray[i].replace(/-/g,'').toLowerCase()) {
-                        var brewVarietyValue = brewVariety[i];
+                    for (var i = 0; i < brewArray.length; i++) {
+                        if (brewUUID.replace(/-/g, '').toLowerCase() == brewArray[i].replace(/-/g, '').toLowerCase()) {
+                            brewVarietyValue = brewVariety[i];
+                        }
                     }
                 }
+                else {
+                    if (beacon.hasOwnProperty("Color")) {
+                        console.log("Color:" + beacon.Color)
+                        brewVarietyValue = beacon.Color;
+                    }
+                }
+
                 // Map the temperature to a width in percent for the indicator.
                 // Convert Temp units and use calibratation points to display calibrated value
 
