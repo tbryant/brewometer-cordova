@@ -300,17 +300,6 @@ void loop()
         Bean.sleep(30000);
         return;
       }
-      else {
-        if  (Bean.getAdvertisingState()) {
-          //return without updating Beacon Parameters
-          return;
-        }
-        else {
-          Bean.enableAdvertising(true);
-          return;
-        }
-      }
-      return;
     }
     if (abs(avgPitch) < 75) {
       if (!Bean.getAdvertisingState()) {
