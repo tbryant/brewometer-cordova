@@ -101,7 +101,7 @@ var app = (function () {
                 beacons[key] = beacon;
             });
         } else {
-            console.log('unchecked');
+            //console.log('unchecked');
             $('#checkSubscribeCloud').prop('checked', false);
         }
 
@@ -262,13 +262,6 @@ var app = (function () {
                 var tZoneDays = date.getTimezoneOffset() / 60 / 24;
                 var t = timeNow / 1000 / 60 / 60 / 24 + 25569 - tZoneDays;
                 var brewNamePost = brewName.replace("<br />", "");
-                var commentPost = localStorage.getItem(brewVarietyValue + '-comment');
-
-                //Post now if comment available to post
-                if (commentPost != "") {
-                    setTimer = Date.now() - 1000;
-                    //console.log(commentPost);
-                }
 
 
                 if (cloudUrl != null) {
@@ -294,6 +287,13 @@ var app = (function () {
                 var brewURL = $('#cloudUrl').val();
                 var brewCheck = $('#checkCloud').prop('checked');
                 var brewNumber = $("#found-beacons li").length;
+                
+                var commentPost = localStorage.getItem(brewVarietyValue + '-comment');
+                      //Post now if comment available to post
+                if (commentPost != "") {
+                    setTimer = Date.now() - 1000;
+                    brewNumber = 1;
+                }
 
                 //if checkbox is checked start posting to cloud
                 if (brewCheck) {
