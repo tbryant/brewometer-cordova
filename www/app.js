@@ -136,8 +136,9 @@ var app = (function () {
 
         // Update beacon list.
         $.each(beacons, function (key, beacon) {
+            var timeOut = 120000;
             // Only show beacons that are updated during the last 120 seconds.
-            if (beacon.timeStamp + 120000 > timeNow) {
+            if (beacon.timeStamp + timeOut > timeNow) {
                 // correct RSSI value when unknown.
                 var rssiCorrected = -100; // Used when RSSI is zero or greater.
                 if (beacon.rssi < -100) { rssiCorrected = -100; } else if (beacon.rssi < 0) { rssiCorrected = beacon.rssi; }
@@ -324,6 +325,16 @@ var app = (function () {
                 } else { setTimer = Date.now(); }
 
             }
+            else if(beacon.timeStamp + timeOut < timeNow && beacon.timeStamp + timeOut + 500 < timeNow ) { //timeout
+                $('#found-beacons').append("Tilt Hydrometer disconnected. Check Bluetooth, location services, range and/or battery.</br>");
+            }
+            else if(beacon.timeStamp + timeOut + 60000 < timeNow && beacon.timeStamp + timeOut + 60500 < timeNow ) { //reload app if timeout persists
+               console.log("reload");
+               evothings.easyble.stopScan();//stop scan and restart after reload
+               location.reload();
+               
+            }
+
         });
     }
     //initialize timer variables
