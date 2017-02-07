@@ -137,7 +137,7 @@ var app = (function () {
         // Update beacon list.
         $.each(beacons, function (key, beacon) {
             var timeOut = 120000;
-            // Only show beacons that are updated during the last 120 seconds.
+            // Only show beacons that are updated during the last timeOut seconds.
             if (beacon.timeStamp + timeOut > timeNow) {
                 // correct RSSI value when unknown.
                 var rssiCorrected = -100; // Used when RSSI is zero or greater.
@@ -251,7 +251,7 @@ var app = (function () {
                     + '</li>'
                 );
 
-                $('#warning').remove();
+               $('#warning').remove();
                 $('#found-beacons').append(element);
 
                 //save last SG to localStorage and update calibration settings section
@@ -325,12 +325,13 @@ var app = (function () {
                 } else { setTimer = Date.now(); }
 
             }
-            else if(beacon.timeStamp + timeOut < timeNow && beacon.timeStamp + timeOut + 500 < timeNow ) { //timeout
-                $('#found-beacons').append("Tilt Hydrometer disconnected. Check Bluetooth, location services, range and/or battery.</br>");
+            if(beacon.timeStamp + timeOut < timeNow && beacon.timeStamp + timeOut + 30000 > timeNow ) { //timeout exceeded for one Tilt, display disconnect warning.
+                var disconnectWarning = "Tilt disconnected. Check range and/or battery.</br>";
+                console.log("timeout");
+                $('#found-beacons').append(disconnectWarning);
             }
-            else if(beacon.timeStamp + timeOut + 60000 < timeNow && beacon.timeStamp + timeOut + 60500 < timeNow ) { //reload app if timeout persists
+            if(beacon.timeStamp + timeOut + 35000 < timeNow && beacon.timeStamp + timeOut + 35500 > timeNow) { //reload app after all Tilts disconnected for too long
                console.log("reload");
-               evothings.easyble.stopScan();//stop scan and restart after reload
                location.reload();
                
             }
