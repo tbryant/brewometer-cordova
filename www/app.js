@@ -323,14 +323,14 @@ var app = (function () {
 
                     }
                 } else { setTimer = Date.now(); }
-
+              console.log($("#found-beacons li").length);
             }
             if(beacon.timeStamp + timeOut < timeNow && beacon.timeStamp + timeOut + 30000 > timeNow ) { //timeout exceeded for one Tilt, display disconnect warning.
                 var disconnectWarning = "Tilt disconnected. Check range and/or battery.</br>";
                 console.log("timeout");
                 $('#found-beacons').append(disconnectWarning);
             }
-            if(beacon.timeStamp + timeOut + 35000 < timeNow && beacon.timeStamp + timeOut + 35500 > timeNow) { //reload app after all Tilts disconnected for too long
+            if(beacon.timeStamp + timeOut + 35000 < timeNow && beacon.timeStamp + timeOut + 35500 > timeNow && $("#found-beacons li").length == 0) { //reload app after all Tilts disconnected for too long
                console.log("reload");
                location.reload();
                
