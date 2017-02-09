@@ -12,8 +12,8 @@
     <allow-navigation href="http://*/*" />
     <allow-intent href="https://*/*" />
 
-    <plugin name="com.evothings.ble" source="pgb" />
-    <plugin name="com.unarin.cordova.beacon" source="pgb"/>
+    <plugin name="com.evothings.ble"/>
+    <plugin name="com.unarin.cordova.beacon"/>
 
 
     <platform name="android">
