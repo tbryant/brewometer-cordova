@@ -12,7 +12,7 @@
     <allow-navigation href="http://*/*" />
     <allow-intent href="https://*/*" />
 
-    <gap:plugin name="cordova-plugin-ble"/>
+    <plugin name="com.evothings.ble" source="pgb" />
     <gap:plugin name="cordova-plugin-beacon"/>
 
 
