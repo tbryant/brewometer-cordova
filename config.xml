@@ -13,7 +13,7 @@
     <allow-intent href="https://*/*" />
 
     <plugin name="com.evothings.ble" source="pgb" />
-    <gap:plugin name="cordova-plugin-beacon" source="pgb"/>
+    <gap:plugin name="com.unarin.cordova.beacon" source="pgb"/>
 
 
     <platform name="android">
