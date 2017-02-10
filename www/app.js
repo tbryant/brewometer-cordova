@@ -293,7 +293,7 @@ var app = (function () {
                       //Post now if comment available to post
                 if (commentPost != "") {
                     setTimer = Date.now() - 1000;
-                    brewNumber = 1;
+                    brewNumber = 1; 
                 }
 
                 //if checkbox is checked start posting to cloud
@@ -309,7 +309,8 @@ var app = (function () {
                             displayRefresh = 0;
                         } else {
                             $.post(brewURL, { SG: sgFix3, Temp: calValTempCloud, Color: brewVarietyValue, Timepoint: t, Beer: brewNamePost, Comment: commentPost }, function (data) {
-                                $("#cloudResponse").text(JSON.stringify(data));
+                                $("#cloudResponse").append(data.result + ' posting to:</br> <a href="' + data.URL + '">' + data.beername + '</a></br>');
+                                setTimeout(function(){$("#cloudResponse").remove;},15000);
                                 console.log(data);
                             });
                             localStorage.setItem(brewVarietyValue + '-comment', "");
