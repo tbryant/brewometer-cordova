@@ -21,7 +21,6 @@
     <preference name="Orientation" value="sensorPortrait" />
     <allow-intent href="market:*" />
     <icon src="tilt-logo-128.png" platform="android" qualifier="mdpi" />
-    <icon src="tilt_logo.svg" platform="android" qualifier="anydpi" />
     </platform>
 
     <platform name="ios">
