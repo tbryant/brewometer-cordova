@@ -20,6 +20,7 @@
     <preference name="Orientation" value="sensorLandscape" />
     <preference name="Orientation" value="sensorPortrait" />
     <allow-intent href="market:*" />
+    <icon src="tilt-logo-128.png" platform="android" qualifier="mdpi" />
     </platform>
 
     <platform name="ios">
@@ -29,7 +30,7 @@
     <preference name="BackupWebStorage" value="local"/>
     </platform>
 
-    <icon src="icon.png" />
+    <icon src="tilt-logo-128.png" />
     <splash src="splash.png" />
 
 </widget>
