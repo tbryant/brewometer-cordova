@@ -1,3 +1,28 @@
 {
-  "uuid": "9b6979b9-18ed-417c-9ce5-1b67345cdc8c"
+  "uuid": "9b6979b9-18ed-417c-9ce5-1b67345cdc8c",
+  "plugins": [
+    {
+      "name": "cordova-plugin-ble",
+      "version": "2.0.1"
+    },
+    {
+      "name": "cordova-plugin-ibeacon",
+      "version": "3.4.3"
+    }
+  ],
+  "libraries": [
+    {
+      "name": "jquery",
+      "version": "2.1.1"
+    }
+  ],
+  "name": "www",
+  "title": "Tilt",
+  "description": "App oneline description.",
+  "long-description": "App long description.",
+  "version": "",
+  "author-name": "Evothings",
+  "author-email": "build@evothings.com",
+  "author-url": "https://evothings.com",
+  "cordova-id": "com.evothings.samples.www"
 }
