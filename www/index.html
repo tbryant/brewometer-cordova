@@ -49,17 +49,17 @@
   <option value="BLUE">BLUE</option>
   <option value="YELLOW">YELLOW</option>
   <option value="PINK">PINK</option>
-</select> <input id="beerName" placeholder="IPA or IPA,45" name="" value="" type="text"><br />
+</select> <input id="beerName" placeholder="Baron Brew Pale Ale" name="" value="" type="text"><br />
 <button id="setBeerNameButton" class="green" onclick="setBeerName()">Set Beer Name</button>
 <br />
 <hr>
 <strong>Cloud Settings</strong><br />
-Enter Logging URL:<br />
+Enter Cloud URL:<br />
 <input id="cloudUrl" placeholder="https://..." name="" value="" type="url"><br />
 <input type="checkbox" id="checkCloud" onclick="saveCloudUrl(this)"> Check here to start logging data to the Cloud.<br />
 <span id="cloudResponse" style="font-size:0.8em"></span><br />
 <hr>
-Post Comment to the Cloud<br />
+<strong>Post Comment to Cloud</strong><br />
 <select id="beerColorComment">
   <option value="RED">RED</option>
   <option value="GREEN">GREEN</option>
@@ -72,6 +72,10 @@ Post Comment to the Cloud<br />
 </select> <input id="commentPost" placeholder="Original Gravity" name="" value="" type="text"><br />
 <button id="setCommentButton" class="green" onclick="setComment()">Post Comment</button>
 <br />
+<hr>
+Enter Subscribe URL:<br />
+<input id="cloudSubscribeUrl" placeholder="https://..." name="" value="" type="url"><br />
+<input type="checkbox" id="checkSubscribeCloud" onclick="saveCloudSubscribeUrl(this)"> Check here to start reading data from the Cloud.<br />
 <hr>
 <strong>Calibrate Specific Gravity </strong><br />
 <select id="beerColorCal">
