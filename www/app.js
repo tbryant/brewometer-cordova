@@ -20,9 +20,7 @@ var app = (function () {
 
     // Timer that displays list of beacons.
     var updateTimer = null;
-
-    var subscribeTimer = null;
-
+    
     app.initialize = function () {
         document.addEventListener('deviceready', onDeviceReady, false);
     };
@@ -281,7 +279,7 @@ var app = (function () {
                             displayRefresh = 0;
                         } else {
                             $.post(brewURL, { SG: sgFix3, Temp: calValTempCloud, Color: brewVarietyValue, Timepoint: t, Beer: brewNamePost, Comment: commentPost }, function (data) {
-                                $("#cloudResponse").append(data.result + "</br>"); //JSON.stringify(data.error) + "</br>");
+                                $("#cloudResponse").append(data.result + "</br>");  //JSON.stringify(data.error) + "</br>");
                                 setTimeout(function(){$("#cloudResponse").empty();},60000);
                                 //console.log(data.beername + " " + data.tiltcolor);
                                 var newbeerName = data.beername.split(",");
