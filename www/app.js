@@ -128,7 +128,7 @@ var app = (function () {
                 var lastUpdated = (timeNow - beacon.timeStamp) / 1000;
                 var lastUpdated1 = lastUpdated.toFixed(1);
                 var brewVarietyValue = "";
-                console.dir(beacon);
+                //console.dir(beacon);
                 if (beacon.hasOwnProperty("uuid")) {
                     var brewUUID = beacon.uuid;
                     var brewArray = ["A495BB10-C5B1-4B44-B512-1370F02D74DE",
@@ -315,7 +315,7 @@ var app = (function () {
     //initialize timer variables
     var setTimer = Date.now();
     var displayRefresh = 0;
-    //initialize calibration storage if runnig app for the first time
+    //initialize calibration storage if running app for the first time
     var initialM = JSON.stringify([0, 10]);
     var initialA = JSON.stringify([0, 10]);
     if (localStorage.getItem("storage") != "initialized") {
@@ -344,6 +344,16 @@ var app = (function () {
         localStorage.setItem("BLUE-comment", "");
         localStorage.setItem("YELLOW-comment", "");
         localStorage.setItem("PINK-comment", "");
+
+        //initialize name storage
+        localStorage.setItem("RED", ",none");
+        localStorage.setItem("GREEN", ",none");
+        localStorage.setItem("BLACK", ",none");
+        localStorage.setItem("PURPLE", ",none");
+        localStorage.setItem("ORANGE", ",none");
+        localStorage.setItem("BLUE", ",none");
+        localStorage.setItem("YELLOW", ",none");
+        localStorage.setItem("PINK", ",none");
 
         initialM = JSON.stringify([-200, 200]);
         initialA = JSON.stringify([-200, 200]);
