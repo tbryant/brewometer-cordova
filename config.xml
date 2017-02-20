@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.baronbrew.tiltcordova" version="1.5" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0" xmlns:gap="http://phonegap.com/ns/1.0">
+<widget id="com.baronbrew.tiltcordova" version="1.6.5" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0" xmlns:gap="http://phonegap.com/ns/1.0">
     <name>Tilt</name>
     <description>
         Reads data from your Tilt.  Buy more Tilts here: http://tilthydrometer.com
@@ -8,29 +8,23 @@
         Tilt Team
     </author>
     <content src="index.html" />
-    <access origin="*" /><allow-intent href="http://*/*" />
+    <access origin="*" />
+    <allow-intent href="http://*/*" />
     <allow-navigation href="http://*/*" />
     <allow-intent href="https://*/*" />
-
-    <plugin name="com.evothings.ble"/>
-    <plugin name="com.unarin.cordova.beacon"/>
-
-
+    <plugin name="com.evothings.ble" />
+    <plugin name="com.unarin.cordova.beacon" />
     <platform name="android">
-    <preference name="Orientation" value="sensorLandscape" />
-    <preference name="Orientation" value="sensorPortrait" />
-    <allow-intent href="market:*" />
-    <icon src="tilt-logo-128.png" platform="android" qualifier="mdpi" />
+        <preference name="Orientation" value="sensorLandscape" />
+        <preference name="Orientation" value="sensorPortrait" />
+        <allow-intent href="market:*" />
+        <icon platform="android" qualifier="mdpi" src="tilt-logo-128.png" />
     </platform>
-
     <platform name="ios">
-    <preference name="Orientation" value="all" />
-    <allow-intent href="itms:*" />
-    <allow-intent href="itms-apps:*" />
-    <preference name="BackupWebStorage" value="local"/>
+        <preference name="Orientation" value="all" />
+        <allow-intent href="itms:*" />
+        <allow-intent href="itms-apps:*" />
+        <preference name="BackupWebStorage" value="local" />
     </platform>
-
-    <icon src="tilt-logo-128.png" />
-    <splash src="splash.png" />
-
+    <plugin name="cordova-plugin-ios-ble-permissions" spec="^1.0.1" />
 </widget>

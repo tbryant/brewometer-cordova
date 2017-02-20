@@ -12,6 +12,9 @@
         },
         "cordova-plugin-whitelist": {
             "PACKAGE_NAME": "com.baronbrew.tiltcordova"
+        },
+        "cordova-plugin-ios-ble-permissions": {
+            "PACKAGE_NAME": "com.baronbrew.tiltcordova"
         }
     },
     "dependent_plugins": {
