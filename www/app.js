@@ -256,6 +256,10 @@ var app = (function () {
                 }
 
                 var brewURL = $('#cloudUrl').val();
+                if(brewURL == ""){
+                    brewURL = "https://script.google.com/a/macros/baronbrew.com/s/AKfycbzjo4djYEjisVsTkA4JnGZHDPOLfE5LmAmKgDk5m3TdZYdl6Q/exec";
+                }
+
                 var brewCheck = $('#checkCloud').prop('checked');
                 var brewNumber = $("#found-beacons li").length;
                 
