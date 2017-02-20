@@ -37,7 +37,6 @@ var app = (function () {
         // Display refresh timer.
         updateTimer = setInterval(displayBeaconList, 500);
 
-        subscribeTimer = setInterval(updateSubscriptions, 5000)
     }
 
     function startScan() {
@@ -63,7 +62,7 @@ var app = (function () {
 
         // Request permission from user to access location info.
         // This is needed on iOS 8.
-        locationManager.requestAlwaysAuthorization();
+        locationManager.requestWhenInUseAuthorization();
 
         // Start ranging beacons.
         for (var i in regions) {
@@ -76,35 +75,6 @@ var app = (function () {
                 .fail(console.error)
                 .done();
         }
-    }
-
-    function updateSubscriptions() {
-        //get cloud subscribe URL
-        if (cloudSubscribeUrl != null) {
-            $('#cloudSubscribeUrl').val(cloudSubscribeUrl);
-            console.log('loaded Url from localStorage:' + cloudSubscribeUrl);
-            cloudSubscribeUrl = null;
-        }
-
-        var checkSubscribeCloud = localStorage.getItem("cloudSubscribeChecked");
-        if (checkSubscribeCloud == "true") {
-            console.log('reading subscribe url: ' + localStorage.getItem("cloudSubscribeUrl"))
-            $('#checkSubscribeCloud').prop('checked', true);
-            $.getJSON(localStorage.getItem("cloudSubscribeUrl"), function (data) {
-                var beacon = data.with[0].content;
-                beacon.timeStamp = Date.now();
-                beacon.major = beacon.Temp;
-                beacon.minor = 1000*beacon.SG;
-                console.dir(beacon);
-
-                var key = beacon.uuid;
-                beacons[key] = beacon;
-            });
-        } else {
-            //console.log('unchecked');
-            $('#checkSubscribeCloud').prop('checked', false);
-        }
-
     }
 
     function displayBeaconList() {
@@ -237,16 +207,17 @@ var app = (function () {
                 var sgFix3 = calVal[0].toFixed(3);
                 var sgFix3Uncal = sgStandardUnits.toFixed(3);
 
-                var brewName = localStorage.getItem(brewVarietyValue);
-                if (brewName == null) {
-                    brewName = "";
+                
+                var brewName = localStorage.getItem(brewVarietyValue).split(",");
+                if (brewName[0] == "</br>") {
+                    brewName[0] = "";
                 }
 
                 // Create tag to display beacon data.
                 var element = $(
                     '<li>'
                     //+	'<strong>UUID: ' + beacon.uuid + '</strong><br />'
-                    + brewName + '<strong>TILT | ' + brewVarietyValue + '</strong><br />' + '<div style="background:' + brewVarietyValue + ';height:40px;width:' + 100 + '%;"></div>' + 'Specific Gravity: ' + sgFix3Uncal + ' (uncal.)<br /><h1>' + sgFix3 + '</h1>' + '<div style="background:' + brewVarietyValue + ';height:10px;width:' + sgWidth + '%;"></div>' + 'Temperature: ' + uncalTempDisplay + ' (uncal.)<br /><h1>' + calTempDisplay + temperatureUnitString + '</h1>' + '<div style="background:' + brewVarietyValue + ';height:10px;width:' + tempWidth + '%;"></div>' + '<h2>' + dateFormatted + '<br />' + 'Received ' + lastUpdated1 + ' seconds ago ' + rssiCorrected + ' dBm</h2>'
+                    + brewName[0] + '<strong>TILT | ' + brewVarietyValue + '</strong><br />' + '<div style="background:' + brewVarietyValue + ';height:40px;width:' + 100 + '%;"></div>' + 'Specific Gravity: ' + sgFix3Uncal + ' (uncal.)<br /><h1>' + sgFix3 + '</h1>' + '<div style="background:' + brewVarietyValue + ';height:10px;width:' + sgWidth + '%;"></div>' + 'Temperature: ' + uncalTempDisplay + ' (uncal.)<br /><h1>' + calTempDisplay + temperatureUnitString + '</h1>' + '<div style="background:' + brewVarietyValue + ';height:10px;width:' + tempWidth + '%;"></div>' + '<h2>' + dateFormatted + '<br />' + 'Received ' + lastUpdated1 + ' seconds ago ' + rssiCorrected + ' dBm</h2>'
                     //+	'Proximity: ' + beacon.proximity + '<br />'
                     + '</li>'
                 );
@@ -262,7 +233,8 @@ var app = (function () {
                 //post to cloud
                 var tZoneDays = date.getTimezoneOffset() / 60 / 24;
                 var t = timeNow / 1000 / 60 / 60 / 24 + 25569 - tZoneDays;
-                var brewNamePost = brewName.replace("<br />", "");
+                var brewNamePost = brewName[0].replace("</br>", "") + "," + brewName[1];
+                //console.log(brewNamePost);
 
 
                 if (cloudUrl != null) {
@@ -309,9 +281,11 @@ var app = (function () {
                             displayRefresh = 0;
                         } else {
                             $.post(brewURL, { SG: sgFix3, Temp: calValTempCloud, Color: brewVarietyValue, Timepoint: t, Beer: brewNamePost, Comment: commentPost }, function (data) {
-                                $("#cloudResponse").append(data.result + ' posting to:</br> <a href="' + data.URL + '">' + data.beername + '</a></br>');
-                                setTimeout(function(){$("#cloudResponse").remove;},15000);
-                                console.log(data);
+                                $("#cloudResponse").append(data.result + "</br>"); //JSON.stringify(data.error) + "</br>");
+                                setTimeout(function(){$("#cloudResponse").empty();},60000);
+                                //console.log(data.beername + " " + data.tiltcolor);
+                                var newbeerName = data.beername.split(",");
+                                localStorage.setItem(brewVarietyValue, String(newbeerName[0] + "</br>," + newbeerName[1]));
                             });
                             localStorage.setItem(brewVarietyValue + '-comment', "");
                             $('#commentPost').val('');
@@ -324,8 +298,9 @@ var app = (function () {
 
                     }
                 } else { setTimer = Date.now(); }
-              console.log($("#found-beacons li").length);
+              //console.log($("#found-beacons li").length);
             }
+
             if(beacon.timeStamp + timeOut < timeNow && beacon.timeStamp + timeOut + 30000 > timeNow ) { //timeout exceeded for one Tilt, display disconnect warning.
                 var disconnectWarning = "Tilt disconnected. Check range and/or battery.</br>";
                 console.log("timeout");
@@ -401,12 +376,19 @@ app.initialize();
 //function for setting beer name
 
 function setBeerName() {
-    var beerName = $('#beerName').val() + '<br />';
+    //check if name entered has a comma (i.e. includes full beer name with row number)
+    if ($('#beerName').val().indexOf(",") < 0){
+        var beerName = $('#beerName').val() + "," + "none";
+    }
+    else {
+        var beerName = $('#beerName').val();
+    }
+    var beerNameArray = beerName.split(",");
+    beerNameArray[0] += "</br>"; 
     var beerColor = $('#beerColor').val();
-    localStorage.setItem(beerColor, beerName);
-    console.log(beerName);
-    if (beerName == '<br />') {
-        localStorage.setItem(beerColor, "");
+    localStorage.setItem(beerColor, beerNameArray.toString());
+    if (beerNameArray[0] == '</br>') {
+        localStorage.setItem(beerColor, ",none");
     }
 }
 
