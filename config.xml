@@ -26,7 +26,5 @@
         <allow-intent href="itms-apps:*" />
         <preference name="BackupWebStorage" value="local" />
     </platform>
-    <icon src="tilt-logo-128.png" />
-    <splash src="splash.png" />
     <plugin name="cordova-plugin-ios-ble-permissions" spec="~1.0.3" />
 </widget>
