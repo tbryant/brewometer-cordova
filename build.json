@@ -4,7 +4,10 @@
       "developmentTeam": "ZLKVER3DR6"
     },
     "release": {
-      "developmentTeam": "ZLKVER3DR6"
+      "codeSignIdentity": "iPhone Distribution",
+      "provisioningProfile": "ca22a03f-a4fe-4ff7-a7d0-66972b15448d",
+      "developmentTeam": "ZLKVER3DR6",
+      "packageType": "app-store"
     }
   }
 }
