@@ -1,10 +1,4 @@
 {
-    "com.evothings.ble": {
-        "source": {
-            "type": "local",
-            "path": "/Users/tbryant/.plugman/cache/com.evothings.ble/0.0.1/package"
-        }
-    },
     "cordova-plugin-ble": {
         "source": {
             "type": "registry",
@@ -12,12 +6,6 @@
         },
         "is_top_level": true,
         "variables": {}
-    },
-    "com.unarin.cordova.beacon": {
-        "source": {
-            "type": "local",
-            "path": "/Users/tbryant/.plugman/cache/com.unarin.cordova.beacon/3.3.0/package"
-        }
     },
     "cordova-plugin-ipad-multitasking": {
         "source": {
@@ -47,6 +35,14 @@
         "source": {
             "type": "registry",
             "id": "cordova-plugin-android-permissions@0.10.0"
+        },
+        "is_top_level": true,
+        "variables": {}
+    },
+    "com.unarin.cordova.beacon": {
+        "source": {
+            "type": "registry",
+            "id": "com.unarin.cordova.beacon"
         },
         "is_top_level": true,
         "variables": {}

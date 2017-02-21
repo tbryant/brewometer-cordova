@@ -18,14 +18,13 @@
         },
         "cordova-plugin-android-permissions": {
             "PACKAGE_NAME": "com.baronbrew.tiltcordova"
-        }
-    },
-    "dependent_plugins": {
-        "com.evothings.ble": {
+        },
+        "cordova-plugin-ble": {
             "PACKAGE_NAME": "com.baronbrew.tiltcordova"
         },
         "com.unarin.cordova.beacon": {
             "PACKAGE_NAME": "com.baronbrew.tiltcordova"
         }
-    }
+    },
+    "dependent_plugins": {}
 }

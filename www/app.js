@@ -2,6 +2,9 @@ var app = (function () {
     // Application object
     var app = {};
 
+    //Permissions
+    var permissions;
+   
     // Specify your beacon 128bit UUIDs here.
     var regions = [
         { uuid: 'A495BB10-C5B1-4B44-B512-1370F02D74DE' },
@@ -35,21 +38,36 @@ var app = (function () {
         // Display refresh timer.
         updateTimer = setInterval(displayBeaconList, 500);
 
-
-        var permissions = cordova.plugins.permissions;
-        permissions.hasPermission(permissions.BLUETOOTH, checkPermissionCallback, null);
-
+        permissions = cordova.plugins.permissions;
+        
+        permissions.hasPermission(permissions.BLUETOOTH, checkBluetoothPermissionCallback, null);
+        permissions.hasPermission(permissions.ACCESS_COARSE_LOCATION, checkCoarseLocationPermissionCallback, null);
     }
 
 
-    function checkPermissionCallback(status) {
+    function checkBluetoothPermissionCallback(status) {
         if (!status.hasPermission) {
             var errorCallback = function () {
-                console.warn('Bluetooth permission is not turned on');
+                console.warn('BLUETOOTH permission is not turned on');
             }
 
             permissions.requestPermission(
                 permissions.BLUETOOTH,
+                function (status) {
+                    if (!status.hasPermission) errorCallback();
+                },
+                errorCallback);
+        }
+    }
+    
+    function checkCoarseLocationPermissionCallback(status) {
+        if (!status.hasPermission) {
+            var errorCallback = function () {
+                console.warn('ACCESS_COARSE_LOCATION permission is not turned on');
+            }
+
+            permissions.requestPermission(
+                permissions.ACCESS_COARSE_LOCATION,
                 function (status) {
                     if (!status.hasPermission) errorCallback();
                 },

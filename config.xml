@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.baronbrew.tiltcordova" version="1.6.8" android-versionCode="106080" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0" xmlns:gap="http://phonegap.com/ns/1.0">
+<widget android-versionCode="106090" id="com.baronbrew.tiltcordova" version="1.6.9" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0" xmlns:gap="http://phonegap.com/ns/1.0">
     <name>Tilt</name>
     <description>
         Reads data from your Tilt.  Buy more Tilts here: http://tilthydrometer.com
@@ -12,13 +12,12 @@
     <allow-intent href="http://*/*" />
     <allow-navigation href="http://*/*" />
     <allow-intent href="https://*/*" />
-    <plugin name="com.evothings.ble" />
+    <plugin name="cordova-plugin-ble" />
     <plugin name="com.unarin.cordova.beacon" />
     <platform name="android">
         <preference name="Orientation" value="sensorLandscape" />
         <preference name="Orientation" value="sensorPortrait" />
         <allow-intent href="market:*" />
-        <icon platform="android" qualifier="mdpi" src="tilt-logo-128.png" />
     </platform>
     <platform name="ios">
         <preference name="Orientation" value="all" />
