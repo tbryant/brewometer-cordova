@@ -15,6 +15,9 @@
         },
         "cordova-plugin-whitelist": {
             "PACKAGE_NAME": "com.baronbrew.tiltcordova"
+        },
+        "cordova-plugin-android-permissions": {
+            "PACKAGE_NAME": "com.baronbrew.tiltcordova"
         }
     },
     "dependent_plugins": {
@@ -22,9 +25,6 @@
             "PACKAGE_NAME": "com.baronbrew.tiltcordova"
         },
         "com.unarin.cordova.beacon": {
-            "PACKAGE_NAME": "com.baronbrew.tiltcordova"
-        },
-        "cordova-plugin-browsersync": {
             "PACKAGE_NAME": "com.baronbrew.tiltcordova"
         },
         "cordova-plugin-compat": {

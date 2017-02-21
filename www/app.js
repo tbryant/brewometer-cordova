@@ -20,7 +20,7 @@ var app = (function () {
 
     // Timer that displays list of beacons.
     var updateTimer = null;
-    
+
     app.initialize = function () {
         document.addEventListener('deviceready', onDeviceReady, false);
     };
@@ -35,6 +35,26 @@ var app = (function () {
         // Display refresh timer.
         updateTimer = setInterval(displayBeaconList, 500);
 
+
+        var permissions = cordova.plugins.permissions;
+        permissions.hasPermission(permissions.BLUETOOTH, checkPermissionCallback, null);
+
+    }
+
+
+    function checkPermissionCallback(status) {
+        if (!status.hasPermission) {
+            var errorCallback = function () {
+                console.warn('Bluetooth permission is not turned on');
+            }
+
+            permissions.requestPermission(
+                permissions.BLUETOOTH,
+                function (status) {
+                    if (!status.hasPermission) errorCallback();
+                },
+                errorCallback);
+        }
     }
 
     function startScan() {
@@ -205,13 +225,13 @@ var app = (function () {
                 var sgFix3 = calVal[0].toFixed(3);
                 var sgFix3Uncal = sgStandardUnits.toFixed(3);
 
-                
+
                 var brewName = localStorage.getItem(brewVarietyValue);
                 var brewNameDisplayString = "";
-                if(brewName!=null){
+                if (brewName != null) {
                     brewNameDisplayString = brewName.split(",")[0];
                 }
-                if(brewNameDisplayString!=""){
+                if (brewNameDisplayString != "") {
                     brewNameDisplayString += "</br>";
                 }
 
@@ -224,7 +244,7 @@ var app = (function () {
                     + '</li>'
                 );
 
-               $('#warning').remove();
+                $('#warning').remove();
                 $('#found-beacons').append(element);
 
                 //save last SG to localStorage and update calibration settings section
@@ -260,18 +280,18 @@ var app = (function () {
                 }
 
                 var brewURL = $('#cloudUrl').val();
-                if(brewURL == ""){
+                if (brewURL == "") {
                     brewURL = "https://script.google.com/a/macros/baronbrew.com/s/AKfycbzjo4djYEjisVsTkA4JnGZHDPOLfE5LmAmKgDk5m3TdZYdl6Q/exec";
                 }
 
                 var brewCheck = $('#checkCloud').prop('checked');
                 var brewNumber = $("#found-beacons li").length;
-                
+
                 var commentPost = localStorage.getItem(brewVarietyValue + '-comment');
-                      //Post now if comment available to post
+                //Post now if comment available to post
                 if (commentPost != "") {
                     setTimer = Date.now() - 1000;
-                    brewNumber = 1; 
+                    brewNumber = 1;
                 }
 
                 //if checkbox is checked start posting to cloud
@@ -288,7 +308,7 @@ var app = (function () {
                         } else {
                             $.post(brewURL, { SG: sgFix3, Temp: calValTempCloud, Color: brewVarietyValue, Timepoint: t, Beer: brewNamePost, Comment: commentPost }, function (data) {
                                 $("#cloudResponse").append(data.result + "</br>");  //JSON.stringify(data.error) + "</br>");
-                                setTimeout(function(){$("#cloudResponse").empty();},60000);
+                                setTimeout(function () { $("#cloudResponse").empty(); }, 60000);
                                 //console.log(data.beername + " " + data.tiltcolor);
                                 localStorage.setItem(brewVarietyValue, data.beername);
                             });
@@ -303,18 +323,18 @@ var app = (function () {
 
                     }
                 } else { setTimer = Date.now(); }
-              //console.log($("#found-beacons li").length);
+                //console.log($("#found-beacons li").length);
             }
 
-            if(beacon.timeStamp + timeOut < timeNow && beacon.timeStamp + timeOut + 30000 > timeNow ) { //timeout exceeded for one Tilt, display disconnect warning.
+            if (beacon.timeStamp + timeOut < timeNow && beacon.timeStamp + timeOut + 30000 > timeNow) { //timeout exceeded for one Tilt, display disconnect warning.
                 var disconnectWarning = "Tilt disconnected. Check range and/or battery.</br>";
                 console.log("timeout");
                 $('#found-beacons').append(disconnectWarning);
             }
-            if(beacon.timeStamp + timeOut + 35000 < timeNow && beacon.timeStamp + timeOut + 35500 > timeNow && $("#found-beacons li").length == 0) { //reload app after all Tilts disconnected for too long
-               console.log("reload");
-               location.reload();
-               
+            if (beacon.timeStamp + timeOut + 35000 < timeNow && beacon.timeStamp + timeOut + 35500 > timeNow && $("#found-beacons li").length == 0) { //reload app after all Tilts disconnected for too long
+                console.log("reload");
+                location.reload();
+
             }
 
         });

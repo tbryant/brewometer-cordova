@@ -15,6 +15,9 @@
         },
         "cordova-plugin-ios-ble-permissions": {
             "PACKAGE_NAME": "com.baronbrew.tiltcordova"
+        },
+        "cordova-plugin-android-permissions": {
+            "PACKAGE_NAME": "com.baronbrew.tiltcordova"
         }
     },
     "dependent_plugins": {
