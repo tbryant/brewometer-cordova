@@ -206,16 +206,20 @@ var app = (function () {
                 var sgFix3Uncal = sgStandardUnits.toFixed(3);
 
                 
-                var brewName = localStorage.getItem(brewVarietyValue).split(",");
-                if (brewName[0] == "</br>") {
-                    brewName[0] = "";
+                var brewName = localStorage.getItem(brewVarietyValue);
+                var brewNameDisplayString = "";
+                if(brewName!=null){
+                    brewNameDisplayString = brewName.split(",")[0];
+                }
+                if(brewNameDisplayString!=""){
+                    brewNameDisplayString += "</br>";
                 }
 
                 // Create tag to display beacon data.
                 var element = $(
                     '<li>'
                     //+	'<strong>UUID: ' + beacon.uuid + '</strong><br />'
-                    + brewName[0] + '<strong>TILT | ' + brewVarietyValue + '</strong><br />' + '<div style="background:' + brewVarietyValue + ';height:40px;width:' + 100 + '%;"></div>' + 'Specific Gravity: ' + sgFix3Uncal + ' (uncal.)<br /><h1>' + sgFix3 + '</h1>' + '<div style="background:' + brewVarietyValue + ';height:10px;width:' + sgWidth + '%;"></div>' + 'Temperature: ' + uncalTempDisplay + ' (uncal.)<br /><h1>' + calTempDisplay + temperatureUnitString + '</h1>' + '<div style="background:' + brewVarietyValue + ';height:10px;width:' + tempWidth + '%;"></div>' + '<h2>' + dateFormatted + '<br />' + 'Received ' + lastUpdated1 + ' seconds ago ' + rssiCorrected + ' dBm</h2>'
+                    + brewNameDisplayString + '<strong>TILT | ' + brewVarietyValue + '</strong><br />' + '<div style="background:' + brewVarietyValue + ';height:40px;width:' + 100 + '%;"></div>' + 'Specific Gravity: ' + sgFix3Uncal + ' (uncal.)<br /><h1>' + sgFix3 + '</h1>' + '<div style="background:' + brewVarietyValue + ';height:10px;width:' + sgWidth + '%;"></div>' + 'Temperature: ' + uncalTempDisplay + ' (uncal.)<br /><h1>' + calTempDisplay + temperatureUnitString + '</h1>' + '<div style="background:' + brewVarietyValue + ';height:10px;width:' + tempWidth + '%;"></div>' + '<h2>' + dateFormatted + '<br />' + 'Received ' + lastUpdated1 + ' seconds ago ' + rssiCorrected + ' dBm</h2>'
                     //+	'Proximity: ' + beacon.proximity + '<br />'
                     + '</li>'
                 );
@@ -231,7 +235,7 @@ var app = (function () {
                 //post to cloud
                 var tZoneDays = date.getTimezoneOffset() / 60 / 24;
                 var t = timeNow / 1000 / 60 / 60 / 24 + 25569 - tZoneDays;
-                var brewNamePost = brewName[0].replace("</br>", "") + "," + brewName[1];
+                var brewNamePost = brewName;
                 //console.log(brewNamePost);
 
 
@@ -286,8 +290,7 @@ var app = (function () {
                                 $("#cloudResponse").append(data.result + "</br>");  //JSON.stringify(data.error) + "</br>");
                                 setTimeout(function(){$("#cloudResponse").empty();},60000);
                                 //console.log(data.beername + " " + data.tiltcolor);
-                                var newbeerName = data.beername.split(",");
-                                localStorage.setItem(brewVarietyValue, String(newbeerName[0] + "</br>," + newbeerName[1]));
+                                localStorage.setItem(brewVarietyValue, data.beername);
                             });
                             localStorage.setItem(brewVarietyValue + '-comment', "");
                             $('#commentPost').val('');
@@ -349,16 +352,6 @@ var app = (function () {
         localStorage.setItem("YELLOW-comment", "");
         localStorage.setItem("PINK-comment", "");
 
-        //initialize name storage
-        localStorage.setItem("RED", ",none");
-        localStorage.setItem("GREEN", ",none");
-        localStorage.setItem("BLACK", ",none");
-        localStorage.setItem("PURPLE", ",none");
-        localStorage.setItem("ORANGE", ",none");
-        localStorage.setItem("BLUE", ",none");
-        localStorage.setItem("YELLOW", ",none");
-        localStorage.setItem("PINK", ",none");
-
         initialM = JSON.stringify([-200, 200]);
         initialA = JSON.stringify([-200, 200]);
         localStorage.setItem("RED-calM-Temp", initialM);
@@ -389,19 +382,9 @@ app.initialize();
 
 function setBeerName() {
     //check if name entered has a comma (i.e. includes full beer name with row number)
-    if ($('#beerName').val().indexOf(",") < 0){
-        var beerName = $('#beerName').val() + "," + "none";
-    }
-    else {
-        var beerName = $('#beerName').val();
-    }
-    var beerNameArray = beerName.split(",");
-    beerNameArray[0] += "</br>"; 
+    var beerName = $('#beerName').val();
     var beerColor = $('#beerColor').val();
-    localStorage.setItem(beerColor, beerNameArray.toString());
-    if (beerNameArray[0] == '</br>') {
-        localStorage.setItem(beerColor, ",none");
-    }
+    localStorage.setItem(beerColor, beerName);
 }
 
 //function for setting comment
