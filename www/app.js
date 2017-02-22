@@ -328,7 +328,9 @@ var app = (function () {
                                 $("#cloudResponse").append(data.result + "</br>");  //JSON.stringify(data.error) + "</br>");
                                 setTimeout(function () { $("#cloudResponse").empty(); }, 60000);
                                 //console.log(data.beername + " " + data.tiltcolor);
-                                localStorage.setItem(brewVarietyValue, data.beername);
+                                if(data.beername != null){
+                                    localStorage.setItem(brewVarietyValue, data.beername);
+                                }
                             });
                             localStorage.setItem(brewVarietyValue + '-comment', "");
                             $('#commentPost').val('');
