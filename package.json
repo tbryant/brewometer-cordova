@@ -1,0 +1,19 @@
+{
+  "name": "com.baronbrew.tiltcordova",
+  "version": "1.6.11",
+  "displayName": "Tilt",
+  "cordova": {
+    "platforms": [
+      "android"
+    ],
+    "plugins": {
+      "com.unarin.cordova.beacon": {},
+      "cordova-plugin-android-permissions": {}
+    }
+  },
+  "dependencies": {
+    "com.unarin.cordova.beacon": "^3.5.2",
+    "cordova-android": "^6.3.0",
+    "cordova-plugin-android-permissions": "^1.0.0"
+  }
+}

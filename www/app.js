@@ -4,7 +4,7 @@ var app = (function () {
 
     //Permissions
     var permissions;
-   
+
     // Specify your beacon 128bit UUIDs here.
     var regions = [
         { uuid: 'A495BB10-C5B1-4B44-B512-1370F02D74DE' },
@@ -39,9 +39,9 @@ var app = (function () {
         updateTimer = setInterval(displayBeaconList, 500);
 
         permissions = cordova.plugins.permissions;
-        
-        permissions.hasPermission(permissions.BLUETOOTH, checkBluetoothPermissionCallback, null);
-        permissions.hasPermission(permissions.ACCESS_COARSE_LOCATION, checkCoarseLocationPermissionCallback, null);
+
+        permissions.checkPermission(permissions.BLUETOOTH, checkBluetoothPermissionCallback, null);
+        permissions.checkPermission(permissions.ACCESS_COARSE_LOCATION, checkCoarseLocationPermissionCallback, null);
     }
 
 
@@ -59,7 +59,7 @@ var app = (function () {
                 errorCallback);
         }
     }
-    
+
     function checkCoarseLocationPermissionCallback(status) {
         if (!status.hasPermission) {
             var errorCallback = function () {
@@ -80,16 +80,20 @@ var app = (function () {
         // specified below.
         var delegate = new locationManager.Delegate();
 
+        console.log('startScan');
+
         // Called continuously when ranging beacons.
         delegate.didRangeBeaconsInRegion = function (pluginResult) {
-            //console.log('didRangeBeaconsInRegion: ' + JSON.stringify(pluginResult))
-            for (var i in pluginResult.beacons) {
-                // Insert beacon into table of found beacons.
-                var beacon = pluginResult.beacons[i];
-                beacon.timeStamp = Date.now();
-                var key = beacon.uuid;
-                beacons[key] = beacon;
+            if (pluginResult.beacons.length > 0) {
+                console.log('didRangeBeaconsInRegion: ' + JSON.stringify(pluginResult))
+                for (var i in pluginResult.beacons) {
+                    // Insert beacon into table of found beacons.
+                    var beacon = pluginResult.beacons[i];
+                    beacon.timeStamp = Date.now();
+                    var key = beacon.uuid;
+                    beacons[key] = beacon;
 
+                }
             }
         };
 
@@ -107,9 +111,7 @@ var app = (function () {
                 regions[i].uuid);
 
             // Start ranging.
-            locationManager.startRangingBeaconsInRegion(beaconRegion)
-                .fail(console.error)
-                .done();
+            locationManager.startRangingBeaconsInRegion(beaconRegion);
         }
     }
 
@@ -328,7 +330,7 @@ var app = (function () {
                                 $("#cloudResponse").append(data.result + "</br>");  //JSON.stringify(data.error) + "</br>");
                                 setTimeout(function () { $("#cloudResponse").empty(); }, 60000);
                                 //console.log(data.beername + " " + data.tiltcolor);
-                                if(data.beername != null){
+                                if (data.beername != null) {
                                     localStorage.setItem(brewVarietyValue, data.beername);
                                 }
                             });
