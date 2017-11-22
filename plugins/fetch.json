@@ -1,50 +1,18 @@
 {
-    "cordova-plugin-ble": {
-        "source": {
-            "type": "registry",
-            "id": "cordova-plugin-ble"
-        },
-        "is_top_level": true,
-        "variables": {}
+  "com.unarin.cordova.beacon": {
+    "source": {
+      "type": "registry",
+      "id": "com.unarin.cordova.beacon@3.5.2"
     },
-    "cordova-plugin-ipad-multitasking": {
-        "source": {
-            "type": "registry",
-            "id": "cordova-plugin-ipad-multitasking"
-        },
-        "is_top_level": true,
-        "variables": {}
+    "is_top_level": true,
+    "variables": {}
+  },
+  "cordova-plugin-android-permissions": {
+    "source": {
+      "type": "registry",
+      "id": "cordova-plugin-android-permissions"
     },
-    "cordova-plugin-whitelist": {
-        "source": {
-            "type": "registry",
-            "id": "cordova-plugin-whitelist"
-        },
-        "is_top_level": true,
-        "variables": {}
-    },
-    "cordova-plugin-ios-ble-permissions": {
-        "source": {
-            "type": "registry",
-            "id": "cordova-plugin-ios-ble-permissions"
-        },
-        "is_top_level": true,
-        "variables": {}
-    },
-    "cordova-plugin-android-permissions": {
-        "source": {
-            "type": "registry",
-            "id": "cordova-plugin-android-permissions@0.10.0"
-        },
-        "is_top_level": true,
-        "variables": {}
-    },
-    "com.unarin.cordova.beacon": {
-        "source": {
-            "type": "registry",
-            "id": "com.unarin.cordova.beacon"
-        },
-        "is_top_level": true,
-        "variables": {}
-    }
+    "is_top_level": true,
+    "variables": {}
+  }
 }

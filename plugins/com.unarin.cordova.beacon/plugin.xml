@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<plugin id="com.unarin.cordova.beacon" version="3.4.0" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
+<plugin id="com.unarin.cordova.beacon" version="3.5.2" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
 
     <name>Proximity Beacon Plugin</name>
     <description>Proximity Beacon Monitoring and Transmission Plugin (supporting iBeacons)</description>
@@ -11,11 +11,11 @@
     <js-module name="underscorejs" src="www/lib/underscore-min-1.6.js">
         <runs/>
     </js-module>
-  
+
     <js-module name="Q" src="www/lib/q.min.js">
         <runs/>
     </js-module>
-    
+
     <!-- Plugin source code: Core -->
     <js-module name="LocationManager" src="www/LocationManager.js">
         <!-- see http://cordova.apache.org/docs/en/3.0.0/plugin_ref_spec.md#Plugin%20Specification_js_module_element -->
@@ -46,20 +46,22 @@
 
 
     <platform name="ios">
-        
+
         <config-file parent="/*" target="config.xml">
             <feature name="LocationManager">
                 <param name="ios-package" value="CDVLocationManager"/>
             </feature>
         </config-file>
-        
+
         <config-file target="*-Info.plist" parent="NSLocationAlwaysUsageDescription">
             <string>This app would like to scan for iBeacons even when in the background.</string>
         </config-file>
         <config-file target="*-Info.plist" parent="NSLocationWhenInUseUsageDescription">
             <string>This app would like to scan for iBeacons while it is in use.</string>
         </config-file>
-         
+        <config-file target="*-Info.plist" parent="NSBluetoothPeripheralUsageDescription">
+            <string>This app would like to scan for iBeacons.</string>
+        </config-file>
 
         <header-file src="src/ios/CDVLocationManager.h"/>
         <source-file src="src/ios/CDVLocationManager.m"/>
@@ -102,6 +104,7 @@
                      android:isolatedProcess="false"
                      android:label="iBeacon"
                      android:name="org.altbeacon.beacon.service.BeaconService">
+                     <meta-data android:name="longScanForcingEnabled" android:value="true" />
             </service>
             <service android:enabled="true"
                      android:name="org.altbeacon.beacon.BeaconIntentProcessor">
@@ -112,7 +115,7 @@
                 </intent-filter>
             </service>
         </config-file>
-		
+
         <source-file src="src/android/LocationManager.java" target-dir="src/com/unarin/cordova/beacon" />
         <source-file src="src/android/IBeaconServiceNotifier.java" target-dir="src/com/unarin/cordova/beacon" />
         <source-file src="src/android/ILocationManagerCommand.java" target-dir="src/com/unarin/cordova/beacon" />
