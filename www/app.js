@@ -33,7 +33,7 @@ var app = (function () {
         window.locationManager = cordova.plugins.locationManager;
 
         // Start tracking beacons
-        startScan();
+        initScan();
 
         // Display refresh timer.
         updateTimer = setInterval(displayBeaconList, 500);
@@ -74,13 +74,52 @@ var app = (function () {
                 errorCallback);
         }
     }
+    //beacon delegate
+    var delegate = null;
+
+    function toggleBluetooth() {
+        console.log('toggleBluetooth')
+        locationManager.disableBluetooth();
+        //wait 5s then enable
+        locationManager.enableBluetooth();        
+    }
+
+
+    function stopScan() {
+        console.log("stopScan");
+        // Start ranging beacons.
+        for (var i in regions) {
+            var beaconRegion = new locationManager.BeaconRegion(
+                i + 1,
+                regions[i].uuid);
+
+            // Start ranging.
+            locationManager.stopRangingBeaconsInRegion(beaconRegion);
+        }
+    }
 
     function startScan() {
+        console.log("startScan");
+        // Start ranging beacons.
+        for (var i in regions) {
+            var beaconRegion = new locationManager.BeaconRegion(
+                i + 1,
+                regions[i].uuid);
+
+            // Start ranging.
+            locationManager.startRangingBeaconsInRegion(beaconRegion);
+        }
+
+    }
+
+    function initScan() {
         // The delegate object holds the iBeacon callback functions
         // specified below.
-        var delegate = new locationManager.Delegate();
+        delegate = new locationManager.Delegate();
 
-        console.log('startScan');
+        console.log('initScan');
+
+        locationManager.enableBluetooth();
 
         // Called continuously when ranging beacons.
         delegate.didRangeBeaconsInRegion = function (pluginResult) {
@@ -104,15 +143,8 @@ var app = (function () {
         // This is needed on iOS 8.
         locationManager.requestWhenInUseAuthorization();
 
-        // Start ranging beacons.
-        for (var i in regions) {
-            var beaconRegion = new locationManager.BeaconRegion(
-                i + 1,
-                regions[i].uuid);
+        startScan();
 
-            // Start ranging.
-            locationManager.startRangingBeaconsInRegion(beaconRegion);
-        }
     }
 
     function displayBeaconList() {
@@ -141,7 +173,7 @@ var app = (function () {
         }
 
         $("#calPointsTemp").html(calPointsTempTable);
-
+        var needsToggle = false;
         // Update beacon list.
         $.each(beacons, function (key, beacon) {
             var timeOut = 120000;
@@ -353,13 +385,20 @@ var app = (function () {
                 console.log("timeout");
                 $('#found-beacons').append(disconnectWarning);
             }
+            if (beacon.timeStamp + timeOut < timeNow && beacon.timeStamp + timeOut + 500 > timeNow && $("#found-beacons li").length == 0) { //reload app after all Tilts disconnected for too long
+                needsToggle = true;
+            }
             if (beacon.timeStamp + timeOut + 35000 < timeNow && beacon.timeStamp + timeOut + 35500 > timeNow && $("#found-beacons li").length == 0) { //reload app after all Tilts disconnected for too long
                 console.log("reload");
                 location.reload();
-
             }
 
         });
+
+        if(needsToggle){
+            toggleBluetooth();
+        }
+
     }
     //initialize timer variables
     var setTimer = Date.now();
