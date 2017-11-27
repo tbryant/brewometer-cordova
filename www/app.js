@@ -38,6 +38,8 @@ var app = (function () {
         // Display refresh timer.
         updateTimer = setInterval(displayBeaconList, 500);
 
+        console.log(device);
+
         permissions = cordova.plugins.permissions;
 
         permissions.checkPermission(permissions.BLUETOOTH, checkBluetoothPermissionCallback, null);
@@ -78,10 +80,16 @@ var app = (function () {
     var delegate = null;
 
     function toggleBluetooth() {
-        console.log('toggleBluetooth')
-        locationManager.disableBluetooth();
-        //wait 5s then enable
-        locationManager.enableBluetooth();        
+        console.log('toggleBluetooth');
+        // if(device.version)  don't toggle if android and 4
+        if ((device.platform == "Android") && (device.version.startsWith("4"))) {
+            console.log("skipping toggle, Android 4.x");
+        }
+        else {
+            locationManager.disableBluetooth();
+            //wait 5s then enable
+            locationManager.enableBluetooth();
+        }
     }
 
 
@@ -395,7 +403,7 @@ var app = (function () {
 
         });
 
-        if(needsToggle){
+        if (needsToggle) {
             toggleBluetooth();
         }
 
