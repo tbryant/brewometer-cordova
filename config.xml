@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget android-versionCode="106140" id="com.baronbrew.tiltcordova" version="1.6.14" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0" xmlns:gap="http://phonegap.com/ns/1.0">
+<widget android-versionCode="106150" id="com.baronbrew.tiltcordova" version="1.6.15" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0" xmlns:gap="http://phonegap.com/ns/1.0">
     <name>Tilt</name>
     <description>
         Reads data from your Tilt.  Buy more Tilts here: http://tilthydrometer.com
@@ -21,11 +21,12 @@
         <allow-intent href="itms-apps:*" />
         <preference name="BackupWebStorage" value="local" />
     </platform>
-    <preference name="com.unarin.cordova.beacon.android.altbeacon.ForegroundBetweenScanPeriod" value="100" />
-    <preference name="com.unarin.cordova.beacon.android.altbeacon.ForegroundScanPeriod" value="5000" />
+    <preference name="com.unarin.cordova.beacon.android.altbeacon.ForegroundBetweenScanPeriod" value="3000" />
+    <preference name="com.unarin.cordova.beacon.android.altbeacon.ForegroundScanPeriod" value="3000" />
     <engine name="android" spec="^6.3.0" />
     <plugin name="com.unarin.cordova.beacon" spec="^3.5.2" />
     <plugin name="cordova-plugin-android-permissions" spec="^1.0.0" />
     <plugin name="cordova-plugin-whitelist" spec="^1.3.3" />
     <plugin name="cordova-plugin-device" spec="^1.1.7" />
+    <plugin name="cordova-hot-code-push-local-dev-addon" spec="^0.4.2" />
 </widget>
