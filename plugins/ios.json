@@ -13,9 +13,6 @@
     "cordova-plugin-android-permissions": {
       "PACKAGE_NAME": "com.baronbrew.tiltcordova"
     },
-    "cordova-plugin-whitelist": {
-      "PACKAGE_NAME": "com.baronbrew.tiltcordova"
-    },
     "cordova-plugin-device": {
       "PACKAGE_NAME": "com.baronbrew.tiltcordova"
     }
