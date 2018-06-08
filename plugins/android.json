@@ -7,16 +7,13 @@
     "files": {}
   },
   "installed_plugins": {
-    "com.unarin.cordova.beacon": {
-      "PACKAGE_NAME": "com.baronbrew.tiltcordova"
-    },
     "cordova-plugin-android-permissions": {
       "PACKAGE_NAME": "com.baronbrew.tiltcordova"
     },
-    "cordova-plugin-whitelist": {
+    "cordova-plugin-device": {
       "PACKAGE_NAME": "com.baronbrew.tiltcordova"
     },
-    "cordova-plugin-device": {
+    "com.unarin.cordova.beacon": {
       "PACKAGE_NAME": "com.baronbrew.tiltcordova"
     }
   },

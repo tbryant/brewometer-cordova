@@ -1,0 +1,58 @@
+<style>
+    .nr-dashboard-template h1 {
+    font-size: .875em;
+    font-weight: normal;
+    margin-top: .1;
+    margin-bottom: .1;
+    }
+    
+    .nr-dashboard-template h2 {
+    font-size: 3.5em;
+    text-indent: .5em;
+    margin-top: 0;
+    margin-bottom: 0;
+    }
+    
+    h5 {
+        font-family:"Courier New", Courier, monospace;
+        text-align: center;
+        font-size: .6em;
+        margin-top: .2em;
+        margin-bottom: 0;
+    }
+    
+   
+   div {
+    max-width: 100%;
+   }
+   
+   a:link {
+    color: white; 
+    background-color: transparent; 
+    text-decoration: none;
+}
+
+a:visited {
+    color: white;
+    background-color: transparent;
+    text-decoration: none;
+}
+
+#{{msg.topic}}-div {
+    visibility: {{msg.show}};
+   }  
+</style>
+
+<div id = "{{msg.topic}}-div">
+<h1>{{msg.payload.Beer[0]}}</h1>
+<h1><strong>TILT | {{msg.payload.Color}}</strong><span ng-bind-html="msg.payload.doclongurl"></span></h1>
+<div style="background: {{msg.payload.Color}};height:40px;width:100%;"></div>
+<h1>Uncal. SG/Concentration: {{msg.payload.uncalferm}}</h1>
+<h2>{{msg.payload.ferm}}{{msg.payload.fermunits}}</h2>
+<div style="background: {{msg.payload.Color}};height:10px;width:{{(msg.payload.SG - 0.990)/0.00130}}%;"></div>
+<h1>Uncal. Temperature: {{msg.payload.displayuncalTemp | number:1}}</h1>
+<h2>{{msg.payload.displayTemp | number:1}}{{msg.payload.tempunits}}</h2>
+<div style="background: {{msg.payload.Color}};height:10px;width:{{(msg.payload.Temp - 30) / 1.85}}%;"></div>
+<h5>{{msg.payload.formatteddate}}</h5>
+<h5>Received {{(msg.payload.clock - msg.payload.timeStamp) / 1000 | number:1}} seconds ago {{msg.payload.rssi}} dBm</h5>
+</div>

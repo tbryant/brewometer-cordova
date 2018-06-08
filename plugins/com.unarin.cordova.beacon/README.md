@@ -54,6 +54,8 @@ On iOS 8, you have to request permissions from the user of your app explicitly. 
 See the [LocationManager](https://github.com/petermetz/cordova-plugin-ibeacon/blob/master/www/LocationManager.js)'s 
 related methods: ```requestWhenInUseAuthorization``` and ```requestAlwaysAuthorization``` for further details.
 
+In order to use Advertising (e.g ```startAdvertising```), the iOS-Capability "Location updates" is required. (set in Xcode -> [your Target] -> Capabilities -> Background Modes -> Location updates)
+
 #### Standard [CLLocationManager](https://developer.apple.com/library/ios/documentation/CoreLocation/Reference/CLLocationManager_Class/CLLocationManager/CLLocationManager.html) functions
 
 
@@ -269,7 +271,7 @@ cordova.plugins.locationManager.isAdvertisingAvailable()
 
         if (isSupported) {
             cordova.plugins.locationManager.startAdvertising(beaconRegion)
-                .fail(conole.error)
+                .fail(console.error)
                 .done();
         } else {
             console.log("Advertising not supported");
@@ -302,6 +304,47 @@ cordova.plugins.locationManager.isBluetoothEnabled()
     })
     .fail(function(e) { console.error(e); })
     .done();
+
+```
+
+##### Specify wildcard UUID (Android only)
+
+```javascript
+var uuid = cordova.plugins.locationManager.BeaconRegion.WILDCARD_UUID; //wildcard
+var identifier = 'SomeIdentifier';
+var major = undefined;
+var minor = undefined;
+var beaconRegion = new cordova.plugins.locationManager.BeaconRegion(identifier, uuid, major, minor);
+
+var logToDom = function (message) {
+	console.warn(message);
+};
+
+var delegate = new cordova.plugins.locationManager.Delegate();
+
+delegate.didDetermineStateForRegion = function (pluginResult) {
+
+    logToDom('[DOM] didDetermineStateForRegion: ' + JSON.stringify(pluginResult));
+
+    cordova.plugins.locationManager.appendToDeviceLog('[DOM] didDetermineStateForRegion: '
+        + JSON.stringify(pluginResult));
+};
+
+delegate.didStartMonitoringForRegion = function (pluginResult) {
+    console.log('didStartMonitoringForRegion:', pluginResult);
+
+    logToDom('didStartMonitoringForRegion:' + JSON.stringify(pluginResult));
+};
+
+delegate.didRangeBeaconsInRegion = function (pluginResult) {
+    logToDom('[DOM] didRangeBeaconsInRegion: ' + JSON.stringify(pluginResult));
+};
+
+cordova.plugins.locationManager.setDelegate(delegate);
+
+cordova.plugins.locationManager.startMonitoringForRegion(beaconRegion)
+	.fail(function(e) { console.error(e); })
+	.done();
 
 ```
 

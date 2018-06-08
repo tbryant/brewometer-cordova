@@ -1,3 +1,32 @@
+# 3.6.1
+
+* Fixes: https://github.com/petermetz/cordova-plugin-ibeacon/issues/259
+
+# 3.6.0
+
+* Android now allows the usage of wildcard UUIDs by passing in `cordova.plugins.locationManager.BeaconRegion.WILDCARD_UUID`
+    as the UUID of a BeaconRegion (constructor)
+
+# 3.5.6
+
+* iOS 11 .plist compatibility added (`NSLocationAlwaysAndWhenInUseUsageDescription`)
+    - https://github.com/petermetz/cordova-plugin-ibeacon/issues/322
+
+# 3.5.5
+
+* Fixes: https://github.com/petermetz/cordova-plugin-ibeacon/issues/323
+    - Upgrades to the latest stable AltBeacon library at present (v2.12.4)
+
+# 3.5.4
+
+* Fix: Cordova Android 7.0.0 build issues averted:
+    - https://github.com/petermetz/cordova-plugin-ibeacon/pull/337
+
+# 3.5.3
+
+* Fix: WKWebView crash no longer happens
+    - https://github.com/petermetz/cordova-plugin-ibeacon/pull/326
+
 # 3.5.2
 
 * Feature: Stop advertising as iBeacon is now implemented on the Android platform as well.

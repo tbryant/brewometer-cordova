@@ -24,7 +24,7 @@
     <preference name="com.unarin.cordova.beacon.android.altbeacon.ForegroundBetweenScanPeriod" value="3000" />
     <preference name="com.unarin.cordova.beacon.android.altbeacon.ForegroundScanPeriod" value="3000" />
     <engine name="android" spec="^6.3.0" />
-    <plugin name="com.unarin.cordova.beacon" spec="^3.5.2" />
     <plugin name="cordova-plugin-android-permissions" spec="^1.0.0" />
     <plugin name="cordova-plugin-device" spec="^1.1.7" />
+    <plugin name="com.unarin.cordova.beacon" spec="git+https://github.com/dopry/cordova-plugin-ibeacon.git#80e2f4bb5bff60ec4c127a5c0eefb0be56e9821f" />
 </widget>

@@ -37,17 +37,11 @@
     self.debugLogEnabled = true;
     self.debugNotificationsEnabled = false;
     
-    [self resumeEventPropagationToDom]; // DOM propagation when Location Manager, PeripheralManager initiated
 }
 
 - (void) initLocationManager {
     self.locationManager = [[CLLocationManager alloc] init];
     self.locationManager.delegate = self;
-    
-    
-    if (IsAtLeastiOSVersion(@"9.0")) {
-        self.locationManager.allowsBackgroundLocationUpdates = YES;
-    }
 }
 
 - (void) initPeripheralManager {

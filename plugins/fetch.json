@@ -1,12 +1,4 @@
 {
-  "com.unarin.cordova.beacon": {
-    "source": {
-      "type": "registry",
-      "id": "com.unarin.cordova.beacon@3.5.2"
-    },
-    "is_top_level": true,
-    "variables": {}
-  },
   "cordova-plugin-android-permissions": {
     "source": {
       "type": "registry",
@@ -27,6 +19,14 @@
     "source": {
       "type": "registry",
       "id": "cordova-plugin-device"
+    },
+    "is_top_level": true,
+    "variables": {}
+  },
+  "com.unarin.cordova.beacon": {
+    "source": {
+      "type": "registry",
+      "id": "https://github.com/dopry/cordova-plugin-ibeacon.git#80e2f4bb5bff60ec4c127a5c0eefb0be56e9821f"
     },
     "is_top_level": true,
     "variables": {}

@@ -32,9 +32,6 @@ var app = (function () {
         // Specify a shortcut for the location manager holding the iBeacon functions.
         window.locationManager = cordova.plugins.locationManager;
 
-        // Start tracking beacons
-        initScan();
-
         // Display refresh timer.
         updateTimer = setInterval(displayBeaconList, 500);
 
@@ -44,6 +41,9 @@ var app = (function () {
 
         permissions.checkPermission(permissions.BLUETOOTH, checkBluetoothPermissionCallback, null);
         permissions.checkPermission(permissions.ACCESS_COARSE_LOCATION, checkCoarseLocationPermissionCallback, null);
+
+        // Start tracking beacons
+        initScan();
     }
 
 
@@ -129,20 +129,20 @@ var app = (function () {
 
         locationManager.enableBluetooth();
 
-        // Called continuously when ranging beacons.
-        delegate.didRangeBeaconsInRegion = function (pluginResult) {
-            if (pluginResult.beacons.length > 0) {
-                console.log('didRangeBeaconsInRegion: ' + JSON.stringify(pluginResult))
-                for (var i in pluginResult.beacons) {
-                    // Insert beacon into table of found beacons.
-                    var beacon = pluginResult.beacons[i];
-                    beacon.timeStamp = Date.now();
-                    var key = beacon.uuid;
-                    beacons[key] = beacon;
+        // // Called continuously when ranging beacons.
+        // delegate.didRangeBeaconsInRegion = function (pluginResult) {
+        //     if (pluginResult.beacons.length > 0) {
+        //         console.log('didRangeBeaconsInRegion: ' + JSON.stringify(pluginResult))
+        //         for (var i in pluginResult.beacons) {
+        //             // Insert beacon into table of found beacons.
+        //             var beacon = pluginResult.beacons[i];
+        //             beacon.timeStamp = Date.now();
+        //             var key = beacon.uuid;
+        //             beacons[key] = beacon;
 
-                }
-            }
-        };
+        //         }
+        //     }
+        // };
 
         // Set the delegate object to use.
         locationManager.setDelegate(delegate);

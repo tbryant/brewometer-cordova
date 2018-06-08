@@ -7,13 +7,13 @@
       "android"
     ],
     "plugins": {
-      "com.unarin.cordova.beacon": {},
       "cordova-plugin-android-permissions": {},
-      "cordova-plugin-device": {}
+      "cordova-plugin-device": {},
+      "com.unarin.cordova.beacon": {}
     }
   },
   "dependencies": {
-    "com.unarin.cordova.beacon": "^3.5.2",
+    "com.unarin.cordova.beacon": "git+https://github.com/dopry/cordova-plugin-ibeacon.git#80e2f4bb5bff60ec4c127a5c0eefb0be56e9821f",
     "cordova-android": "^6.3.0",
     "cordova-plugin-android-permissions": "^1.0.0",
     "cordova-plugin-device": "^1.1.7"
