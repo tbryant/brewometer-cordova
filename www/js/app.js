@@ -147,13 +147,13 @@ $$(document).on('deviceready', function() {
 
   }
 
-  function toggleUnits(beacon) {
-    var displaytempunits = localStorage.getItem('displayTempunits-' + beacon.Color)||"°F";
+  function toggleUnits(color) {
+    var displaytempunits = localStorage.getItem('displayTempunits-' + color)||"°F";
     if (displaytempunits == "°F") {
-        localStorage.setItem('displayTempunits-' + beacon.Color,"°C");
+        localStorage.setItem('displayTempunits-' + color,"°C");
     }
     if (displaytempunits == "°C") {
-        localStorage.setItem('displayTempunits-' + beacon.Color,"°F");
+        localStorage.setItem('displayTempunits-' + color,"°F");
     }
   }
     
@@ -266,11 +266,13 @@ $$(document).on('deviceready', function() {
         var displayhtml = compileddisplayTemplate(beacons);
         var tiltCard  = $$('#tiltCard').html(displayhtml);
         var foundBeaconsArraylength = foundBeaconsArray.length;
+        //setup javascript for each card
         for (var i = 0; i < foundBeaconsArraylength; i++) {
         //set up buttons
-        $$('#unitstoggle' + foundBeaconsArray[i]).on('click', function (e) {
-            console.log('clicked ');
-            toggleUnits(foundBeaconsArray[i]);
+        $$('#unitstoggle-' + foundBeaconsArray[i]).on('click', function (e) {
+            var color = e.target.id.split("-");
+            console.log('clicked ' + color[1]);
+            toggleUnits(color[1]);
           });
         }
     }
